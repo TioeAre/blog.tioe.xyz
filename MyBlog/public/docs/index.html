@@ -40,7 +40,7 @@ if (!doNotTrack) {
 }
 </script>
 
-<link data-precache rel="stylesheet" href="/assets/main/bundle.min.cbb6996c72aa3961390920a4261fa4dc924785294937c05514f38b2927a16675.css" integrity="sha256-y7aZbHKqOWE5CSCkJh+k3JJHhSlJN8BVFPOLKSehZnU=" crossorigin="anonymous">
+<link data-precache rel="stylesheet" href="/assets/main/bundle.min.6494e5b91f44102aca5568b0fafc6d3b0acda45b3c065c39ef0010f5465169d3.css" integrity="sha256-ZJTluR9EECrKVWiw+vxtOwrNpFs8Blw57wAQ9UZRadM=" crossorigin="anonymous">
 
 <link data-precache rel="stylesheet" href="/assets/katex/bundle.min.a06a916255e286562e9c3684403a944bb85aebe51b00e2f1ef537987349ead12.css" integrity="sha256-oGqRYlXihlYunDaEQDqUS7ha6&#43;UbAOLx71N5hzSerRI=" crossorigin="anonymous">
 
@@ -71,25 +71,60 @@ Tioe
       <div class="offcanvas-body p-4 pt-0 p-xxl-0">
         <hr class="d-xxl-none">
         <ul class="navbar-nav flex-row flex-wrap align-items-center me-auto"><li class="nav-item col-6 col-xxl-auto">
-            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/archives/">
-<span class="menu-icon me-1"><i class="fas fa-fw fa-file-archive text-primary"></i></span>Archives
-            </a>
-          </li><li class="nav-item col-6 col-xxl-auto">
             <a class="nav-link py-2 px-0 px-xxl-2 active" href="https://www.blog.tioe.xyz/docs/">
 <span class="menu-icon me-1"><i class="fas fa-fw fa-file"></i></span>Docs Sample
             </a>
-          </li><li class="nav-item col-6 col-xxl-auto">
-            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/series/">
-<span class="menu-icon me-1"><i class="fas fa-fw fa-columns"></i></span>Series
+          </li>
+          <li class="nav-item col-12 col-xxl-auto dropdown px-0">
+            <a href="#"
+              class="nav-link dropdown-toggle"
+              id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">blog
             </a>
-          </li><li class="nav-item col-6 col-xxl-auto">
-            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/categories/">
-<span class="menu-icon me-1"><i class="fas fa-fw fa-folder text-success"></i></span>Categories
-            </a>
-          </li><li class="nav-item col-6 col-xxl-auto">
-            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/tags/">
-<span class="menu-icon me-1"><i class="fas fa-fw fa-tags"></i></span>Tags
-            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" data-bs-popper="none">
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://www.blog.tioe.xyz/archives/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-file-archive text-primary"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-0">Archives</p>
+                  </div></a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://www.blog.tioe.xyz/series/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-columns"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-1">Series</p>
+                      <p class="dropdown-item-description mb-0 text-secondary">List of series.</p>
+                  </div></a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://www.blog.tioe.xyz/categories/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-folder text-success"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-1">Categories</p>
+                      <p class="dropdown-item-description mb-0 text-secondary">List of categories.</p>
+                  </div></a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://www.blog.tioe.xyz/tags/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-tags"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-1">Tags</p>
+                      <p class="dropdown-item-description mb-0 text-secondary">List of tags.</p>
+                  </div></a>
+              </li>
+            </ul>
           </li><li class="nav-item col-6 col-xxl-auto">
             <a class="nav-link py-2 px-0 px-xxl-2" href="https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=bug_report.yml" target="_blank" rel="noopener noreferrer">
 <span class="menu-icon me-1"><i class="fas fa-fw fa-bug text-danger"></i></span>Bug Report
