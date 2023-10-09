@@ -1,4 +1,4 @@
-baseURL: www.blog.tioe.xyz
+baseURL: https://www.blog.tioe.xyz
 title: Tioe's website
 theme: hugo-theme-bootstrap
 copyright: 'Copyright © 2023-{year} TioeAre. All Rights Reserved.'
@@ -29,9 +29,9 @@ taxonomies:
 build:
   writeStats: true
 
-permalinks:
-  news: /news/:year/:month/:title/
-  blog: /blog/:year/:month/:title/
+# permalinks:
+#   news: /news/:year/:month/:title/
+#   blog: /blog/:year/:month/:title/
 
 # module:
   # proxy: https://goproxy.cn
