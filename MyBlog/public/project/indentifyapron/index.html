@@ -1,0 +1,1099 @@
+<!doctype html>
+<html class="position-relative" itemscope itemtype="https://schema.org/WebPage" lang="en"
+  data-bs-theme="auto" data-palette="purple">
+  <head><script src="/assets/init/bundle.min.226cc59cbae206e0c46e223059b9d56ec19f45bbe5ee8b161e8dcae6a1ff6c78.js" integrity="sha256-ImzFnLriBuDEbiIwWbnVbsGfRbvl7osWHo3K5qH/bHg=" crossorigin="anonymous"></script>
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>gazebo仿真环境下停机坪的识别 - Tioe&#39;s website</title>
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_16x16_resize_q75_h2_box_2.webp" sizes="16x16" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_32x32_resize_q75_h2_box_2.webp" sizes="32x32" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_150x150_resize_q75_h2_box_2.webp" sizes="150x150" type="image/webp">
+    <link rel="apple-touch-icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_180x180_resize_q75_h2_box_2.webp" sizes="180x180" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_192x192_resize_q75_h2_box_2.webp" sizes="192x192" type="image/webp">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#6f42c1">
+<meta name="keywords" content="blog, documentation" />
+  <meta name="description" content="c&#43;&#43;通过opencv识别仿真环境中的停机坪" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="gazebo仿真环境下停机坪的识别"/>
+<meta name="twitter:description" content="c&#43;&#43;通过opencv识别仿真环境中的停机坪"/>
+<meta property="og:title" content="gazebo仿真环境下停机坪的识别" />
+<meta property="og:description" content="c&#43;&#43;通过opencv识别仿真环境中的停机坪" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.blog.tioe.xyz/project/indentifyapron/" /><meta property="article:section" content="project" />
+<meta property="article:published_time" content="2023-03-16T16:14:45+08:00" />
+<meta property="article:modified_time" content="2023-03-16T16:14:45+08:00" />
+
+<meta itemprop="name" content="gazebo仿真环境下停机坪的识别">
+<meta itemprop="description" content="c&#43;&#43;通过opencv识别仿真环境中的停机坪"><meta itemprop="datePublished" content="2023-03-16T16:14:45+08:00" />
+<meta itemprop="dateModified" content="2023-03-16T16:14:45+08:00" />
+<meta itemprop="wordCount" content="708">
+<meta itemprop="keywords" content="c&#43;&#43;,OpenCV," />
+  <meta property="og:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
+  <meta name="twitter:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
+  <meta property="og:image:alt" content="gazebo仿真环境下停机坪的识别" />
+  <meta name="twitter:image:alt" content="gazebo仿真环境下停机坪的识别" />
+  <link rel="manifest" href="/manifest.json">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z7Z9EX371"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-8Z7Z9EX371', { 'anonymize_ip': false });
+}
+</script>
+
+<link data-precache rel="stylesheet" href="/assets/main/bundle.min.cbb6996c72aa3961390920a4261fa4dc924785294937c05514f38b2927a16675.css" integrity="sha256-y7aZbHKqOWE5CSCkJh+k3JJHhSlJN8BVFPOLKSehZnU=" crossorigin="anonymous">
+
+<link data-precache rel="stylesheet" href="/assets/katex/bundle.min.a06a916255e286562e9c3684403a944bb85aebe51b00e2f1ef537987349ead12.css" integrity="sha256-oGqRYlXihlYunDaEQDqUS7ha6&#43;UbAOLx71N5hzSerRI=" crossorigin="anonymous">
+
+    <link data-precache rel="stylesheet" href="/assets/viewer/bundle.min.eb914844636cd41f221f109e99c887bbc3b6b5ffb2af7c664b284cea2d1b54b7.css" integrity="sha256-65FIRGNs1B8iHxCemciHu8O2tf&#43;yr3xmSyhM6i0bVLc=" crossorigin="anonymous">
+
+
+</head>
+  <body><header class="mb-4">
+  
+<nav class="top-app-bar shadow navbar navbar-expand-xxl">
+  <div class="container">
+<a class="navbar-brand d-flex align-items-center flex-grow-1 flex-xxl-grow-0 justify-content-xxl-start ms-2 ms-xxl-0 mx-auto me-xxl-2"
+    href="https://www.blog.tioe.xyz">
+    <picture><img class="logo " alt="Logo" src="https://www.blog.tioe.xyz/images/favicon.ico" loading="lazy" width="512" height="512" />
+</picture>
+Tioe
+</a>
+
+    <div class="offcanvas-xxl offcanvas-end flex-grow-1" data-bs-scroll="true" tabindex="-1" id="navbarMenus" aria-labelledby="navbarMenusLabel">
+      <div class="offcanvas-header px-4 pb-0">
+        <div class="offcanvas-title h5" id="navbarMenusLabel">Tioe</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#navbarMenus" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body p-4 pt-0 p-xxl-0">
+        <hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center me-auto"><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/archives/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-file-archive text-primary"></i></span>Archives
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/docs/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-file"></i></span>Docs Sample
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/series/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-columns"></i></span>Series
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/categories/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-folder text-success"></i></span>Categories
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/tags/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-tags"></i></span>Tags
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=bug_report.yml" target="_blank" rel="noopener noreferrer">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-bug text-danger"></i></span>Bug Report
+            </a>
+          </li>
+        </ul>
+        
+    <hr class="d-xxl-none">
+    <form class="search-bar ms-auto my-auto" action="/search/" novalidate>
+      <div class="input-group input-group-sm align-items-center">
+        <span class="btn btn-search disabled position-absolute left-0 border-0 px-1">
+          <i class="fas fa-fw fa-search fa-lg"></i>
+        </span>
+        <input
+          class="my-1 form-control border-white rounded-5 search-input bg-body"
+          name="q"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          required>
+          <span class="search-shortcut position-absolute end-0 top-0 me-2">
+            <kbd class="bg-primary rounded shadow">/</kbd>
+          </span>
+      </div>
+    </form><hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center ms-md-auto">
+<li class="nav-item py-2 py-xxl-1 col-12 col-xxl-auto">
+
+
+<nav class="social-links nav justify-content-center flex-row">
+      <a class="nav-link social-link col-6 col-xxl-auto p-1" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fab fa-github"
+          ></i>
+        <span class="ms-1 d-xxl-none">Github</span>
+      </a>
+  <a class="nav-link social-link col-6 col-xxl-auto p-1" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-rss"></i>
+    <span class="ms-1 d-xxl-none">RSS</span>
+  </a>
+</nav>
+
+</li>
+<li class="nav-item py-2 py-xxl-1 col-12 col-xxl-auto">
+  <div class="vr d-none d-xxl-flex h-100 mx-xxl-2 text-white"></div>
+  <hr class="d-xxl-none my-2">
+</li>
+<li class="nav-item dropdown py-1 py-xxl-1 col-6 col-xxl-auto">
+    <a class="nav-link px-0 px-xxl-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-globe"></i>
+        <span class="d-xxl-none">Language</span>
+    </a>
+    <ul class="language-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+        <li>
+        <a class="dropdown-item active" href="/">
+            English
+        </a>
+        </li>
+        <li>
+        <a class="dropdown-item" href="/zh-hans/">
+            简体中文
+        </a>
+        </li></ul>
+</li>
+<li class="nav-item py-1 col-12 col-xxl-auto">
+  <div class="vr d-none d-xxl-flex h-100 mx-xxl-2 text-white"></div>
+  <hr class="d-xxl-none my-2">
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="fontSizeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-font"></i>
+        <span class="d-xxl-none">Font Size</span>
+    </a>
+    <ul class="font-size-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="fontSizeDropdown">
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xs">
+                Extra Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="sm">
+                Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item active" data-size="md">
+                Medium
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="lg">
+                Large
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xl">
+                Extra Large
+            </button>
+        </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="paletteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-palette"></i>
+        <span class="d-xxl-none">Palette</span>
+    </a>
+    <ul class="palette-dropdown-menu dropdown-menu dropdown-menu-end px-2 row g-2" aria-labelledby="paletteDropdown">
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue" aria-label="Blue"
+                    class="btn btn-sm w-100 palette text-bg-blue" data-palette="blue">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue-gray" aria-label="Blue Gray"
+                    class="btn btn-sm w-100 palette text-bg-blue-gray" data-palette="blue-gray">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-brown" aria-label="Brown"
+                    class="btn btn-sm w-100 palette text-bg-brown" data-palette="brown">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-cyan" aria-label="Cyan"
+                    class="btn btn-sm w-100 palette text-bg-cyan" data-palette="cyan">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-green" aria-label="Green"
+                    class="btn btn-sm w-100 palette text-bg-green" data-palette="green">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-indigo" aria-label="Indigo"
+                    class="btn btn-sm w-100 palette text-bg-indigo" data-palette="indigo">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-orange" aria-label="Orange"
+                    class="btn btn-sm w-100 palette text-bg-orange" data-palette="orange">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-pink" aria-label="Pink"
+                    class="btn btn-sm w-100 palette text-bg-pink" data-palette="pink">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-purple" aria-label="Purple"
+                    class="btn btn-sm w-100 palette text-bg-purple" data-palette="purple">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-red" aria-label="Red"
+                    class="btn btn-sm w-100 palette text-bg-red" data-palette="red">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-teal" aria-label="Teal"
+                    class="btn btn-sm w-100 palette text-bg-teal" data-palette="teal">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-yellow" aria-label="Yellow"
+                    class="btn btn-sm w-100 palette text-bg-yellow" data-palette="yellow">
+                </a>
+            </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="modeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="mode-icon fas fa-fw fa-adjust" id="modeIcon"></i>
+        <span class="d-xxl-none">Mode</span>
+    </a>
+    <ul class="mode-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="modeDropdown">
+        <li class="mode-item" data-color-mode="light" data-icon="sun">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-sun"></i> Light
+            </button>
+        </li>
+        <li class="mode-item" data-color-mode="dark" data-icon="moon">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-moon"></i> Dark
+            </button>
+        </li>
+        <li class="mode-item active" data-color-mode="auto" data-icon="adjust">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-adjust"></i> Auto
+            </button>
+        </li>
+    </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex">
+      <button class="navbar-toggler order-5 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarMenus"
+        aria-controls="navbarMenus" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-ellipsis-h"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+</header>
+
+    <main class="container">
+      <div class="row content"><noscript>
+    <div class="alert alert-danger" role="alert">Your browser does not support JavaScript.</div>
+</noscript>
+
+<div class="col-xxl-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body pb-0">
+    <ol class="hbs-breadcrumb breadcrumb flex-nowrap"><li class="breadcrumb-item text-surface"><a href="/">Home</a></li><li class="breadcrumb-item text-surface"><a href="/project/">Projects</a></li><li class="breadcrumb-item active">Gazebo仿真环境下停机坪的识别</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper position-relative d-flex justify-content-center">
+  <div class="d-flex flex-row justify-content-center rounded-5 border post-panel position-fixed px-3 py-1 surface shadow-1">
+    
+    
+
+    
+    
+    
+  <a class="action action-toc d-none d-xxl-block" href="#postTOC" role="button" title="Table of contents">
+    <i class="fas fa-fw fa-list-alt"></i>
+  </a>
+<a class="action action-toc d-block d-xxl-none" href="#post-toc-container" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    <a class="action action-copyright" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action action-post-comments" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    
+<a id="sidebarToggler" class="action action-sidebar-toggler d-none d-xxl-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+  </div>
+</div><article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title my-2">Gazebo仿真环境下停机坪的识别</h1>
+  </div>
+  <div class="card-body"><div class="post-meta mb-3">
+  <span class="post-date me-1 mb-1" title="created on 2023-03-16 16:14:45 &#43;0800 HKT.">March 16, 2023</span><span class="post-reading-time me-1 mb-1">4 min read</span><a href="/categories/opencv/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-category">
+      <i class="fas fa-fw fa-folder me-1"></i>OpenCV</a><a href="/tags/c&#43;&#43;/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">C&#43;&#43;</a><a href="/tags/opencv/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">OpenCV</a>
+</div>
+
+      <p class="lead mb-3 text-body-emphasis">c&#43;&#43;通过opencv识别仿真环境中的停机坪</p>
+<div class="mt-2 mb-3 d-block d-xxl-none">
+    <h2 class="text-surface mb-3">Contents</h2>
+    <div id="post-toc-container">
+        </div>
+    <hr class="text-secondary">
+</div><div class="post-content mb-3" data-bs-spy="scroll" data-bs-target="#TableOfContents" tabindex="0">
+        <div id="post-content-body"><h1 id="opencv识别停机坪" data-numberify>OpenCV识别停机坪<a class="anchor ms-1" href="#opencv识别停机坪"></a></h1>
+<p>整体算法目标为能够在真机通过<code>intel D435i</code>深度相机与下视的工业相机完成无人机对周边环境的感知, 并建立起稠密地图. 计划目标为先在方针环境中进行算法编写与验证. 然后再部署到真机中进行调整和测试. 本周的主要完成的在仿真环境中对停机坪的识别, 并添加<code>ros</code>支持</p>
+<p>停机坪示意图如下</p>
+<p><picture><img class="img-fluid " alt="iDBArx" src="https://i.imgur.com/ZsU1Wny.png" loading="lazy" />
+</picture>
+
+</p>
+<h2 id="停机坪识别概述" data-numberify>停机坪识别概述<a class="anchor ms-1" href="#停机坪识别概述"></a></h2>
+<h3 id="工程目录" data-numberify>工程目录<a class="anchor ms-1" href="#工程目录"></a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">identifyApron
+</span></span><span class="line"><span class="cl">├── bug.md	<span class="c1">#记录程序编写过程中遇到的bug及解决方法</span>
+</span></span><span class="line"><span class="cl">├── CMakeLists.txt	<span class="c1">#工程配置文件</span>
+</span></span><span class="line"><span class="cl">├── include	<span class="c1">#存放头文件</span>
+</span></span><span class="line"><span class="cl">│   ├── getImage.h
+</span></span><span class="line"><span class="cl">│   └── identify.h
+</span></span><span class="line"><span class="cl">├── media	<span class="c1">#存放测试或程序运行用到的图像文件</span>
+</span></span><span class="line"><span class="cl">│   ├── E.jpg
+</span></span><span class="line"><span class="cl">│   ├── image.png
+</span></span><span class="line"><span class="cl">│   ├── N.jpg
+</span></span><span class="line"><span class="cl">│   ├── S.jpg
+</span></span><span class="line"><span class="cl">│   └── W.jpg
+</span></span><span class="line"><span class="cl">├── package.xml	<span class="c1">#ros依赖项配置</span>
+</span></span><span class="line"><span class="cl">└── src	<span class="c1">#存放源文件</span>
+</span></span><span class="line"><span class="cl">    ├── getImage.cpp
+</span></span><span class="line"><span class="cl">    ├── identify.cpp
+</span></span><span class="line"><span class="cl">    └── main.cpp
+</span></span></code></pre></div><p>本项目主要有<code>getImage</code>和<code>identify</code>两个文件, 其中<code>getimage</code>用于<code>ros</code>的订阅和发布图像节点. <code>identify</code>用于识别停机坪</p>
+<h3 id="配置文件" data-numberify>配置文件<a class="anchor ms-1" href="#配置文件"></a></h3>
+<h4 id="cmakeliststxt" data-numberify>CMakeLists.txt<a class="anchor ms-1" href="#cmakeliststxt"></a></h4>
+<p><code>cmake</code>中主要需要包含有<code>eigen</code>和<code>opencv</code>这两个库, 可以选用<code>ros</code>自带的<code>opencv4.2</code>然后通过<code>ros</code>安装<code>eigen</code>, 在这里我选用了之前本地安装过的<code>eigen3.4</code>和<code>opencv4.5.5</code>版本</p>
+<p>为能够使用本地版本, 需要在<code>CMakeLists.txt</code>中添加以下配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_FLAGS</span> <span class="s2">&#34;${CMAKE_CXX_FLAGS} -std=c++14&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">cv_bridge_DIR</span> <span class="s2">&#34;/home/${your_username}/cvbridge_build_ws/devel/share/cv_bridge/cmake&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">OpenCV_DIR</span> <span class="s">/usr/local/share/opencv4</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">include_directories</span><span class="p">(</span><span class="o">${</span><span class="nv">OpenCV_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">include_directories</span><span class="p">(</span><span class="s">/home/</span><span class="o">${</span><span class="nv">your_path_to_eigen</span><span class="o">}</span><span class="s">/eigen-3.4.0/Eigen</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></div><p>首先指定<code>C++</code>版本为<code>c++14</code>, 以免某些特性无法通过编译. 其次需要自己手动重新编译一份<code>cv_bridge</code>, 原因是由于<code>ros</code>自带的<code>cv_bridge</code>匹配的是4.2版本, 直接用的话不和我电脑上的<code>opencv</code>适配, 会报类似于<code>memory out of range</code>的错误. 然后指定<code>cv_bridge_dir</code>为你重新编译的路径, 同时也需要手动指定<code>opencv</code>路径为你的安装路径</p>
+<h4 id="packagexml" data-numberify>package.xml<a class="anchor ms-1" href="#packagexml"></a></h4>
+<p><code>ros</code>包依赖中需要以下依赖</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;buildtool_depend&gt;</span>catkin<span class="nt">&lt;/buildtool_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>cv_bridge<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>image_transport<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>roscpp<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>sensor_msgs<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>std_msgs<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>cv_bridge<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>image_transport<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>roscpp<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>sensor_msgs<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>std_msgs<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>cv_bridge<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>image_transport<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>roscpp<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>sensor_msgs<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>std_msgs<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span></code></pre></div><p>主要用于订阅和发布图像传输的节点, 自定义发布数据</p>
+<h2 id="算法实现" data-numberify>算法实现<a class="anchor ms-1" href="#算法实现"></a></h2>
+<h3 id="ros部分" data-numberify>ros部分<a class="anchor ms-1" href="#ros部分"></a></h3>
+<p><code>ros</code>部分主要就是订阅和发布图像, 下面根据代码进行解释</p>
+<h4 id="getimageh" data-numberify>getImage.h<a class="anchor ms-1" href="#getimageh"></a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">//定义一个转换的类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">class</span> <span class="nc">ImageDetector</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">private</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="n">nh_</span><span class="p">;</span>    <span class="c1">//定义ROS节点句柄
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_transport</span><span class="o">::</span><span class="n">ImageTransport</span> <span class="n">it_</span><span class="p">;</span>    <span class="c1">//定义一个image_transport实例,用来发布和订阅ROS系统的图像
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_transport</span><span class="o">::</span><span class="n">Subscriber</span> <span class="n">image_sub_</span><span class="p">;</span> <span class="c1">//定义ROS图象接收器 ,订阅主题的变量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_transport</span><span class="o">::</span><span class="n">Publisher</span> <span class="n">image_pub_</span><span class="p">;</span>  <span class="c1">//定义ROS图象发布器 ,发布主题的变量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">identifyApron</span> <span class="n">iden</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ImageDetector</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">~</span><span class="n">ImageDetector</span><span class="p">()</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">convert_callback</span><span class="p">(</span><span class="k">const</span> <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">ImageConstPtr</span> <span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>   <span class="c1">//回调函数包含识别和发布识别后的图片
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span> <span class="nf">advertiseDone</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div><p>首先头文件中定义一个用于将<code>opencv</code>的<code>Mat</code>类型的图像转化为<code>ros</code>中的数据格式, 在后面的源文件中有相关介绍, 头文件主要定义了用到的变量</p>
+<p>定义了<code>ros</code>相关节点句柄和用于识别的<code>identifyApron</code>对象, 两个函数分别用于接受图像并转化和发布图像. 其中接受到图像后在<code>convert_callback</code>函数中调用<code>identifyApron</code>的相关接口进行识别</p>
+<h4 id="getimagecpp" data-numberify>getImage.cpp<a class="anchor ms-1" href="#getimagecpp"></a></h4>
+<p>源文件定义了类的构造函数和其他两个函数的写法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">ImageDetector</span><span class="o">::</span><span class="n">ImageDetector</span><span class="p">()</span> <span class="o">:</span> <span class="n">it_</span><span class="p">(</span><span class="n">nh_</span><span class="p">)</span>   <span class="c1">//构造函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// /iris_0/camera/image_raw
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_sub_</span> <span class="o">=</span> <span class="n">it_</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&#34;/iris_0/stereo_camera/left/image_raw&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ImageDetector</span><span class="o">::</span><span class="n">convert_callback</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                               <span class="k">this</span><span class="p">);</span>   <span class="c1">//定义图象接受器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_pub_</span> <span class="o">=</span> <span class="n">it_</span><span class="p">.</span><span class="n">advertise</span><span class="p">(</span><span class="s">&#34;/image_detector/output_video&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>  <span class="c1">//定义图象发布器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div><p>构造函数接受头文件中定义的句柄并定义订阅和发布使用的节点</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">void</span> <span class="n">ImageDetector</span><span class="o">::</span><span class="n">convert_callback</span><span class="p">(</span><span class="k">const</span> <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">ImageConstPtr</span> <span class="o">&amp;</span><span class="n">msg</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv_bridge</span><span class="o">::</span><span class="n">CvImagePtr</span> <span class="n">cv_ptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv_ptr</span> <span class="o">=</span> <span class="n">cv_bridge</span><span class="o">::</span><span class="n">toCvCopy</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">image_encodings</span><span class="o">::</span><span class="n">BGR8</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">catch</span> <span class="p">(</span><span class="n">cv_bridge</span><span class="o">::</span><span class="n">Exception</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ROS_ERROR</span><span class="p">(</span><span class="s">&#34;cv_bridge exception: %s&#34;</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">iden</span><span class="p">.</span><span class="n">detector</span><span class="p">(</span><span class="n">cv_ptr</span><span class="o">-&gt;</span><span class="n">image</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">advertiseDone</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="n">ImageDetector</span><span class="o">::</span><span class="n">advertiseDone</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">ImagePtr</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">cv_bridge</span><span class="o">::</span><span class="n">CvImage</span><span class="p">(</span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Header</span><span class="p">(),</span> <span class="s">&#34;bgr8&#34;</span><span class="p">,</span> <span class="n">iden</span><span class="p">.</span><span class="n">origin</span><span class="p">).</span><span class="n">toImageMsg</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image_pub_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>转化函数调用<code>cv_bridge</code>对<code>Mat</code>类型进行转化, 然后调用<code>identifyApron</code>中的<code>detector()</code>进行图像的识别, 最后调用发布识别后的图像的函数</p>
+<h3 id="识别部分" data-numberify>识别部分<a class="anchor ms-1" href="#识别部分"></a></h3>
+<p>接下来是工程最主要的识别部分</p>
+<h4 id="identiyfh" data-numberify>identiyf.h<a class="anchor ms-1" href="#identiyfh"></a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">identifyApron</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">origin</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">detector</span><span class="p">(</span><span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="o">&amp;</span><span class="n">frame</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identifyApron</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">private</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span> <span class="n">scalarLow</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span> <span class="c1">//hsv分离最小阈值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span> <span class="n">scalarHigh</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">);</span>   <span class="c1">//hsv最大阈值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="o">&gt;&gt;</span> <span class="n">allContours</span><span class="p">;</span>   <span class="c1">//所有轮廓
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Vec4i</span><span class="o">&gt;</span> <span class="n">hiera</span><span class="p">;</span>   <span class="c1">//轮廓的层级关系
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">mediaB</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">//中值滤波窗口
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">openEle</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>   <span class="c1">//开运算尺寸
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">closeEle</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">//闭运算尺寸
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">roughDilate</span> <span class="o">=</span> <span class="mi">52</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Vec3f</span><span class="o">&gt;</span> <span class="n">circles</span><span class="p">;</span> <span class="c1">//霍夫圆的轮廓点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span><span class="o">&gt;</span> <span class="n">alRect</span><span class="p">;</span>    <span class="c1">//所有旋转矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span><span class="o">&gt;</span> <span class="n">charRect</span><span class="p">;</span>  <span class="c1">//字母的旋转矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">charRectPts</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">direction</span> <span class="o">=</span> <span class="p">{{</span><span class="s">&#34;E&#34;</span><span class="p">,</span> <span class="mi">0</span><span class="p">},</span>    <span class="c1">//东西南北
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                                                           <span class="p">{</span><span class="s">&#34;W&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                                           <span class="p">{</span><span class="s">&#34;S&#34;</span><span class="p">,</span> <span class="mi">2</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                                           <span class="p">{</span><span class="s">&#34;N&#34;</span><span class="p">,</span> <span class="mi">3</span><span class="p">}};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&gt;</span> <span class="n">chars</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&gt;</span> <span class="n">template_pictures</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="o">&gt;&gt;</span> <span class="n">char_matrix</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//    int mat_size = 50;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="nf">matchMat</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">src</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div><p>头文件主要定义了函数接口和识别过程中用到的参数</p>
+<p><code>matchMat()</code>函数主要用于模板匹配, 为了识别出停机坪四周表示方向的字母</p>
+<h4 id="identifycpp" data-numberify>identify.cpp<a class="anchor ms-1" href="#identifycpp"></a></h4>
+<p>识别文件中首先定义了几个后续用到的函数</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">restore_Rect</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">points</span><span class="p">[</span><span class="mi">4</span><span class="p">]);</span>   <span class="c1">//还原外接矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">float</span> <span class="nf">dis</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts2</span><span class="p">);</span>  <span class="c1">//计算两点距离
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">drawRect</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span> <span class="n">rect</span><span class="p">,</span> <span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="o">&amp;</span><span class="n">image</span><span class="p">,</span> <span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span> <span class="n">scal</span><span class="p">);</span>   <span class="c1">//画出旋转矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">getRectROI</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span> <span class="n">rect</span><span class="p">,</span> <span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="o">&amp;</span><span class="n">bilfilter</span><span class="p">);</span>  <span class="c1">//得到旋转矩形的roi
+</span></span></span></code></pre></div><p>这几个函数的用途如注释中写的, 用于还原外接矩形四个点的顺序, 计算像素点之间的距离等</p>
+<p>主要的<code>detector()</code>函数首先将获取到的图像进行预处理</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl">    <span class="n">origin</span> <span class="o">=</span> <span class="n">frame</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">hsv</span><span class="p">,</span> <span class="n">filter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">masked</span><span class="p">,</span> <span class="n">cannied</span><span class="p">,</span> <span class="n">round</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">hsv</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">COLOR_BGR2HSV</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">inRange</span><span class="p">(</span><span class="n">hsv</span><span class="p">,</span> <span class="n">scalarLow</span><span class="p">,</span> <span class="n">scalarHigh</span><span class="p">,</span> <span class="n">masked</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">medianBlur</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="n">filter</span><span class="p">,</span> <span class="n">mediaB</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">bilateralFilter</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">openEle</span><span class="p">,</span> <span class="n">openEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_OPEN</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">closeEle</span><span class="p">,</span> <span class="n">closeEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span></code></pre></div><p>先复制一份图像以免处理图像时受到其他意外影响本函数的运行</p>
+<p>然后将<code>bgr</code>格式的图像转化到<code>hsv</code>色彩空间中, 这是由于<code>bgr</code>表示的图像像素点会受到光照影响从而改变颜色范围, 而<code>hsv</code>将图像表示为色相, 饱和度, 亮度三部分. 将亮度和色相分割开, 有效避免了阴影与图像颜色的影响</p>
+<p><picture><img class="img-fluid " alt="iDBfJw" src="https://i.imgur.com/wQJRapK.png" loading="lazy" />
+</picture>
+
+</p>
+<p>可以看到阈值化后已经隔除了红色墙壁和绿色部分对识别的影响, 但是图像中仔细观察会发现还有白色部分里有一些小黑点, 会影响到后续的识别. 因此需要再进行膨胀, 腐蚀, 滤波等处理</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">medianBlur</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="n">filter</span><span class="p">,</span> <span class="n">mediaB</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">bilateralFilter</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">openEle</span><span class="p">,</span> <span class="n">openEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_OPEN</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">closeEle</span><span class="p">,</span> <span class="n">closeEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Canny</span><span class="p">(</span><span class="n">round</span><span class="p">,</span> <span class="n">cannied</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+</span></span></code></pre></div><p>首先中值滤波取出可能存在的椒盐噪点, 然后双边滤波和闭运算, 处理完成后再进行边缘检测用于霍夫圆监测</p>
+<p>边缘检测效果如下</p>
+<p><picture><img class="img-fluid " alt="iDBVBz" src="https://i.imgur.com/tV5CaOk.png" loading="lazy" />
+</picture>
+
+</p>
+<p>在上上一步中获取到的图像在闭运算后可以用于检测字母, 其主要思想为</p>
+<ol>
+<li>查找图像中的所有轮廓并列出轮廓的层级关系, 很明显需要检测的字母轮廓是没有子轮廓和父轮廓的, 但是停机坪的圆弧同样没有父子轮廓</li>
+<li>但观察很容易可以看出字母的轮廓的最小外接矩形近似于正方形, 而圆弧的最小外接矩形为长宽差异很大的长方形. 因此可以先求出外接矩形的长宽比然后筛选得出字母的轮廓</li>
+<li>得到轮廓后需要进行识别, 这里识别字母可以用神经网络的方法进行训练(如<code>knn</code>, <code>lenet</code>等). 但是停机坪字母固定并且只有四个, 没有必要训练那么多, 因此我采用了类似模板匹配的方法</li>
+<li>首先制作一个字母灰度图的模板, 然后将<code>2</code>中获得的最小外接矩形旋转到正方向, 进行缩放为模板大小, 然后再循环<code>90</code>, <code>190</code>, <code>270</code>三种度数与模板做矩阵减法并求和, 此处用到了<code>eigen</code>将<code>Mat</code>转化为<code>Matrix</code>然后加快求解速度</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl">    <span class="c1">///检测字母
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cv</span><span class="o">::</span><span class="n">findContours</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">allContours</span><span class="p">,</span> <span class="n">hiera</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">RETR_TREE</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">);</span>   <span class="c1">//查找轮廓
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    cv::drawContours(origin, allContours, -1, cv::Scalar(0, 0, 255), 1);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="nl">itcHier</span><span class="p">:</span> <span class="n">hiera</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">itcHier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">itcHier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">alRect</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">minAreaRect</span><span class="p">(</span><span class="n">allContours</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span><span class="c1">//没有子轮廓和父轮廓可能是目标圆弧或字母
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="nl">rect</span><span class="p">:</span> <span class="n">alRect</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">rect</span><span class="p">.</span><span class="n">points</span><span class="p">(</span><span class="n">pts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">restore_Rect</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">pts1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">float</span> <span class="n">width</span> <span class="o">=</span> <span class="n">dis</span><span class="p">(</span><span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">float</span> <span class="n">height</span> <span class="o">=</span> <span class="n">dis</span><span class="p">(</span><span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">((</span><span class="n">width</span> <span class="o">/</span> <span class="n">height</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.8</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="n">height</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.2</span><span class="p">)</span> <span class="p">{</span>   <span class="c1">///调参, 去除圆弧
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">x</span> <span class="o">=</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">y</span> <span class="o">=</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">charRect</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">rect</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">drawRect</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">100</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">            <span class="n">chars</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">getRectROI</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="n">chars</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">chars</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">int</span> <span class="n">number</span> <span class="o">=</span> <span class="n">matchMat</span><span class="p">(</span><span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>    <span class="c1">//std::to_string(number)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">cv</span><span class="o">::</span><span class="n">putText</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">direction</span><span class="p">[</span><span class="n">number</span><span class="p">].</span><span class="n">first</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span> <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">y</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">cv</span><span class="o">::</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">LINE_AA</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span></code></pre></div><p>模板匹配实现如下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">identifyApron</span><span class="o">::</span><span class="n">matchMat</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">angle</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nb">false</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nl">label</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">angle</span> <span class="o">&gt;</span> <span class="mi">270</span><span class="p">)</span> <span class="k">return</span> <span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">Size</span> <span class="n">dst_sz</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">cols</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">rows</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">center</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">cols</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">),</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">rows</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">angle</span> <span class="o">+=</span> <span class="mi">90</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getRotationMatrix2D</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">rot_mat</span><span class="p">,</span> <span class="n">dst_sz</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">INTER_LINEAR</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">BORDER_REPLICATE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="nl">matrix</span><span class="p">:</span> <span class="n">char_matrix</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="o">&gt;</span> <span class="n">src_matrix</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">cv2eigen</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">src_matrix</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Eigen</span><span class="o">::</span><span class="n">ArrayXXi</span> <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">matrix</span> <span class="o">-</span> <span class="n">src_matrix</span><span class="p">).</span><span class="n">array</span><span class="p">().</span><span class="n">abs</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="n">re</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="n">result</span><span class="p">.</span><span class="n">sum</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">re</span> <span class="o">&lt;</span> <span class="mi">150000</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">label</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>该函数接受待匹配字母, 返回头文件中定义的<code>std::vector&lt;std::pair&lt;std::string , int&gt;&gt; direction</code>, 用&lt;字母, 数字&gt;表示方向</p>
+<p>最终识别效果如下</p>
+<p><picture><img class="img-fluid " alt="iDB4Aa" src="https://i.imgur.com/VCq1ocz.png" loading="lazy" />
+</picture>
+
+</p>
+<p>很好的识别出了四个方向的字母, 并拟合无人机的大概降落位置</p>
+</div>
+</div>
+</div></article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title fs-4 my-2 text-surface">Copyright</h2>
+    </div>
+    <div class="card-body"><a class="d-flex align-items-center flex-column" target="_blank" rel="license noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">
+  <span><i class="fab fa-fw fa-2x fa-creative-commons"></i><i class="fab fa-fw fa-2x fa-creative-commons-by"></i><i class="fab fa-fw fa-2x fa-creative-commons-nc"></i><i class="fab fa-fw fa-2x fa-creative-commons-sa"></i></span>
+  CC BY-NC-SA 4.0 
+</a>
+
+
+    </div>
+</div><section class="related-posts row card component">
+      <div class="card-header">
+        <h2 class="card-title fs-4 my-2 text-surface">
+          Related Posts
+        </h2>
+      </div>
+      <div class="card-body slide px-1">
+        <div class="slide-inner row gx-0"><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/installation/linux/archlinux/">
+    Install on Arch Linux
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/installation/linux/ubuntu/">
+    Install on Ubuntu
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/installation/windows/">
+    Install on Windows
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/introduction/">
+    Introduction
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div></div>
+        <button class="slide-control-left">
+          <i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-90"></i>
+          <span class="visually-hidden">Left</span>
+        </button>
+        <button class="slide-control-right">
+          <i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-270"></i>
+          <span class="visually-hidden">Right</span>
+        </button>
+      </div>
+    </section><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title my-2 fs-4 text-surface">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="TioeAre/tioe-blog-comments"
+  issue-term="pathname"
+  label="comment"
+  theme="github-light"
+  crossorigin="anonymous"
+  async>
+</script>
+
+
+
+</div>
+</div></div>
+</div>
+<aside class="col-xxl-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    
+    
+<div class="accordion profile">
+  <div class="accordion-item card row text-center component">
+    <div class="accordion-header card-header border-0" id="profile-header">
+      <a
+        class="accordion-button d-lg-none mb-2 shadow-none p-0 bg-transparent text-surface collapsed"
+        role="button" data-bs-toggle="collapse" href="#profile" aria-expanded="false" aria-controls="profile">
+        Profile
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="profile" aria-labelledby="profile-header">
+      <div class="col-12 d-flex align-items-center justify-content-center"><picture><img class="profile-avatar rounded-circle " alt="Tioe Are" src="https://www.blog.tioe.xyz/images/avatar.png" loading="lazy" data-viewer-invisible width="428" height="393" />
+</picture>
+</div>
+      <div class="col-12 profile-meta"><div class="profile-name fw-fold fs-lg">Tioe Are</div><div class="profile-bio">洗心革面, 潜心学习</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>zzu</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><a class="profile-about text-primary" href="/about/"><i class="fas fa-fw fa-user"></i>About</a><a class="profile-contact text-primary" href="/contact/"><i class="fas fa-fw fa-question-circle"></i>Contact Us</a></div>
+
+
+<nav class="social-links nav justify-content-center mt-1 justify-content-around">
+      <a class="nav-link social-link" target="_blank" href="https://space.bilibili.com/359367522" title="Bilibili" rel="me">
+        <i class="fa-fw fa-2x fab fa-bilibili"
+           style="color: #fb7299;"></i>
+      </a>
+    <a class="nav-link social-link" href="mailto:are10032@outlook.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope" style="color: #0963ac;"></i>
+    </a>
+      <a class="nav-link social-link" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fa-2x fab fa-github"
+          ></i>
+      </a>
+      <a class="nav-link social-link" target="_blank" href="https://www.zhihu.com/people/tioeare" title="Zhihu" rel="me">
+        <i class="fa-fw fa-2x fab fa-zhihu"
+           style="color: #056de8;"></i>
+      </a>
+  <a class="nav-link social-link" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-2x fa-rss" style="color: #ea6221;"></i>
+  </a>
+</nav>
+</div>
+  </div>
+</div>
+
+
+<div class="accordion post-toc d-none d-lg-block">
+  <div class="accordion-item row mb-4 card component" id="postTOC">
+    <div class="card-header accordion-header">
+      <h2 class="card-title fs-4 my-2 text-surface d-none d-lg-block">Contents</h2>
+      <a class="accordion-button d-lg-none mb-1 collapsed shadow-none p-0 bg-transparent" role="button" data-bs-toggle="collapse" href="#post-toc" aria-expanded="false" aria-controls="post-toc">
+        Contents
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="post-toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#停机坪识别概述">停机坪识别概述</a>
+      <ul>
+        <li><a href="#工程目录">工程目录</a></li>
+        <li><a href="#配置文件">配置文件</a></li>
+      </ul>
+    </li>
+    <li><a href="#算法实现">算法实现</a>
+      <ul>
+        <li><a href="#ros部分"><code>ros</code>部分</a></li>
+        <li><a href="#识别部分">识别部分</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+  </div>
+</div>
+
+  <div class="accordion recent-posts">
+    <section class="row card component">
+      <div class="card-header">
+        <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+          Recent Posts
+        </h2>
+        <a
+          class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent collapsed"
+          role="button"
+          data-bs-toggle="collapse"
+          href="#recent-posts"
+          aria-expanded="false"
+          aria-controls="recent-posts">
+          Recent Posts
+        </a>
+      </div>
+      <div
+        class="card-body collapse accordion-collapse accordion-body d-lg-block"
+        id="recent-posts">
+        <ul class="post-list list-unstyled ms-1">
+            <li class="mb-2">
+              <a href="/study/ransac/">RANSAC</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/nnsensorfusion/">使用神经网络融合位置数据(第一版)</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/nice_slam/">Nice Slam论文解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_ekf3/">APM中ekf3算法</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_t265/">APM中t265数据解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_optical_flow/">APM光流传感器解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/multi-sensor-fusion/">空地无人机GPS与T265，光流传感器等的数据融合</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/ublox/">使用ublox F9p GPS模块</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/orbslam3/">Orb_slam3稠密建图</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/indentifyapron/">Gazebo仿真环境下停机坪的识别</a>
+            </li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+      <div class="accordion categories-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/categories">Categories</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-categories" aria-expanded="false" aria-controls="taxonomy-categories">
+                Categories
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-categories">
+            <div class="py-2">
+              <a href="/categories/multi-sensor/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Multi-Sensor">
+                Multi-Sensor
+                  <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+              </a>
+              <a href="/categories/bug/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="bug">
+                bug
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/categories/installation/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Installation">
+                Installation
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/categories/opencv/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="OpenCV">
+                OpenCV
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/categories/slam/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="slam">
+                slam
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/categories/gps/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="GPS">
+                GPS
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/probability/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Probability">
+                Probability
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="实验记录">
+                实验记录
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="服务器">
+                服务器
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="accordion tags-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/tags">Tags</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-tags" aria-expanded="false" aria-controls="taxonomy-tags">
+                Tags
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-tags">
+            <div class="py-2">
+              <a href="/tags/bug/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="bug">
+                bug
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/tags/ros/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="ros">
+                ros
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/tags/gps/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="GPS">
+                GPS
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/linux/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Linux">
+                Linux
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/opencv/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="OpenCV">
+                OpenCV
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/slam/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="slam">
+                slam
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/arch-linux/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Arch Linux">
+                Arch Linux
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/bitwarden/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="bitwarden">
+                bitwarden
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/c&#43;&#43;/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="c&#43;&#43;">
+                c&#43;&#43;
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/caddy/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="caddy">
+                caddy
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+            <a href="https://www.blog.tioe.xyz/tags" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title='ALL'>
+              ALL
+              <span class="badge badge-sm text-secondary bg-white ms-1">20</span>
+            </a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="accordion series-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/series">Series</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-series" aria-expanded="false" aria-controls="taxonomy-series">
+                Series
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-series">
+            <div class="py-2">
+              <a href="/series/guide/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-series me-2 mb-2" title="Guide">
+                Guide
+                  <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+<div class="accordion archives">
+  <section class="row card component">
+      <div class="card-header">
+        <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+            <a href="/archives/">Archives</a>
+        </h2>
+        <a
+          class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent collapsed"
+          role="button" data-bs-toggle="collapse" href="#archives" aria-expanded="false" aria-controls="archives">
+            Archives
+        </a>
+      </div>
+      <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="archives">
+
+    <a href="/archives/2023/" class="btn btn-sm btn-secondary post-taxonomy ps-3 me-2 mb-2" title="2023">
+    2023 <span class="badge badge-sm text-secondary bg-white ms-1">10</span>
+    </a>
+
+    <a href="" class="btn btn-sm btn-secondary post-taxonomy ps-3 me-2 mb-2" title="2022">
+    2022 <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+    </a>
+
+
+      </div>
+  </section>
+</div>
+
+
+    
+  </div>
+</aside>
+
+      </div>
+    </main><footer class="footer mt-auto py-3 text-center container"><div class="offcanvas offcanvas-bottom h-auto" tabindex="-1" id="offcanvasActionsPanel"
+  aria-labelledby="offcanvasActionsPanelLabel">
+  <div class="offcanvas-header">
+    <div class="offcanvas-title h5" id="offcanvasActionsPanelLabel">
+      <i class="fas fa-fw fa-th-large me-1"></i>
+      Actions
+    </div>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" data-bs-target="offcanvasActionsPanel" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body mt-2"><div class="social-share mb-4 d-flex overflow-auto">
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=Offline&url=https%3a%2f%2fwww.blog.tioe.xyz%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-twitter mb-2"></i> Twitter
+      </a>
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Facebook Share Button"
+        target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.blog.tioe.xyz%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-facebook-f mb-2"></i> Facebook
+      </a>
+    </div>
+    <hr class="mb-4"><div class="actions d-flex overflow-auto align-items-center">
+      <a role="button" class="action action-go-back d-flex flex-column align-items-center me-3" href="javascript: window.history.back();">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-90"></i></span> Go back
+      </a>
+      <a role="button" class="action action-reload-page d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+      </a>
+      <a role="button" class="action action-copy-url d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-link"></i></span> Copy URL
+      </a>
+    </div>
+  </div>
+</div><div class="row text-center">
+  <div class="col-12 mt-2">
+    <p class="mb-2">Tioe&#39;s website</p>
+    <p class="text-secondary mb-2"><small>my pirsonal web</small></p><div class="copyright mb-2 text-secondary">
+  <small>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</small>
+</div>
+<div class="powered-by mb-2 text-secondary">
+  <small>
+    Build with ❤️ from the <a class="text-primary" href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a class="text-primary" href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">HBS</a> theme.
+  </small>
+</div>
+
+
+<nav class="social-links nav justify-content-center mb-2 mt-3">
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://space.bilibili.com/359367522" title="Bilibili" rel="me">
+        <i class="fa-fw fa-2x fab fa-bilibili"
+           style="color: #fb7299;"></i>
+      </a>
+    <a class="nav-link social-link p-0 me-1 mb-2" href="mailto:are10032@outlook.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope" style="color: #0963ac;"></i>
+    </a>
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fa-2x fab fa-github"
+          ></i>
+      </a>
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://www.zhihu.com/people/tioeare" title="Zhihu" rel="me">
+        <i class="fa-fw fa-2x fab fa-zhihu"
+           style="color: #056de8;"></i>
+      </a>
+  <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-2x fa-rss" style="color: #ea6221;"></i>
+  </a>
+</nav>
+</div>
+  <div class="col-12 col-lg-8 offset-0 offset-lg-1"></div>
+</div>
+</footer>
+<script data-precache src="/assets/main/bundle.min.7b0b844603567e21d803318e39a00e4a40cba615a1fed3a176983a6341954616.js" integrity="sha256-ewuERgNWfiHYAzGOOaAOSkDLphWh/tOhdpg6Y0GVRhY=" crossorigin="anonymous" async></script><script data-precache src="/assets/icons/bundle.min.4f30d5267a9f2f9d45ed93969d45ec626100a969a8b91f71f753315a261e9034.js" integrity="sha256-TzDVJnqfL51F7ZOWnUXsYmEAqWmouR9x91MxWiYekDQ=" crossorigin="anonymous" defer></script>
+<script data-precache src="/assets/viewer/bundle.min.0a0d0099935beee41b7a7bf4543cd55e793e5f830a571b0794ef8c3602c5823c.js" integrity="sha256-Cg0AmZNb7uQbenv0VDzVXnk&#43;X4MKVxsHlO&#43;MNgLFgjw=" crossorigin="anonymous" defer></script>
+  <script data-precache defer src="/assets/katex/bundle.min.ba934031af2a70b39e62782984e88913923c1ea7ba5d19e7e8e8dbea3862ec17.js" integrity="sha256-upNAMa8qcLOeYngphOiJE5I8Hqe6XRnn6Ojb6jhi7Bc=" crossorigin="anonymous"></script>
+<script data-precache defer src="/assets/mermaid/bundle.min.bd1045face50939ea18921e0a1dee594789e354704b26e1b1ad61b9c66bec1f1.js" integrity="sha256-vRBF&#43;s5Qk56hiSHgod7llHieNUcEsm4bGtYbnGa&#43;wfE=" crossorigin="anonymous"></script>
+
+<script src="/js/sw-register.js" defer></script>
+
+
+  </body>
+</html>

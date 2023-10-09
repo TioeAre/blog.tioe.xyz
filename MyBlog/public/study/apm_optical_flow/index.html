@@ -1,0 +1,1107 @@
+<!doctype html>
+<html class="position-relative" itemscope itemtype="https://schema.org/WebPage" lang="en"
+  data-bs-theme="auto" data-palette="purple">
+  <head><script src="/assets/init/bundle.min.226cc59cbae206e0c46e223059b9d56ec19f45bbe5ee8b161e8dcae6a1ff6c78.js" integrity="sha256-ImzFnLriBuDEbiIwWbnVbsGfRbvl7osWHo3K5qH/bHg=" crossorigin="anonymous"></script>
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>APM光流传感器解析 - Tioe&#39;s website</title>
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_16x16_resize_q75_h2_box_2.webp" sizes="16x16" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_32x32_resize_q75_h2_box_2.webp" sizes="32x32" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_150x150_resize_q75_h2_box_2.webp" sizes="150x150" type="image/webp">
+    <link rel="apple-touch-icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_180x180_resize_q75_h2_box_2.webp" sizes="180x180" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_192x192_resize_q75_h2_box_2.webp" sizes="192x192" type="image/webp">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#6f42c1">
+<meta name="keywords" content="blog, documentation" />
+  <meta name="description" content="libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中
+if (_calibrator != nullptr) { if (_calibrator-&gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 &#43; (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 &#43; (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.set_and_save_ifchanged((flow_scalerx_as_multiplier - 1.0) * 1000.0); _flowScalerY.set_and_save_ifchanged((flow_scalery_as_multiplier - 1.0) * 1000.0); _flowScalerX.notify(); _flowScalerY.notify(); GCS_SEND_TEXT(MAV_SEVERITY_INFO, &#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;, (int)_flowScalerX, (int)_flowScalerY); } } _flowScalerX, _flowScalerY是地面站设置中的缩放参数." /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="APM光流传感器解析"/>
+<meta name="twitter:description" content="libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中
+if (_calibrator != nullptr) { if (_calibrator-&gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 &#43; (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 &#43; (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.set_and_save_ifchanged((flow_scalerx_as_multiplier - 1.0) * 1000.0); _flowScalerY.set_and_save_ifchanged((flow_scalery_as_multiplier - 1.0) * 1000.0); _flowScalerX.notify(); _flowScalerY.notify(); GCS_SEND_TEXT(MAV_SEVERITY_INFO, &#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;, (int)_flowScalerX, (int)_flowScalerY); } } _flowScalerX, _flowScalerY是地面站设置中的缩放参数."/>
+<meta property="og:title" content="APM光流传感器解析" />
+<meta property="og:description" content="libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中
+if (_calibrator != nullptr) { if (_calibrator-&gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 &#43; (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 &#43; (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.set_and_save_ifchanged((flow_scalerx_as_multiplier - 1.0) * 1000.0); _flowScalerY.set_and_save_ifchanged((flow_scalery_as_multiplier - 1.0) * 1000.0); _flowScalerX.notify(); _flowScalerY.notify(); GCS_SEND_TEXT(MAV_SEVERITY_INFO, &#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;, (int)_flowScalerX, (int)_flowScalerY); } } _flowScalerX, _flowScalerY是地面站设置中的缩放参数." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.blog.tioe.xyz/study/apm_optical_flow/" /><meta property="article:section" content="study" />
+<meta property="article:published_time" content="2023-05-14T16:14:45+08:00" />
+<meta property="article:modified_time" content="2023-05-14T16:14:45+08:00" />
+
+<meta itemprop="name" content="APM光流传感器解析">
+<meta itemprop="description" content="libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中
+if (_calibrator != nullptr) { if (_calibrator-&gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 &#43; (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 &#43; (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.set_and_save_ifchanged((flow_scalerx_as_multiplier - 1.0) * 1000.0); _flowScalerY.set_and_save_ifchanged((flow_scalery_as_multiplier - 1.0) * 1000.0); _flowScalerX.notify(); _flowScalerY.notify(); GCS_SEND_TEXT(MAV_SEVERITY_INFO, &#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;, (int)_flowScalerX, (int)_flowScalerY); } } _flowScalerX, _flowScalerY是地面站设置中的缩放参数."><meta itemprop="datePublished" content="2023-05-14T16:14:45+08:00" />
+<meta itemprop="dateModified" content="2023-05-14T16:14:45+08:00" />
+<meta itemprop="wordCount" content="622">
+<meta itemprop="keywords" content="OpticalFlow," />
+  <meta property="og:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
+  <meta name="twitter:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
+  <meta property="og:image:alt" content="APM光流传感器解析" />
+  <meta name="twitter:image:alt" content="APM光流传感器解析" />
+  <link rel="manifest" href="/manifest.json">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z7Z9EX371"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-8Z7Z9EX371', { 'anonymize_ip': false });
+}
+</script>
+
+<link data-precache rel="stylesheet" href="/assets/main/bundle.min.cbb6996c72aa3961390920a4261fa4dc924785294937c05514f38b2927a16675.css" integrity="sha256-y7aZbHKqOWE5CSCkJh+k3JJHhSlJN8BVFPOLKSehZnU=" crossorigin="anonymous">
+
+<link data-precache rel="stylesheet" href="/assets/katex/bundle.min.a06a916255e286562e9c3684403a944bb85aebe51b00e2f1ef537987349ead12.css" integrity="sha256-oGqRYlXihlYunDaEQDqUS7ha6&#43;UbAOLx71N5hzSerRI=" crossorigin="anonymous">
+
+    <link data-precache rel="stylesheet" href="/assets/viewer/bundle.min.eb914844636cd41f221f109e99c887bbc3b6b5ffb2af7c664b284cea2d1b54b7.css" integrity="sha256-65FIRGNs1B8iHxCemciHu8O2tf&#43;yr3xmSyhM6i0bVLc=" crossorigin="anonymous">
+
+
+</head>
+  <body><header class="mb-4">
+  
+<nav class="top-app-bar shadow navbar navbar-expand-xxl">
+  <div class="container">
+<a class="navbar-brand d-flex align-items-center flex-grow-1 flex-xxl-grow-0 justify-content-xxl-start ms-2 ms-xxl-0 mx-auto me-xxl-2"
+    href="https://www.blog.tioe.xyz">
+    <picture><img class="logo " alt="Logo" src="https://www.blog.tioe.xyz/images/favicon.ico" loading="lazy" width="512" height="512" />
+</picture>
+Tioe
+</a>
+
+    <div class="offcanvas-xxl offcanvas-end flex-grow-1" data-bs-scroll="true" tabindex="-1" id="navbarMenus" aria-labelledby="navbarMenusLabel">
+      <div class="offcanvas-header px-4 pb-0">
+        <div class="offcanvas-title h5" id="navbarMenusLabel">Tioe</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#navbarMenus" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body p-4 pt-0 p-xxl-0">
+        <hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center me-auto"><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/archives/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-file-archive text-primary"></i></span>Archives
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/docs/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-file"></i></span>Docs Sample
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/series/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-columns"></i></span>Series
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/categories/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-folder text-success"></i></span>Categories
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/tags/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-tags"></i></span>Tags
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=bug_report.yml" target="_blank" rel="noopener noreferrer">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-bug text-danger"></i></span>Bug Report
+            </a>
+          </li>
+        </ul>
+        
+    <hr class="d-xxl-none">
+    <form class="search-bar ms-auto my-auto" action="/search/" novalidate>
+      <div class="input-group input-group-sm align-items-center">
+        <span class="btn btn-search disabled position-absolute left-0 border-0 px-1">
+          <i class="fas fa-fw fa-search fa-lg"></i>
+        </span>
+        <input
+          class="my-1 form-control border-white rounded-5 search-input bg-body"
+          name="q"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          required>
+          <span class="search-shortcut position-absolute end-0 top-0 me-2">
+            <kbd class="bg-primary rounded shadow">/</kbd>
+          </span>
+      </div>
+    </form><hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center ms-md-auto">
+<li class="nav-item py-2 py-xxl-1 col-12 col-xxl-auto">
+
+
+<nav class="social-links nav justify-content-center flex-row">
+      <a class="nav-link social-link col-6 col-xxl-auto p-1" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fab fa-github"
+          ></i>
+        <span class="ms-1 d-xxl-none">Github</span>
+      </a>
+  <a class="nav-link social-link col-6 col-xxl-auto p-1" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-rss"></i>
+    <span class="ms-1 d-xxl-none">RSS</span>
+  </a>
+</nav>
+
+</li>
+<li class="nav-item py-2 py-xxl-1 col-12 col-xxl-auto">
+  <div class="vr d-none d-xxl-flex h-100 mx-xxl-2 text-white"></div>
+  <hr class="d-xxl-none my-2">
+</li>
+<li class="nav-item dropdown py-1 py-xxl-1 col-6 col-xxl-auto">
+    <a class="nav-link px-0 px-xxl-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-globe"></i>
+        <span class="d-xxl-none">Language</span>
+    </a>
+    <ul class="language-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+        <li>
+        <a class="dropdown-item active" href="/">
+            English
+        </a>
+        </li>
+        <li>
+        <a class="dropdown-item" href="/zh-hans/">
+            简体中文
+        </a>
+        </li></ul>
+</li>
+<li class="nav-item py-1 col-12 col-xxl-auto">
+  <div class="vr d-none d-xxl-flex h-100 mx-xxl-2 text-white"></div>
+  <hr class="d-xxl-none my-2">
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="fontSizeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-font"></i>
+        <span class="d-xxl-none">Font Size</span>
+    </a>
+    <ul class="font-size-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="fontSizeDropdown">
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xs">
+                Extra Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="sm">
+                Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item active" data-size="md">
+                Medium
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="lg">
+                Large
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xl">
+                Extra Large
+            </button>
+        </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="paletteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-palette"></i>
+        <span class="d-xxl-none">Palette</span>
+    </a>
+    <ul class="palette-dropdown-menu dropdown-menu dropdown-menu-end px-2 row g-2" aria-labelledby="paletteDropdown">
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue" aria-label="Blue"
+                    class="btn btn-sm w-100 palette text-bg-blue" data-palette="blue">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue-gray" aria-label="Blue Gray"
+                    class="btn btn-sm w-100 palette text-bg-blue-gray" data-palette="blue-gray">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-brown" aria-label="Brown"
+                    class="btn btn-sm w-100 palette text-bg-brown" data-palette="brown">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-cyan" aria-label="Cyan"
+                    class="btn btn-sm w-100 palette text-bg-cyan" data-palette="cyan">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-green" aria-label="Green"
+                    class="btn btn-sm w-100 palette text-bg-green" data-palette="green">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-indigo" aria-label="Indigo"
+                    class="btn btn-sm w-100 palette text-bg-indigo" data-palette="indigo">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-orange" aria-label="Orange"
+                    class="btn btn-sm w-100 palette text-bg-orange" data-palette="orange">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-pink" aria-label="Pink"
+                    class="btn btn-sm w-100 palette text-bg-pink" data-palette="pink">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-purple" aria-label="Purple"
+                    class="btn btn-sm w-100 palette text-bg-purple" data-palette="purple">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-red" aria-label="Red"
+                    class="btn btn-sm w-100 palette text-bg-red" data-palette="red">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-teal" aria-label="Teal"
+                    class="btn btn-sm w-100 palette text-bg-teal" data-palette="teal">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-yellow" aria-label="Yellow"
+                    class="btn btn-sm w-100 palette text-bg-yellow" data-palette="yellow">
+                </a>
+            </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="modeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="mode-icon fas fa-fw fa-adjust" id="modeIcon"></i>
+        <span class="d-xxl-none">Mode</span>
+    </a>
+    <ul class="mode-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="modeDropdown">
+        <li class="mode-item" data-color-mode="light" data-icon="sun">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-sun"></i> Light
+            </button>
+        </li>
+        <li class="mode-item" data-color-mode="dark" data-icon="moon">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-moon"></i> Dark
+            </button>
+        </li>
+        <li class="mode-item active" data-color-mode="auto" data-icon="adjust">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-adjust"></i> Auto
+            </button>
+        </li>
+    </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex">
+      <button class="navbar-toggler order-5 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarMenus"
+        aria-controls="navbarMenus" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-ellipsis-h"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+</header>
+
+    <main class="container">
+      <div class="row content"><noscript>
+    <div class="alert alert-danger" role="alert">Your browser does not support JavaScript.</div>
+</noscript>
+
+<div class="col-xxl-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body pb-0">
+    <ol class="hbs-breadcrumb breadcrumb flex-nowrap"><li class="breadcrumb-item text-surface"><a href="/">Home</a></li><li class="breadcrumb-item text-surface"><a href="/study/">Studies</a></li><li class="breadcrumb-item active">APM光流传感器解析</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper position-relative d-flex justify-content-center">
+  <div class="d-flex flex-row justify-content-center rounded-5 border post-panel position-fixed px-3 py-1 surface shadow-1">
+    
+    
+
+    
+    
+    
+  <a class="action action-toc d-none d-xxl-block" href="#postTOC" role="button" title="Table of contents">
+    <i class="fas fa-fw fa-list-alt"></i>
+  </a>
+<a class="action action-toc d-block d-xxl-none" href="#post-toc-container" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    <a class="action action-copyright" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action action-post-comments" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    
+<a id="sidebarToggler" class="action action-sidebar-toggler d-none d-xxl-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+  </div>
+</div><article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title my-2">APM光流传感器解析</h1>
+  </div>
+  <div class="card-body"><div class="post-meta mb-3">
+  <span class="post-date me-1 mb-1" title="created on 2023-05-14 16:14:45 &#43;0800 HKT.">May 14, 2023</span><span class="post-reading-time me-1 mb-1">3 min read</span><a href="/categories/multi-sensor/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-category">
+      <i class="fas fa-fw fa-folder me-1"></i>Multi-Sensor</a><a href="/tags/opticalflow/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">OpticalFlow</a>
+</div>
+
+<div class="mt-2 mb-3 d-block d-xxl-none">
+    <h2 class="text-surface mb-3">Contents</h2>
+    <div id="post-toc-container">
+        </div>
+    <hr class="text-secondary">
+</div><div class="post-content mb-3" data-bs-spy="scroll" data-bs-target="#TableOfContents" tabindex="0">
+        <div id="post-content-body"><h2 id="librariesap_opticalflowap_opticalflowcpp" data-numberify>libraries/AP_OpticalFlow/AP_OpticalFlow.cpp<a class="anchor ms-1" href="#librariesap_opticalflowap_opticalflowcpp"></a></h2>
+<p>主要定义了<code>init()</code>, <code>handle_msp()</code>, <code>update()</code>, <code>start_calibration()</code>等几个函数</p>
+<ol>
+<li>
+<p><code>init()</code></p>
+<p>主要用于接收光流传感器的类型并定义backend, backend是<code>libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h</code>中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的<code>update(), handle_msg()</code>函数, 分别用于获取光流数据和更新</p>
+</li>
+<li>
+<p><code>update()</code></p>
+<p>函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span><span class="o">-&gt;</span><span class="n">update</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// apply new calibration values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">const</span> <span class="n">Vector2f</span> <span class="n">new_scaling</span> <span class="o">=</span> <span class="n">_calibrator</span><span class="o">-&gt;</span><span class="n">get_scalars</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scalerx_as_multiplier</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">_flowScalerX</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">))</span> <span class="o">*</span> <span class="n">new_scaling</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scalery_as_multiplier</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">_flowScalerY</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">))</span> <span class="o">*</span> <span class="n">new_scaling</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerX</span><span class="p">.</span><span class="n">set_and_save_ifchanged</span><span class="p">((</span><span class="n">flow_scalerx_as_multiplier</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerY</span><span class="p">.</span><span class="n">set_and_save_ifchanged</span><span class="p">((</span><span class="n">flow_scalery_as_multiplier</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerX</span><span class="p">.</span><span class="n">notify</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerY</span><span class="p">.</span><span class="n">notify</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_flowScalerX</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_flowScalerY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>_flowScalerX, _flowScalerY是地面站设置中的缩放参数. 这段代码用于更新缩放参数并发送给GCS</p>
+</li>
+<li>
+<p><code>start_calibration()</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_calibrator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AP_OpticalFlow_Calibrator</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_CRITICAL</span><span class="p">,</span> <span class="s">&#34;FlowCal: failed to start&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_calibrator</span><span class="o">-&gt;</span><span class="n">start</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>用于给_calibrator赋值</p>
+</li>
+</ol>
+<h2 id="librariesap_opticalflowap_opticalflow_mavcpp" data-numberify>libraries/AP_OpticalFlow/AP_OpticalFlow_MAV.cpp<a class="anchor ms-1" href="#librariesap_opticalflowap_opticalflow_mavcpp"></a></h2>
+<p>主要派生了<code>OpticalFlow_backend</code>类, 重载了获取数据和更新用的<code>handle_msg() update()</code>函数, 新增了几个用于计算的变量</p>
+<ol>
+<li>
+<p><code>handle_msg()</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">mavlink_msg_optical_flow_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">packet</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">latest_frame_us</span> <span class="o">=</span> <span class="n">AP_HAL</span><span class="o">::</span><span class="n">micros64</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">flow_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">packet</span><span class="p">.</span><span class="n">flow_x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">flow_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">packet</span><span class="p">.</span><span class="n">flow_y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">quality_sum</span> <span class="o">+=</span> <span class="n">packet</span><span class="p">.</span><span class="n">quality</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">count</span><span class="o">++</span><span class="p">;</span>
+</span></span></code></pre></div><p>从飞控读取数据后将这段时间的光流数据累加起来, 后续update时用的光流速度实际上是i这段时间的平均值</p>
+</li>
+<li>
+<p><code>update()</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">gyro_sum_count</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="n">Vector3f</span><span class="o">&amp;</span> <span class="n">gyro</span> <span class="o">=</span> <span class="n">AP</span><span class="o">::</span><span class="n">ahrs</span><span class="p">().</span><span class="n">get_gyro</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gyro_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">gyro</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gyro_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">gyro</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gyro_sum_count</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">is_positive</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">dt</span> <span class="o">&lt;</span> <span class="n">OPTFLOW_MAV_TIMEOUT_SEC</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// calculate flow values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scale_factor_x</span> <span class="o">=</span> <span class="mf">1.0f</span> <span class="o">+</span> <span class="mf">0.001f</span> <span class="o">*</span> <span class="n">_flowScaler</span><span class="p">().</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scale_factor_y</span> <span class="o">=</span> <span class="mf">1.0f</span> <span class="o">+</span> <span class="mf">0.001f</span> <span class="o">*</span> <span class="n">_flowScaler</span><span class="p">().</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// copy flow rates to state structure
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">state</span><span class="p">.</span><span class="n">flowRate</span> <span class="o">=</span> <span class="p">{</span> <span class="p">((</span><span class="kt">float</span><span class="p">)</span><span class="n">flow_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span> <span class="o">*</span> <span class="n">flow_scale_factor_x</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                       <span class="p">((</span><span class="kt">float</span><span class="p">)</span><span class="n">flow_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span> <span class="o">*</span> <span class="n">flow_scale_factor_y</span> <span class="o">*</span> <span class="n">dt</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// copy average body rate to state structure
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">state</span><span class="p">.</span><span class="n">bodyRate</span> <span class="o">=</span> <span class="p">{</span> <span class="n">gyro_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">gyro_sum_count</span><span class="p">,</span> <span class="n">gyro_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">/</span> <span class="n">gyro_sum_count</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// we only apply yaw to flowRate as body rate comes from AHRS
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">_applyYaw</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">flowRate</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// first frame received in some time so cannot calculate flow values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">state</span><span class="p">.</span><span class="n">flowRate</span><span class="p">.</span><span class="n">zero</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">state</span><span class="p">.</span><span class="n">bodyRate</span><span class="p">.</span><span class="n">zero</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>首先读取了imu的数据然后也做了平均数, 光流中的<code>flowRate</code>就是光流速度平均值乘以缩放系数, <code>bodyRate</code>是imu的平均值</p>
+</li>
+</ol>
+<h2 id="librariesap_opticalflowap_opticalflow_calibratorcpp" data-numberify>libraries/AP_OpticalFlow/AP_OpticalFlow_Calibrator.cpp<a class="anchor ms-1" href="#librariesap_opticalflowap_opticalflow_calibratorcpp"></a></h2>
+<p>主要用于计算最佳的缩放比例</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">sample_t</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">float</span> <span class="n">flow_rate</span><span class="p">;</span>	<span class="c1">// 光流速度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">float</span> <span class="n">body_rate</span><span class="p">;</span>	<span class="c1">// imu速度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">float</span> <span class="n">los_pred</span><span class="p">;</span>	<span class="c1">//ekf估计的在车辆运动方向的光流速度的分量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">};</span>
+</span></span></code></pre></div><ol>
+<li>
+<p><code>update()</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_cal_state</span> <span class="o">==</span> <span class="n">CalState</span><span class="o">::</span><span class="n">RUNNING</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">now_ms</span> <span class="o">=</span> <span class="n">AP_HAL</span><span class="o">::</span><span class="n">millis</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">timestamp_ms</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Vector2f</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">body_rate</span><span class="p">,</span> <span class="n">los_pred</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">AP</span><span class="o">::</span><span class="n">ahrs</span><span class="p">().</span><span class="n">getOptFlowSample</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="p">,</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">body_rate</span><span class="p">,</span> <span class="n">los_pred</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">add_sample</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="p">,</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">body_rate</span><span class="p">,</span> <span class="n">los_pred</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// while collecting samples display percentage complete
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">now_ms</span> <span class="o">-</span> <span class="n">_last_report_ms</span> <span class="o">&gt;</span> <span class="n">AP_OPTICALFLOW_CAL_STATUSINTERVAL_SEC</span> <span class="o">*</span> <span class="mi">1000UL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">_last_report_ms</span> <span class="o">=</span> <span class="n">now_ms</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s x:%d%% y:%d%%&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">prefix_str</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">(</span><span class="kt">int</span><span class="p">)((</span><span class="n">_cal_data</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">num_samples</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">AP_OPTICALFLOW_CAL_MAX_SAMPLES</span><span class="p">)),</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">(</span><span class="kt">int</span><span class="p">)((</span><span class="n">_cal_data</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">num_samples</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">AP_OPTICALFLOW_CAL_MAX_SAMPLES</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// advance state once sample buffers are full
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">sample_buffers_full</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">READY_TO_CALIBRATE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s samples collected&#34;</span><span class="p">,</span> <span class="n">prefix_str</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// check for timeout
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">now_ms</span> <span class="o">-</span> <span class="n">_start_time_ms</span> <span class="o">&gt;</span> <span class="n">AP_OPTICALFLOW_CAL_TIMEOUT_SEC</span> <span class="o">*</span> <span class="mi">1000UL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s timeout&#34;</span><span class="p">,</span> <span class="n">prefix_str</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">FAILED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// start calibration
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">_cal_state</span> <span class="o">==</span> <span class="n">CalState</span><span class="o">::</span><span class="n">READY_TO_CALIBRATE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// run calibration and mark failure or success
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">run_calibration</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">SUCCESS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">FAILED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>先从AHRS中获取时间辍, 光流的速度和机体imu的速度, 然后运行run_calibration()进行校准</p>
+</li>
+<li>
+<p><code>run_calibration()</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// calculate total absolute residual from all samples
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">float</span> <span class="n">total_abs_residual</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">uint8_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_samples</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">sample_t</span><span class="o">&amp;</span> <span class="n">samplei</span> <span class="o">=</span> <span class="n">_cal_data</span><span class="p">[</span><span class="n">axis</span><span class="p">].</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total_abs_residual</span> <span class="o">+=</span> <span class="n">fabsf</span><span class="p">(</span><span class="n">calc_sample_residual</span><span class="p">(</span><span class="n">samplei</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 此时计算的是系数为1, 得到的也就是实际上的光流速度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 先计算残差和
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 如果残差和为零的话就返回1, 说明校准成功
+</span></span></span><span class="line"><span class="cl"><span class="c1">// for each sample calculate the residual and scalar that best reduces the residual
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">float</span> <span class="n">best_scalar_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">uint8_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_samples</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">float</span> <span class="n">sample_best_scalar</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">sample_t</span><span class="o">&amp;</span> <span class="n">samplei</span> <span class="o">=</span> <span class="n">_cal_data</span><span class="p">[</span><span class="n">axis</span><span class="p">].</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">calc_sample_best_scalar</span><span class="p">(</span><span class="n">samplei</span><span class="p">,</span> <span class="n">sample_best_scalar</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// failed to find the best scalar for a single sample
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// this should never happen because of checks when capturing samples
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s failed because of zero flow rate&#34;</span><span class="p">,</span> <span class="n">prefix_str</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">INTERNAL_ERROR</span><span class="p">(</span><span class="n">AP_InternalError</span><span class="o">::</span><span class="n">error_t</span><span class="o">::</span><span class="n">flow_of_control</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="kt">float</span> <span class="n">sample_residual</span> <span class="o">=</span> <span class="n">calc_sample_residual</span><span class="p">(</span><span class="n">samplei</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">best_scalar_total</span> <span class="o">+=</span> <span class="n">sample_best_scalar</span> <span class="o">*</span> <span class="n">fabsf</span><span class="p">(</span><span class="n">sample_residual</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_abs_residual</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 计算的是光流补偿量除以光流速度的平均值, 即系数的平均值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 最佳残差时的系数, 判断光流速度是否存在零, 如果存在零的话就返回false
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 当计算出的最佳缩放系数的均方残差, 当均方小于系数为1计算出的均方残差时返回true (不太理解, 只要系数小于1的话均方肯定也是比他小的呀)
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 返回的缩放系数为best_scalar_total
+</span></span></span></code></pre></div></li>
+<li>
+<p><code>calc_sample_residual()</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">AP_OpticalFlow_Calibrator</span><span class="o">::</span><span class="n">calc_sample_residual</span><span class="p">(</span><span class="k">const</span> <span class="n">sample_t</span><span class="o">&amp;</span> <span class="n">sample</span><span class="p">,</span> <span class="kt">float</span> <span class="n">scalar</span><span class="p">)</span> <span class="k">const</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="n">sample</span><span class="p">.</span><span class="n">body_rate</span> <span class="o">+</span> <span class="p">((</span><span class="n">sample</span><span class="p">.</span><span class="n">flow_rate</span> <span class="o">*</span> <span class="n">scalar</span><span class="p">)</span> <span class="o">-</span> <span class="n">sample</span><span class="p">.</span><span class="n">los_pred</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>计算的残差为$imu速度+(光流速度*缩放系数-EKF估计的光流速度在车辆运动方向的分量)$, (等于0时说明系数最佳)</p>
+</li>
+<li>
+<p><code>calc_sample_best_scalar()</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// if sample&#39;s flow_rate is zero scalar has no effect
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// this should never happen because samples should have been checked before being added
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">is_zero</span><span class="p">(</span><span class="n">sample</span><span class="p">.</span><span class="n">flow_rate</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">best_scalar</span> <span class="o">=</span> <span class="p">(</span><span class="n">sample</span><span class="p">.</span><span class="n">los_pred</span> <span class="o">-</span> <span class="n">sample</span><span class="p">.</span><span class="n">body_rate</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample</span><span class="p">.</span><span class="n">flow_rate</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>$最佳系数=(EKF估计的光流速度在运动方向的分量-imu速度)/光流速度$</p>
+</li>
+</ol>
+</div>
+</div>
+</div></article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title fs-4 my-2 text-surface">Copyright</h2>
+    </div>
+    <div class="card-body"><a class="d-flex align-items-center flex-column" target="_blank" rel="license noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">
+  <span><i class="fab fa-fw fa-2x fa-creative-commons"></i><i class="fab fa-fw fa-2x fa-creative-commons-by"></i><i class="fab fa-fw fa-2x fa-creative-commons-nc"></i><i class="fab fa-fw fa-2x fa-creative-commons-sa"></i></span>
+  CC BY-NC-SA 4.0 
+</a>
+
+
+    </div>
+</div><section class="related-posts row card component">
+      <div class="card-header">
+        <h2 class="card-title fs-4 my-2 text-surface">
+          Related Posts
+        </h2>
+      </div>
+      <div class="card-body slide px-1">
+        <div class="slide-inner row gx-0"><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/project/ublox/">
+    使用ublox F9p GPS模块
+  </a>
+  <div class="post-meta mb-0">
+    May 5, 2023
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/project/multi-sensor-fusion/">
+    空地无人机GPS与T265，光流传感器等的数据融合
+  </a>
+  <div class="post-meta mb-0">
+    May 5, 2023
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/project/orbslam3/">
+    Orb_slam3稠密建图
+  </a>
+  <div class="post-meta mb-0">
+    April 3, 2023
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/project/indentifyapron/">
+    Gazebo仿真环境下停机坪的识别
+  </a>
+  <div class="post-meta mb-0">
+    March 16, 2023
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/installation/linux/archlinux/">
+    Install on Arch Linux
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/installation/linux/ubuntu/">
+    Install on Ubuntu
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/installation/windows/">
+    Install on Windows
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div><div class="col-12 col-md-6 col-lg-4 me-2">
+            <div class="post-card card card-body p-0 border-0 surface">
+  
+  <div
+    class="post-card-default-img card-img-top d-flex align-items-center justify-content-center bg-body-secondary mb-1">
+    NO IMAGE
+  </div>
+
+  <a class="post-title" href="/docs/introduction/">
+    Introduction
+  </a>
+  <div class="post-meta mb-0">
+    September 6, 2022
+
+  </div>
+</div>
+
+          </div></div>
+        <button class="slide-control-left">
+          <i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-90"></i>
+          <span class="visually-hidden">Left</span>
+        </button>
+        <button class="slide-control-right">
+          <i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-270"></i>
+          <span class="visually-hidden">Right</span>
+        </button>
+      </div>
+    </section><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title my-2 fs-4 text-surface">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="TioeAre/tioe-blog-comments"
+  issue-term="pathname"
+  label="comment"
+  theme="github-light"
+  crossorigin="anonymous"
+  async>
+</script>
+
+
+
+</div>
+</div></div>
+</div>
+<aside class="col-xxl-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    
+    
+<div class="accordion profile">
+  <div class="accordion-item card row text-center component">
+    <div class="accordion-header card-header border-0" id="profile-header">
+      <a
+        class="accordion-button d-lg-none mb-2 shadow-none p-0 bg-transparent text-surface collapsed"
+        role="button" data-bs-toggle="collapse" href="#profile" aria-expanded="false" aria-controls="profile">
+        Profile
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="profile" aria-labelledby="profile-header">
+      <div class="col-12 d-flex align-items-center justify-content-center"><picture><img class="profile-avatar rounded-circle " alt="Tioe Are" src="https://www.blog.tioe.xyz/images/avatar.png" loading="lazy" data-viewer-invisible width="428" height="393" />
+</picture>
+</div>
+      <div class="col-12 profile-meta"><div class="profile-name fw-fold fs-lg">Tioe Are</div><div class="profile-bio">洗心革面, 潜心学习</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>zzu</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><a class="profile-about text-primary" href="/about/"><i class="fas fa-fw fa-user"></i>About</a><a class="profile-contact text-primary" href="/contact/"><i class="fas fa-fw fa-question-circle"></i>Contact Us</a></div>
+
+
+<nav class="social-links nav justify-content-center mt-1 justify-content-around">
+      <a class="nav-link social-link" target="_blank" href="https://space.bilibili.com/359367522" title="Bilibili" rel="me">
+        <i class="fa-fw fa-2x fab fa-bilibili"
+           style="color: #fb7299;"></i>
+      </a>
+    <a class="nav-link social-link" href="mailto:are10032@outlook.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope" style="color: #0963ac;"></i>
+    </a>
+      <a class="nav-link social-link" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fa-2x fab fa-github"
+          ></i>
+      </a>
+      <a class="nav-link social-link" target="_blank" href="https://www.zhihu.com/people/tioeare" title="Zhihu" rel="me">
+        <i class="fa-fw fa-2x fab fa-zhihu"
+           style="color: #056de8;"></i>
+      </a>
+  <a class="nav-link social-link" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-2x fa-rss" style="color: #ea6221;"></i>
+  </a>
+</nav>
+</div>
+  </div>
+</div>
+
+
+<div class="accordion post-toc d-none d-lg-block">
+  <div class="accordion-item row mb-4 card component" id="postTOC">
+    <div class="card-header accordion-header">
+      <h2 class="card-title fs-4 my-2 text-surface d-none d-lg-block">Contents</h2>
+      <a class="accordion-button d-lg-none mb-1 collapsed shadow-none p-0 bg-transparent" role="button" data-bs-toggle="collapse" href="#post-toc" aria-expanded="false" aria-controls="post-toc">
+        Contents
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="post-toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#librariesap_opticalflowap_opticalflowcpp">libraries/AP_OpticalFlow/AP_OpticalFlow.cpp</a></li>
+    <li><a href="#librariesap_opticalflowap_opticalflow_mavcpp">libraries/AP_OpticalFlow/AP_OpticalFlow_MAV.cpp</a></li>
+    <li><a href="#librariesap_opticalflowap_opticalflow_calibratorcpp">libraries/AP_OpticalFlow/AP_OpticalFlow_Calibrator.cpp</a></li>
+  </ul>
+</nav>
+    </div>
+  </div>
+</div>
+
+  <div class="accordion recent-posts">
+    <section class="row card component">
+      <div class="card-header">
+        <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+          Recent Posts
+        </h2>
+        <a
+          class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent collapsed"
+          role="button"
+          data-bs-toggle="collapse"
+          href="#recent-posts"
+          aria-expanded="false"
+          aria-controls="recent-posts">
+          Recent Posts
+        </a>
+      </div>
+      <div
+        class="card-body collapse accordion-collapse accordion-body d-lg-block"
+        id="recent-posts">
+        <ul class="post-list list-unstyled ms-1">
+            <li class="mb-2">
+              <a href="/study/ransac/">RANSAC</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/nnsensorfusion/">使用神经网络融合位置数据(第一版)</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/nice_slam/">Nice Slam论文解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_ekf3/">APM中ekf3算法</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_t265/">APM中t265数据解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_optical_flow/">APM光流传感器解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/multi-sensor-fusion/">空地无人机GPS与T265，光流传感器等的数据融合</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/ublox/">使用ublox F9p GPS模块</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/orbslam3/">Orb_slam3稠密建图</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/indentifyapron/">Gazebo仿真环境下停机坪的识别</a>
+            </li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+      <div class="accordion categories-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/categories">Categories</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-categories" aria-expanded="false" aria-controls="taxonomy-categories">
+                Categories
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-categories">
+            <div class="py-2">
+              <a href="/categories/multi-sensor/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Multi-Sensor">
+                Multi-Sensor
+                  <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+              </a>
+              <a href="/categories/bug/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="bug">
+                bug
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/categories/installation/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Installation">
+                Installation
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/categories/opencv/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="OpenCV">
+                OpenCV
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/categories/slam/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="slam">
+                slam
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/categories/gps/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="GPS">
+                GPS
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/probability/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Probability">
+                Probability
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="实验记录">
+                实验记录
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="服务器">
+                服务器
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="accordion tags-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/tags">Tags</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-tags" aria-expanded="false" aria-controls="taxonomy-tags">
+                Tags
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-tags">
+            <div class="py-2">
+              <a href="/tags/bug/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="bug">
+                bug
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/tags/ros/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="ros">
+                ros
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/tags/gps/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="GPS">
+                GPS
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/linux/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Linux">
+                Linux
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/opencv/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="OpenCV">
+                OpenCV
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/slam/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="slam">
+                slam
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/arch-linux/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Arch Linux">
+                Arch Linux
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/bitwarden/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="bitwarden">
+                bitwarden
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/c&#43;&#43;/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="c&#43;&#43;">
+                c&#43;&#43;
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/caddy/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="caddy">
+                caddy
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+            <a href="https://www.blog.tioe.xyz/tags" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title='ALL'>
+              ALL
+              <span class="badge badge-sm text-secondary bg-white ms-1">20</span>
+            </a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="accordion series-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/series">Series</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-series" aria-expanded="false" aria-controls="taxonomy-series">
+                Series
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-series">
+            <div class="py-2">
+              <a href="/series/guide/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-series me-2 mb-2" title="Guide">
+                Guide
+                  <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+<div class="accordion archives">
+  <section class="row card component">
+      <div class="card-header">
+        <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+            <a href="/archives/">Archives</a>
+        </h2>
+        <a
+          class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent collapsed"
+          role="button" data-bs-toggle="collapse" href="#archives" aria-expanded="false" aria-controls="archives">
+            Archives
+        </a>
+      </div>
+      <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="archives">
+
+    <a href="/archives/2023/" class="btn btn-sm btn-secondary post-taxonomy ps-3 me-2 mb-2" title="2023">
+    2023 <span class="badge badge-sm text-secondary bg-white ms-1">10</span>
+    </a>
+
+    <a href="" class="btn btn-sm btn-secondary post-taxonomy ps-3 me-2 mb-2" title="2022">
+    2022 <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+    </a>
+
+
+      </div>
+  </section>
+</div>
+
+
+    
+  </div>
+</aside>
+
+      </div>
+    </main><footer class="footer mt-auto py-3 text-center container"><div class="offcanvas offcanvas-bottom h-auto" tabindex="-1" id="offcanvasActionsPanel"
+  aria-labelledby="offcanvasActionsPanelLabel">
+  <div class="offcanvas-header">
+    <div class="offcanvas-title h5" id="offcanvasActionsPanelLabel">
+      <i class="fas fa-fw fa-th-large me-1"></i>
+      Actions
+    </div>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" data-bs-target="offcanvasActionsPanel" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body mt-2"><div class="social-share mb-4 d-flex overflow-auto">
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=Offline&url=https%3a%2f%2fwww.blog.tioe.xyz%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-twitter mb-2"></i> Twitter
+      </a>
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Facebook Share Button"
+        target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.blog.tioe.xyz%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-facebook-f mb-2"></i> Facebook
+      </a>
+    </div>
+    <hr class="mb-4"><div class="actions d-flex overflow-auto align-items-center">
+      <a role="button" class="action action-go-back d-flex flex-column align-items-center me-3" href="javascript: window.history.back();">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-90"></i></span> Go back
+      </a>
+      <a role="button" class="action action-reload-page d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+      </a>
+      <a role="button" class="action action-copy-url d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-link"></i></span> Copy URL
+      </a>
+    </div>
+  </div>
+</div><div class="row text-center">
+  <div class="col-12 mt-2">
+    <p class="mb-2">Tioe&#39;s website</p>
+    <p class="text-secondary mb-2"><small>my pirsonal web</small></p><div class="copyright mb-2 text-secondary">
+  <small>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</small>
+</div>
+<div class="powered-by mb-2 text-secondary">
+  <small>
+    Build with ❤️ from the <a class="text-primary" href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a class="text-primary" href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">HBS</a> theme.
+  </small>
+</div>
+
+
+<nav class="social-links nav justify-content-center mb-2 mt-3">
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://space.bilibili.com/359367522" title="Bilibili" rel="me">
+        <i class="fa-fw fa-2x fab fa-bilibili"
+           style="color: #fb7299;"></i>
+      </a>
+    <a class="nav-link social-link p-0 me-1 mb-2" href="mailto:are10032@outlook.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope" style="color: #0963ac;"></i>
+    </a>
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fa-2x fab fa-github"
+          ></i>
+      </a>
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://www.zhihu.com/people/tioeare" title="Zhihu" rel="me">
+        <i class="fa-fw fa-2x fab fa-zhihu"
+           style="color: #056de8;"></i>
+      </a>
+  <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-2x fa-rss" style="color: #ea6221;"></i>
+  </a>
+</nav>
+</div>
+  <div class="col-12 col-lg-8 offset-0 offset-lg-1"></div>
+</div>
+</footer>
+<script data-precache src="/assets/main/bundle.min.7b0b844603567e21d803318e39a00e4a40cba615a1fed3a176983a6341954616.js" integrity="sha256-ewuERgNWfiHYAzGOOaAOSkDLphWh/tOhdpg6Y0GVRhY=" crossorigin="anonymous" async></script><script data-precache src="/assets/icons/bundle.min.4f30d5267a9f2f9d45ed93969d45ec626100a969a8b91f71f753315a261e9034.js" integrity="sha256-TzDVJnqfL51F7ZOWnUXsYmEAqWmouR9x91MxWiYekDQ=" crossorigin="anonymous" defer></script>
+<script data-precache src="/assets/viewer/bundle.min.0a0d0099935beee41b7a7bf4543cd55e793e5f830a571b0794ef8c3602c5823c.js" integrity="sha256-Cg0AmZNb7uQbenv0VDzVXnk&#43;X4MKVxsHlO&#43;MNgLFgjw=" crossorigin="anonymous" defer></script>
+  <script data-precache defer src="/assets/katex/bundle.min.ba934031af2a70b39e62782984e88913923c1ea7ba5d19e7e8e8dbea3862ec17.js" integrity="sha256-upNAMa8qcLOeYngphOiJE5I8Hqe6XRnn6Ojb6jhi7Bc=" crossorigin="anonymous"></script>
+<script data-precache defer src="/assets/mermaid/bundle.min.bd1045face50939ea18921e0a1dee594789e354704b26e1b1ad61b9c66bec1f1.js" integrity="sha256-vRBF&#43;s5Qk56hiSHgod7llHieNUcEsm4bGtYbnGa&#43;wfE=" crossorigin="anonymous"></script>
+
+<script src="/js/sw-register.js" defer></script>
+
+
+  </body>
+</html>

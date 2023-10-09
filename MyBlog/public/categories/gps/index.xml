@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>GPS on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/categories/gps/</link>
+    <description>Recent content in GPS on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Fri, 05 May 2023 16:14:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/categories/gps/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用ublox f9p GPS模块</title>
+      <link>https://www.blog.tioe.xyz/project/ublox/</link>
+      <pubDate>Fri, 05 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/ublox/</guid>
+      <description><![CDATA[编译报错 /home/tioeare/project/FASTLAB/gps_ws/src/ublox/ublox_gps/src/node.cpp:39:10: fatal error: rtcm_msgs/Message.h: No such file or directory 39 | #include &lt;rtcm_msgs/Message.h&gt; | ^~~~~~~~~~~~~~~~~~~~~ compilation terminated. make[2]: *** [ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/build.make:76: ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/src/node.cpp.o] Error 1 make[1]: *** [CMakeFiles/Makefile2:4154: ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/all] Error 2 make: *** [Makefile:146: all] Error 2 Invoking &#34;make -j8 -l8&#34; failed 下载https://github.com/tilk/rtcm_msgs放到gps_ws/src目录下
+/usr/bin/ld: CMakeFiles/ublox_gps_node.dir/src/node.cpp.o: in function `ublox_node::UbloxNode::configureUblox()&#39;: node.cpp:(.text+0x86b7): undefined reference to `ublox_node::UbloxNode::kResetWait&#39; /usr/bin/ld: /home/tioeare/project/FASTLAB/gps_ws/devel/lib/libublox_gps.so: undefined reference to `ublox_gps::Gps::kSetBaudrateSleepMs&#39; collect2: error: ld returned 1 exit status make[2]: *** [ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/build.make:151: /home/tioeare/project/FASTLAB/gps_ws/devel/lib/ublox_gps/ublox_gps] Error 1 make[1]: *** [CMakeFiles/Makefile2:4505: ublox/ublox_gps/CMakeFiles/ublox_gps_node.]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

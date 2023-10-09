@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Multi-Sensor on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/categories/multi-sensor/</link>
+    <description>Recent content in Multi-Sensor on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Tue, 23 May 2023 16:14:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/categories/multi-sensor/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>APM中ekf3算法</title>
+      <link>https://www.blog.tioe.xyz/study/apm_ekf3/</link>
+      <pubDate>Tue, 23 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_ekf3/</guid>
+      <description><![CDATA[ekf3用于估计位姿, 导航坐标系为NED(北东地)
+数学推导参考PX4和APM导航解算过程推导-24维状态EKF
+matlab见InertialNav-Github
+ekf2代码介绍EKF2
+AP_NavEKF3.cpp bool InitialiseFilter() 用于初始化滤波器, 滤波器可以有好几个core, 每个core或lane对应一种传感器和imu的状态估计, 初始化时EK3_PRIMARY可以在为某个core或lane. 但之后可能会在运行时被修改成其他的lane. Affinity允许不设置首要lane, 并用lane error存储不同传感器的差值, 使系统能够效果最好的作为状态估计. lane error随时间积累并通过EK3_ERR_THRESH参数设置non-primary and primary lane比较的阈值, 当超过阈值时会切换用于估计的传感器(下文中的所有core与lane几乎是可以表示同一个东西)
+函数中首先获取循环一次的时间, 每个imu对应一个core, 一个imu不能用于多个滤波器, 然后为ekf core申请内存, 如果申请成功的话就调用NavEKF3_core()创建每个core, 然后调用resetCoreErrors()初始化上文提到的每个core对应的lane error
+NavEKF3_core()初始化时使用了libraries/AP_NavEKF3/AP_NavEKF3_core.cpp中几个函数InitialiseFilterBootstrap() InitialiseVariables()&amp;&amp;CovarianceInit() InitialiseVariablesMag()(依次调用), 使系统运行中能够在必要时初始化滤波器(在UpdateFilter()中, 如果filterStatus.value==0的话会调用InitialiseFilterBootstrap()重新初始化)
+协方差初始化时, 初始化为对角矩阵
+memset(&amp;P[0][0], 0, sizeof(P)); // define the initial angle uncertainty as variances for a rotation vector Vector3F rot_vec_var; rot_vec_var.x = rot_vec_var.y = rot_vec_var.z = sq(0.1f); // reset the quaternion state covariances CovariancePrediction(&amp;rot_vec_var); // velocities P[4][4] = sq(frontend-&gt;_gpsHorizVelNoise); P[5][5] = P[4][4]; P[6][6] = sq(frontend-&gt;_gpsVertVelNoise); // positions P[7][7] = sq(frontend-&gt;_gpsHorizPosNoise); P[8][8] = P[7][7]; P[9][9] = sq(frontend-&gt;_baroAltNoise); // gyro delta angle biases P[10][10] = sq(radians(InitialGyroBiasUncertainty() * dtEkfAvg)); P[11][11] = P[10][10]; P[12][12] = P[10][10]; // delta velocity biases P[13][13] = sq(ACCEL_BIAS_LIM_SCALER * frontend-&gt;_accBiasLim * dtEkfAvg); P[14][14] = P[13][13]; P[15][15] = P[13][13]; // earth magnetic field P[16][16] = sq(frontend-&gt;_magNoise); P[17][17] = P[16][16]; P[18][18] = P[16][16]; // body magnetic field P[19][19] = sq(frontend-&gt;_magNoise); P[20][20] = P[19][19]; P[21][21] = P[19][19]; // wind velocities P[22][22] = 0.]]></description>
+    </item>
+    
+    <item>
+      <title>APM中t265数据解析</title>
+      <link>https://www.blog.tioe.xyz/study/apm_t265/</link>
+      <pubDate>Mon, 15 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_t265/</guid>
+      <description><![CDATA[libraries/AP_VisualOdom/AP_VisualOdom.h 参数有相机的类别, 相机相对飞控的位移, 相机相对飞控摆放的方向(前后左右向下), 相机数据的缩放系数, 延迟, 速度\位置\yaw的噪声
+float posErr = 0; float angErr = 0; if (!isnan(m.pose_covariance[0])) { posErr = cbrtf(sq(m.pose_covariance[0])+sq(m.pose_covariance[6])+sq(m.pose_covariance[11])); angErr = cbrtf(sq(m.pose_covariance[15])+sq(m.pose_covariance[18])+sq(m.pose_covariance[20])); } // 噪声直接是将协方差矩阵中的相加 主要函数有
+init()
+// create backend switch (VisualOdom_Type(_type.get())) { case VisualOdom_Type::None: // do nothing break; #if AP_VISUALODOM_MAV_ENABLED case VisualOdom_Type::MAV: _driver = new AP_VisualOdom_MAV(*this); break; #endif #if AP_VISUALODOM_INTELT265_ENABLED case VisualOdom_Type::IntelT265: case VisualOdom_Type::VOXL: _driver = new AP_VisualOdom_IntelT265(*this); break; #endif } 如果是t265的话默认成VOXL, 这两个应该用的是类似的数据
+handle_vision_position_delta_msg()
+调用_driver-&gt;handle_vision_position_delta_msg()获取角度和位置数据
+handle_vision_position_estimate()
+获取四元数或者三轴角度然后调用_driver-&gt;handle_vision_position_estimate()进行位置估计]]></description>
+    </item>
+    
+    <item>
+      <title>APM光流传感器解析</title>
+      <link>https://www.blog.tioe.xyz/study/apm_optical_flow/</link>
+      <pubDate>Sun, 14 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_optical_flow/</guid>
+      <description><![CDATA[libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中
+if (_calibrator != nullptr) { if (_calibrator-&gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 + (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 + (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.set_and_save_ifchanged((flow_scalerx_as_multiplier - 1.0) * 1000.0); _flowScalerY.set_and_save_ifchanged((flow_scalery_as_multiplier - 1.0) * 1000.0); _flowScalerX.notify(); _flowScalerY.notify(); GCS_SEND_TEXT(MAV_SEVERITY_INFO, &#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;, (int)_flowScalerX, (int)_flowScalerY); } } _flowScalerX, _flowScalerY是地面站设置中的缩放参数.]]></description>
+    </item>
+    
+    <item>
+      <title>空地无人机GPS与T265，光流传感器等的数据融合</title>
+      <link>https://www.blog.tioe.xyz/project/multi-sensor-fusion/</link>
+      <pubDate>Fri, 05 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/multi-sensor-fusion/</guid>
+      <description><![CDATA[apm坐标系 相机相比无人机中心:
+x正方向朝前
+y正方向朝右
+z正方向朝下
+数据格式 GPS 经度，维度，高度的绝对值
+gps获取到的数据的协方差(正常室外时协方差&lt;1.5)
+topic: /gps/fix
+type: sensor_msgs/NavSatFix
+uint8 COVARIANCE_TYPE_UNKNOWN=0 uint8 COVARIANCE_TYPE_APPROXIMATED=1 uint8 COVARIANCE_TYPE_DIAGONAL_KNOWN=2 uint8 COVARIANCE_TYPE_KNOWN=3 std_msgs/Header header uint32 seq time stamp string frame_id sensor_msgs/NavSatStatus status int8 STATUS_NO_FIX=-1 int8 STATUS_FIX=0 int8 STATUS_SBAS_FIX=1 int8 STATUS_GBAS_FIX=2 uint16 SERVICE_GPS=1 uint16 SERVICE_GLONASS=2 uint16 SERVICE_COMPASS=4 uint16 SERVICE_GALILEO=8 int8 status uint16 service float64 latitude float64 longitude float64 altitude float64[9] position_covariance uint8 position_covariance_type 光流 光流x，y轴速度及竖直方向上相对地面的高度
+信号强度，光流质量
+# 自定义光流数据 std_msgs/Header header uint32 seq time stamp string frame_id float32 distance uint8 strength uint8 precision uint8 tof_status float32 flow_vel_x float32 flow_vel_y uint8 flow_quality uint8 flow_status # 板载imu数据 std_msgs/Header header uint32 seq time stamp string frame_id geometry_msgs/Quaternion orientation float64 x float64 y float64 z float64 w float64[9] orientation_covariance geometry_msgs/Vector3 angular_velocity float64 x float64 y float64 z float64[9] angular_velocity_covariance geometry_msgs/Vector3 linear_acceleration float64 x float64 y float64 z float64[9] linear_acceleration_covariance t265 相机当前坐标(相对于开机时的坐标)及姿态四元数]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

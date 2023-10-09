@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ekf on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/tags/ekf/</link>
+    <description>Recent content in ekf on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Tue, 23 May 2023 16:14:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/tags/ekf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>APM中ekf3算法</title>
+      <link>https://www.blog.tioe.xyz/study/apm_ekf3/</link>
+      <pubDate>Tue, 23 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_ekf3/</guid>
+      <description><![CDATA[ekf3用于估计位姿, 导航坐标系为NED(北东地)
+数学推导参考PX4和APM导航解算过程推导-24维状态EKF
+matlab见InertialNav-Github
+ekf2代码介绍EKF2
+AP_NavEKF3.cpp bool InitialiseFilter() 用于初始化滤波器, 滤波器可以有好几个core, 每个core或lane对应一种传感器和imu的状态估计, 初始化时EK3_PRIMARY可以在为某个core或lane. 但之后可能会在运行时被修改成其他的lane. Affinity允许不设置首要lane, 并用lane error存储不同传感器的差值, 使系统能够效果最好的作为状态估计. lane error随时间积累并通过EK3_ERR_THRESH参数设置non-primary and primary lane比较的阈值, 当超过阈值时会切换用于估计的传感器(下文中的所有core与lane几乎是可以表示同一个东西)
+函数中首先获取循环一次的时间, 每个imu对应一个core, 一个imu不能用于多个滤波器, 然后为ekf core申请内存, 如果申请成功的话就调用NavEKF3_core()创建每个core, 然后调用resetCoreErrors()初始化上文提到的每个core对应的lane error
+NavEKF3_core()初始化时使用了libraries/AP_NavEKF3/AP_NavEKF3_core.cpp中几个函数InitialiseFilterBootstrap() InitialiseVariables()&amp;&amp;CovarianceInit() InitialiseVariablesMag()(依次调用), 使系统运行中能够在必要时初始化滤波器(在UpdateFilter()中, 如果filterStatus.value==0的话会调用InitialiseFilterBootstrap()重新初始化)
+协方差初始化时, 初始化为对角矩阵
+memset(&amp;P[0][0], 0, sizeof(P)); // define the initial angle uncertainty as variances for a rotation vector Vector3F rot_vec_var; rot_vec_var.x = rot_vec_var.y = rot_vec_var.z = sq(0.1f); // reset the quaternion state covariances CovariancePrediction(&amp;rot_vec_var); // velocities P[4][4] = sq(frontend-&gt;_gpsHorizVelNoise); P[5][5] = P[4][4]; P[6][6] = sq(frontend-&gt;_gpsVertVelNoise); // positions P[7][7] = sq(frontend-&gt;_gpsHorizPosNoise); P[8][8] = P[7][7]; P[9][9] = sq(frontend-&gt;_baroAltNoise); // gyro delta angle biases P[10][10] = sq(radians(InitialGyroBiasUncertainty() * dtEkfAvg)); P[11][11] = P[10][10]; P[12][12] = P[10][10]; // delta velocity biases P[13][13] = sq(ACCEL_BIAS_LIM_SCALER * frontend-&gt;_accBiasLim * dtEkfAvg); P[14][14] = P[13][13]; P[15][15] = P[13][13]; // earth magnetic field P[16][16] = sq(frontend-&gt;_magNoise); P[17][17] = P[16][16]; P[18][18] = P[16][16]; // body magnetic field P[19][19] = sq(frontend-&gt;_magNoise); P[20][20] = P[19][19]; P[21][21] = P[19][19]; // wind velocities P[22][22] = 0.]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>slam on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/tags/slam/</link>
+    <description>Recent content in slam on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Tue, 30 May 2023 09:57:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/tags/slam/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>nice slam论文解析</title>
+      <link>https://www.blog.tioe.xyz/study/nice_slam/</link>
+      <pubDate>Tue, 30 May 2023 09:57:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/nice_slam/</guid>
+      <description><![CDATA[​	NICE-SLAM是一种利用神经隐式表达的稠密slam系统,主要维护了一个4层的feature grids的全局地图, 每个grid表示当前相机位姿下的局部的场景, 4个层级分别表示由粗到细的三个深度图和一个rgb层. 每个层级的每个grid储存32维的特征向量.
+​	从右到左: 系统相当于一个场景渲染器。接收场景的特征网格和相机位姿，生成带有深度信息和色彩信息的RGB-D图像（深度信息处理为场景三维模型，色彩信息处理为贴图）；
+​	从左往右: 输入采集的RGB-D图像流（ground truth），把右边渲染出的RGB-D估计值与坐边输入的RGB-D实际值比对，分别计算关于深度和色彩的损失函数，并且将损失函数沿着可微分渲染器反向传播。经过迭代，对特征网格和相机位姿进行优化（将损失函数降到最低），完成建图（Mapping）和定位（Tracking）
+​	在建图过程中, NICE-SLAM使用如上图所示的架构, 首先得到一个先验的相机位姿, 然后在这个相机位姿下的不同层级的grid中按照相机朝向的ray进行随机采样一些点, 再用线性插值的方法得到每个grid中点的32维feature. 再用一个预训练好的decoder对这些先验的 feature点进行decode成深度图和彩色图. 再将decode出的深度图和彩色图与实际深度相机得到的深度图和彩色图进行对比做loss. 然后反过来去训练输入的feature上的点. 最终的到能够decode成正确深度图和彩色图的feature grid. 此时的feature grid就是slam建立起的稠密地图
+​	NICE-SLAM建图的过程是tracking和mapping交替进行。Mapping的过程是以当前相机的RGB和depth作为真值，根据Feature grids渲染得到的RGB和depth作为预测值，构建几何或光度误差损失函数，同时对相机位姿和Feature grids中的feature进行优化。Tracking的过程就是基于Feature grids和估计的位姿渲染depth和rgb，通过和相机实际采集的depth和rgb对比，从而优化相机位姿。
+​	NICE-SLAM的优势主要是与iMAP相比, iMAP是基于经典的NERF架构, 整个网络使用一个大的MLP来储存场景信息, 难以对大型场景进行细节建图, 并且在每次更新地图时都要对整个MLP的网络进行更新, 容易将已经学习到的细节覆盖掉造成场景的遗忘. 相比而言, NICE-SLAM使用 由粗到细的分场景表达, 对三个层级分别应用不同的预训练好的MLP. 并且能够允许对每个grid进行局部更新. 此时分辨率较低的coarse主要进行大场景的渲染, 因为分辨率较高, 所以能够允许网络对相机观测不到的场景也进行一个简单的预判, 大致填充没有观测到的区域. 分辨率最高的fine层级则负责对局部场景进行建模, 保证了网络渲染出的地图的精确度. 但是NICE-SLAM中对rgb信息的训练只用了一个MLP, 因此在回复每个体素的rgb时会存在一定的遗忘问题.
+​	在网络架构中最右侧的黄色部分表示分层的特征网络, 其中红色的点表示空间中的样本点P, 与P相连的深蓝色的点表示三线性插值得到的几何参数表示为$\theta$. 此时这个样本点周围的函数场就表示为$\phi_\theta(p)$, 即深蓝色点与红色点的连线. 与每个特征网络对应的是各自的decode $f$, decode将样本点P和feature map中的值解码成体素的占用概率$o_p$, 针对分辨率最高的fine层级额外添加了一个独立的网络$\psi_\omega$用于表示rgb色彩信息对应decoder $g_\omega$, 在分辨率最高的层级中渲染出彩色的稠密地图
+​	分辨率最低的corase层级仅用于估计没有观测到的场景中的缝隙$o^0_p=f^0(p,\phi^0_\theta(p))$
+​	在渲染过程中, mid层级的decoder将输入样本点座标和feature grid计算出基础占用$o^1_p=f^1(p,\phi^1_\theta(p))$]]></description>
+    </item>
+    
+    <item>
+      <title>orb_slam3稠密建图</title>
+      <link>https://www.blog.tioe.xyz/project/orbslam3/</link>
+      <pubDate>Mon, 03 Apr 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/orbslam3/</guid>
+      <description><![CDATA[orb slam3稠密建图 项目介绍 开发环境 ubuntu 20.04
+ros noetic
+OpenCV 4.5.5
+pcl 1.13
+orb_slam3_pcl_mapping ├── CMakeLists.txt ├── package.xml ├── README.md └── src ├── PointCloudMapper.cc ├── PointCloudMapper.h └── pointcloud_mapping.cpp 主要参照以下项目进行修改适配orb slam3与d455，并增加点云的回环
+https://blog.csdn.net/crp997576280/article/details/104220926
+https://github.com/xiaobainixi/ORB-SLAM2_RGBD_DENSE_MAP
+代码简介 PointCloudMapper.cc 头文件中主要定义了相关变量和函数
+void viewer(); 唯一一个由外部调用的函数，主要用于点云的拼接和显示，以及判断当前是否检测到回环
+while (ros::ok()) { ros::spinOnce(); //用于检测是否有关键帧加入 KFUpdate = false; { std::unique_lock&lt;std::mutex&gt; lck(keyframeMutex); N = mvGlobalPointCloudsPose.size(); KFUpdate = mbKeyFrameUpdate; mbKeyFrameUpdate = false; } //是否有关键帧加入或是否是回环模式 if ((KFUpdate &amp;&amp; N &gt; lastKeyframeSize) || is_loop_for_remap) { std::unique_lock&lt;std::mutex&gt; lock_loop(loopUpdateMutex); //如果是回环的话根据BA后的位姿重新绘制点云 if (is_loop_for_remap) { std::cout &lt;&lt; RED &lt;&lt; &#34;detect loop!]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

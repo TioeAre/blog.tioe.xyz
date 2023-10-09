@@ -1,0 +1,1676 @@
+<!doctype html>
+<html class="position-relative" itemscope itemtype="https://schema.org/WebPage" lang="en"
+  data-bs-theme="auto" data-palette="purple">
+  <head><script src="/assets/init/bundle.min.226cc59cbae206e0c46e223059b9d56ec19f45bbe5ee8b161e8dcae6a1ff6c78.js" integrity="sha256-ImzFnLriBuDEbiIwWbnVbsGfRbvl7osWHo3K5qH/bHg=" crossorigin="anonymous"></script>
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>搭建自己的第一篇博客 - Tioe&#39;s website</title>
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_16x16_resize_q75_h2_box_2.webp" sizes="16x16" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_32x32_resize_q75_h2_box_2.webp" sizes="32x32" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_150x150_resize_q75_h2_box_2.webp" sizes="150x150" type="image/webp">
+    <link rel="apple-touch-icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_180x180_resize_q75_h2_box_2.webp" sizes="180x180" type="image/webp">
+    <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_192x192_resize_q75_h2_box_2.webp" sizes="192x192" type="image/webp">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#6f42c1">
+<meta name="keywords" content="caddy, webhook, hugo, v2ray, bitwarden" />
+  <meta name="description" content="利用caddy v2 &#43; webhook &#43; hugo搭建博客, 并配置bitwarden与v2ray服务" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="搭建自己的第一篇博客"/>
+<meta name="twitter:description" content="利用caddy v2 &#43; webhook &#43; hugo搭建博客, 并配置bitwarden与v2ray服务"/>
+<meta property="og:title" content="搭建自己的第一篇博客" />
+<meta property="og:description" content="利用caddy v2 &#43; webhook &#43; hugo搭建博客, 并配置bitwarden与v2ray服务" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.blog.tioe.xyz/daily/2023.03.16/" /><meta property="article:section" content="daily" />
+<meta property="article:published_time" content="2023-03-16T02:02:45+08:00" />
+<meta property="article:modified_time" content="2023-03-16T02:02:45+08:00" />
+
+<meta itemprop="name" content="搭建自己的第一篇博客">
+<meta itemprop="description" content="利用caddy v2 &#43; webhook &#43; hugo搭建博客, 并配置bitwarden与v2ray服务"><meta itemprop="datePublished" content="2023-03-16T02:02:45+08:00" />
+<meta itemprop="dateModified" content="2023-03-16T02:02:45+08:00" />
+<meta itemprop="wordCount" content="1810">
+<meta itemprop="keywords" content="caddy,webhook,hugo,v2ray,bitwarden," />
+  <meta property="og:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
+  <meta name="twitter:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
+  <meta property="og:image:alt" content="搭建自己的第一篇博客" />
+  <meta name="twitter:image:alt" content="搭建自己的第一篇博客" />
+  <link rel="manifest" href="/manifest.json">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z7Z9EX371"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-8Z7Z9EX371', { 'anonymize_ip': false });
+}
+</script>
+
+<link data-precache rel="stylesheet" href="/assets/main/bundle.min.cbb6996c72aa3961390920a4261fa4dc924785294937c05514f38b2927a16675.css" integrity="sha256-y7aZbHKqOWE5CSCkJh+k3JJHhSlJN8BVFPOLKSehZnU=" crossorigin="anonymous">
+
+<link data-precache rel="stylesheet" href="/assets/katex/bundle.min.a06a916255e286562e9c3684403a944bb85aebe51b00e2f1ef537987349ead12.css" integrity="sha256-oGqRYlXihlYunDaEQDqUS7ha6&#43;UbAOLx71N5hzSerRI=" crossorigin="anonymous">
+
+    <link data-precache rel="stylesheet" href="/assets/viewer/bundle.min.eb914844636cd41f221f109e99c887bbc3b6b5ffb2af7c664b284cea2d1b54b7.css" integrity="sha256-65FIRGNs1B8iHxCemciHu8O2tf&#43;yr3xmSyhM6i0bVLc=" crossorigin="anonymous">
+
+
+</head>
+  <body><header class="mb-4">
+  
+<nav class="top-app-bar shadow navbar navbar-expand-xxl">
+  <div class="container">
+<a class="navbar-brand d-flex align-items-center flex-grow-1 flex-xxl-grow-0 justify-content-xxl-start ms-2 ms-xxl-0 mx-auto me-xxl-2"
+    href="https://www.blog.tioe.xyz">
+    <picture><img class="logo " alt="Logo" src="https://www.blog.tioe.xyz/images/favicon.ico" loading="lazy" width="512" height="512" />
+</picture>
+Tioe
+</a>
+
+    <div class="offcanvas-xxl offcanvas-end flex-grow-1" data-bs-scroll="true" tabindex="-1" id="navbarMenus" aria-labelledby="navbarMenusLabel">
+      <div class="offcanvas-header px-4 pb-0">
+        <div class="offcanvas-title h5" id="navbarMenusLabel">Tioe</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#navbarMenus" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body p-4 pt-0 p-xxl-0">
+        <hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center me-auto"><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/archives/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-file-archive text-primary"></i></span>Archives
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/docs/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-file"></i></span>Docs Sample
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/series/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-columns"></i></span>Series
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/categories/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-folder text-success"></i></span>Categories
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/tags/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-tags"></i></span>Tags
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=bug_report.yml" target="_blank" rel="noopener noreferrer">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-bug text-danger"></i></span>Bug Report
+            </a>
+          </li>
+        </ul>
+        
+    <hr class="d-xxl-none">
+    <form class="search-bar ms-auto my-auto" action="/search/" novalidate>
+      <div class="input-group input-group-sm align-items-center">
+        <span class="btn btn-search disabled position-absolute left-0 border-0 px-1">
+          <i class="fas fa-fw fa-search fa-lg"></i>
+        </span>
+        <input
+          class="my-1 form-control border-white rounded-5 search-input bg-body"
+          name="q"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          required>
+          <span class="search-shortcut position-absolute end-0 top-0 me-2">
+            <kbd class="bg-primary rounded shadow">/</kbd>
+          </span>
+      </div>
+    </form><hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center ms-md-auto">
+<li class="nav-item py-2 py-xxl-1 col-12 col-xxl-auto">
+
+
+<nav class="social-links nav justify-content-center flex-row">
+      <a class="nav-link social-link col-6 col-xxl-auto p-1" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fab fa-github"
+          ></i>
+        <span class="ms-1 d-xxl-none">Github</span>
+      </a>
+  <a class="nav-link social-link col-6 col-xxl-auto p-1" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-rss"></i>
+    <span class="ms-1 d-xxl-none">RSS</span>
+  </a>
+</nav>
+
+</li>
+<li class="nav-item py-2 py-xxl-1 col-12 col-xxl-auto">
+  <div class="vr d-none d-xxl-flex h-100 mx-xxl-2 text-white"></div>
+  <hr class="d-xxl-none my-2">
+</li>
+<li class="nav-item dropdown py-1 py-xxl-1 col-6 col-xxl-auto">
+    <a class="nav-link px-0 px-xxl-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-globe"></i>
+        <span class="d-xxl-none">Language</span>
+    </a>
+    <ul class="language-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+        <li>
+        <a class="dropdown-item active" href="/">
+            English
+        </a>
+        </li>
+        <li>
+        <a class="dropdown-item" href="/zh-hans/">
+            简体中文
+        </a>
+        </li></ul>
+</li>
+<li class="nav-item py-1 col-12 col-xxl-auto">
+  <div class="vr d-none d-xxl-flex h-100 mx-xxl-2 text-white"></div>
+  <hr class="d-xxl-none my-2">
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="fontSizeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-font"></i>
+        <span class="d-xxl-none">Font Size</span>
+    </a>
+    <ul class="font-size-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="fontSizeDropdown">
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xs">
+                Extra Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="sm">
+                Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item active" data-size="md">
+                Medium
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="lg">
+                Large
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xl">
+                Extra Large
+            </button>
+        </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="paletteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-palette"></i>
+        <span class="d-xxl-none">Palette</span>
+    </a>
+    <ul class="palette-dropdown-menu dropdown-menu dropdown-menu-end px-2 row g-2" aria-labelledby="paletteDropdown">
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue" aria-label="Blue"
+                    class="btn btn-sm w-100 palette text-bg-blue" data-palette="blue">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue-gray" aria-label="Blue Gray"
+                    class="btn btn-sm w-100 palette text-bg-blue-gray" data-palette="blue-gray">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-brown" aria-label="Brown"
+                    class="btn btn-sm w-100 palette text-bg-brown" data-palette="brown">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-cyan" aria-label="Cyan"
+                    class="btn btn-sm w-100 palette text-bg-cyan" data-palette="cyan">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-green" aria-label="Green"
+                    class="btn btn-sm w-100 palette text-bg-green" data-palette="green">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-indigo" aria-label="Indigo"
+                    class="btn btn-sm w-100 palette text-bg-indigo" data-palette="indigo">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-orange" aria-label="Orange"
+                    class="btn btn-sm w-100 palette text-bg-orange" data-palette="orange">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-pink" aria-label="Pink"
+                    class="btn btn-sm w-100 palette text-bg-pink" data-palette="pink">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-purple" aria-label="Purple"
+                    class="btn btn-sm w-100 palette text-bg-purple" data-palette="purple">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-red" aria-label="Red"
+                    class="btn btn-sm w-100 palette text-bg-red" data-palette="red">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-teal" aria-label="Teal"
+                    class="btn btn-sm w-100 palette text-bg-teal" data-palette="teal">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-yellow" aria-label="Yellow"
+                    class="btn btn-sm w-100 palette text-bg-yellow" data-palette="yellow">
+                </a>
+            </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="modeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="mode-icon fas fa-fw fa-adjust" id="modeIcon"></i>
+        <span class="d-xxl-none">Mode</span>
+    </a>
+    <ul class="mode-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="modeDropdown">
+        <li class="mode-item" data-color-mode="light" data-icon="sun">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-sun"></i> Light
+            </button>
+        </li>
+        <li class="mode-item" data-color-mode="dark" data-icon="moon">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-moon"></i> Dark
+            </button>
+        </li>
+        <li class="mode-item active" data-color-mode="auto" data-icon="adjust">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-adjust"></i> Auto
+            </button>
+        </li>
+    </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex">
+      <button class="navbar-toggler order-5 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarMenus"
+        aria-controls="navbarMenus" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-ellipsis-h"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+</header>
+
+    <main class="container">
+      <div class="row content"><noscript>
+    <div class="alert alert-danger" role="alert">Your browser does not support JavaScript.</div>
+</noscript>
+
+<div class="col-xxl-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body pb-0">
+    <ol class="hbs-breadcrumb breadcrumb flex-nowrap"><li class="breadcrumb-item text-surface"><a href="/">Home</a></li><li class="breadcrumb-item text-surface"><a href="/daily/">Dailies</a></li><li class="breadcrumb-item active">搭建自己的第一篇博客</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper position-relative d-flex justify-content-center">
+  <div class="d-flex flex-row justify-content-center rounded-5 border post-panel position-fixed px-3 py-1 surface shadow-1">
+    
+    
+
+    
+    
+    
+  <a class="action action-toc d-none d-xxl-block" href="#postTOC" role="button" title="Table of contents">
+    <i class="fas fa-fw fa-list-alt"></i>
+  </a>
+<a class="action action-toc d-block d-xxl-none" href="#post-toc-container" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    <a class="action action-copyright" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action action-post-comments" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    
+<a id="sidebarToggler" class="action action-sidebar-toggler d-none d-xxl-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
+
+    
+  </div>
+</div><article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title my-2">搭建自己的第一篇博客</h1>
+  </div>
+  <div class="card-body"><div class="post-meta mb-3">
+  <span class="post-date me-1 mb-1" title="created on 2023-03-16 02:02:45 &#43;0800 HKT.">March 16, 2023</span><span class="post-reading-time me-1 mb-1">9 min read</span><a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-category">
+      <i class="fas fa-fw fa-folder me-1"></i>服务器</a><a href="/tags/bitwarden/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Bitwarden</a><a href="/tags/caddy/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Caddy</a><a href="/tags/hugo/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Hugo</a><a href="/tags/v2ray/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">V2ray</a><a href="/tags/webhook/" class="btn btn-sm btn-secondary mb-1 me-2 py-0 pe-1 post-taxonomy post-taxonomy-sm post-tag">Webhook</a>
+</div>
+
+      <p class="lead mb-3 text-body-emphasis">利用caddy v2 &#43; webhook &#43; hugo搭建博客, 并配置bitwarden与v2ray服务</p>
+<div class="mt-2 mb-3 d-block d-xxl-none">
+    <h2 class="text-surface mb-3">Contents</h2>
+    <div id="post-toc-container">
+        </div>
+    <hr class="text-secondary">
+</div><div class="post-content mb-3" data-bs-spy="scroll" data-bs-target="#TableOfContents" tabindex="0">
+        <div id="post-content-body"><h1 id="caddy-v2-webhook-hugo搭建博客并配置bitwarden与v2ray" data-numberify>Caddy v2, webhook, hugo搭建博客并配置bitwarden与v2ray<a class="anchor ms-1" href="#caddy-v2-webhook-hugo搭建博客并配置bitwarden与v2ray"></a></h1>
+<h2 id="项目概述" data-numberify>项目概述<a class="anchor ms-1" href="#项目概述"></a></h2>
+<h3 id="版本说明" data-numberify>版本说明<a class="anchor ms-1" href="#版本说明"></a></h3>
+<h4 id="caddy" data-numberify>caddy<a class="anchor ms-1" href="#caddy"></a></h4>
+<p>之前我的服务器(<code>amd64</code>, <code>debain10</code>)上一直用的是<code>caddy 1.x</code>版本, 目前官方为了推广2.0版本, 已经绝情的将v1版本的官方下载渠道, 插件安装脚本以及文档等全都删掉了🙃, 导致我最开始看的关于v1版搭建博客的教程全都用不了. 并且由于v1版已经发布很多年了, 而v2在2020年才发布. 网上绝大部分教程以及<code>git</code>, <code>webhook</code>相关的插件还都是v1版的, 对纯萌新来说挺难找到合适的教程来详细描述具体如何配置. 目前网上也有了很多大佬开源的包含有<code>caddy v2</code>, <code>hugo</code>等的<code>docker</code>镜像可以方便的一键搭建博客. 但不知道为什么在我的服务器上运行时似乎没有办法正常监听端口一样，总是接受不到相关的请求</p>
+<p>此外, <code>caddy</code> v2与v1相比配置文件改成了原生<code>json</code>格式, 之前v1版本的时候使用的配置文件是<code>Caddyfile</code>, 写起来即简便又易读. 现在换成<code>json</code>之后, 虽然还是可以用<code>Caddyfile</code>来写, 但是实际运行<code>caddy</code>似乎会先将<code>Caddyfile</code>转化成<code>json</code>然后再运行. 这就导致写在<code>Caddyfile</code>里的配置, 尤其是相关插件的配置很可能在转化的时候出现某些问题导致运行失败. 还有另外一个很重要的问题是, 大多v2版本的<code>caddy</code>插件是支持<code>Caddyfile</code>的写法的, 但有些插件就只有<code>json</code>格式的配置写法. 而前面也提到<code>Caddyfile</code>是可以被<code>caddy</code>转化为<code>json</code>格式的, 可以使用<code>caddy adapt</code>命令显式转化文件。所以即使部分插件在文档中只写了<code>Caddyfile</code>的写法, 你也可以先写这部分的配置写道<code>Caddyfile</code>里然后再转化为<code>json</code>继续配置</p>
+<p>总上所述, 最终选择了本地使用<code>xcaddy</code>构建带有<code>vrongmeal/caddygit</code>, <code>WingLim/caddy-webhook </code>, <code>mholt/caddy-webdav</code>这三个插件的<code>caddy v2.6.4</code>在本地运行<code>json</code>格式配置文件的方式完成服务器的路由配置</p>
+<h4 id="bitwarden" data-numberify>bitwarden<a class="anchor ms-1" href="#bitwarden"></a></h4>
+<p><code>bitwarden</code>是一个开源, 方便的密码管理器, 在网页(<code>chrome</code>, <code>firefox</code>, <code>safair</code>)/<code>android</code>/<code>ios</code>/<code>windows</code>/<code>linux</code>等全平台都有相关客户端(网页插件), 支持部署到自己的服务器构建自己专属的密码库，有效的提高了安全性. 之前<code>caddy</code>配置<code>bitwarden</code>的时候, 可以使用官方的docker镜像, 只用映射一下端口就可以一键部署. 现在<code>caddy</code>升级到v2之后好像对<code>bitwarden</code>还不适配, 只能使用最新版本的<code>vaultwarden</code>(<code>bitwarden</code>的一个第三方版本)来部署</p>
+<h4 id="hugo" data-numberify>hugo<a class="anchor ms-1" href="#hugo"></a></h4>
+<p><code>hugo</code>是一个方便的从md文档构建静态网页的工具, 非常符合我目前的需求. 但是注意很多网站的主题要求<code>hugo</code>是<code>extend</code>版(<code>hugo</code>官方也推荐使用<code>extend</code>版), 同时由于主题模板的更新, 很多主题对<code>hugo</code>的版本要求会比较新. 但<code>apt</code>安装的是0.55版的, 不符合我目前主题的要求. 官方还提供了snap安装, 但我在服务器上装的时候出现了好像说系统不匹配的错误😔, 看github的issue上有人提过类似的, 下面有个回答说他已经修复了, 可是我的这个还是不行. 所以最后采用了在github的release里下载<code>extend</code>版的deb安装包，然后再在本地<code>dpkg -i</code>安装</p>
+<h3 id="格式说明" data-numberify>格式说明<a class="anchor ms-1" href="#格式说明"></a></h3>
+<p>本文假定你已经有一个属于自己的服务器和域名, 并且已经把dns解析好了, 国内服务器的备案也不在本文讨论范围内. 本文仅包含<code>caddy</code>的安装配置, 配置文件<code>caddyfile.json</code>的编写, <code>hugo</code>的安装配置和<code>vaultwarden</code> docker镜像的配置</p>
+<p>本文接下来在配置文件中出现的必需需要读者本人根据自己服务器等进行修改的地方会使用类似<code>@1{path}</code>的方式代指，例如你本地的某个文件夹地址为<code>/usr/local/bin</code>, 在配置文件中会以<code>@1{path}</code>代指这个地址(数字指的是这个文件中出现的第几个, 如果两个地方用一个的话就是一个地址). 同理<code>@1{domain}</code>代指文件中第一个出现的需要你修改成自己的域名<code>www.your-domain.com</code></p>
+<h2 id="安装" data-numberify>安装<a class="anchor ms-1" href="#安装"></a></h2>
+<h3 id="caddy-1" data-numberify>caddy<a class="anchor ms-1" href="#caddy-1"></a></h3>
+<p><code>caddy</code>从官方途径<code>apt</code>安装的是没有插件的, 没插件没办法完成接下来的部署, 但是从<code>apt</code>安装的会配套相关的systemd服务, 方便后续管理运行重启等. 因此先<code>apt</code>安装没有插件的<code>caddy</code>然后再通过<code>xcaddy</code>来编译带有插件的<code>caddy</code>, 编译完成后替换掉之前<code>apt</code>安装的<code>caddy</code></p>
+<h4 id="apt安装caddy" data-numberify>apt安装caddy<a class="anchor ms-1" href="#apt安装caddy"></a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">apt install -y debian-keyring debian-archive-keyring apt-transport-https
+</span></span><span class="line"><span class="cl">curl -1sLf <span class="s1">&#39;https://dl.cloudsmith.io/public/caddy/stable/gpg.key&#39;</span> <span class="p">|</span> gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+</span></span><span class="line"><span class="cl">curl -1sLf <span class="s1">&#39;https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt&#39;</span> <span class="p">|</span> tee /etc/apt/sources.list.d/caddy-stable.list
+</span></span><span class="line"><span class="cl">apt update
+</span></span><span class="line"><span class="cl">apt install caddy
+</span></span></code></pre></div><h4 id="go环境" data-numberify>go环境<a class="anchor ms-1" href="#go环境"></a></h4>
+<p>由于<code>xcaddy</code>是由<code>go</code>语言编译安装的, 所以需要先配置环境</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://go.dev/dl/go1.20.7.linux-amd64.tar.gz
+</span></span><span class="line"><span class="cl">rm -rf /usr/local/go <span class="o">&amp;&amp;</span> tar -C /usr/local -xzf go1.20.7.linux-amd64.tar.gz <span class="o">&amp;&amp;</span> rm go1.20.7.linux-amd64.tar.gz
+</span></span><span class="line"><span class="cl">vim ~/.bashrc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#写入文件</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:/usr/local/go/bin
+</span></span><span class="line"><span class="cl"><span class="c1">#保存文件</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> ~/.bashrc
+</span></span></code></pre></div><h4 id="xcaddy" data-numberify>xcaddy<a class="anchor ms-1" href="#xcaddy"></a></h4>
+<p>安装<code>xcaddy</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+</span></span></code></pre></div><p><code>xcaddy</code>编译带插件的<code>caddy</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>curl -s <span class="s2">&#34;https://api.github.com/repos/caddyserver/caddy/releases/latest&#34;</span> <span class="p">|</span> grep tag_name <span class="p">|</span> cut -f4 -d <span class="s2">&#34;\&#34;&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">go/bin/xcaddy build <span class="si">${</span><span class="nv">version</span><span class="si">}</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>	--with github.com/WingLim/caddy-webhook <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with github.com/mholt/caddy-webdav <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with github.com/vrongmeal/caddygit
+</span></span></code></pre></div><p>之后会编译出带有这三个插件的<code>caddy</code>到当前目录, 如果你需要其他插件的话, 后面<code>--with</code>接着跟插件的<code>github</code>仓库地址就行了</p>
+<p>编译完成后使用<code>whereis caddy</code>查看之前<code>apt</code>安装的<code>caddy</code>安装到哪里了, 再用<code>mv</code>把刚编译的带插件的替换掉<code>apt</code>安装的</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mv caddy /usr/bin/caddy
+</span></span></code></pre></div><h3 id="hugo-1" data-numberify>hugo<a class="anchor ms-1" href="#hugo-1"></a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>curl -s <span class="s2">&#34;https://api.github.com/repos/gohugoio/hugo/releases/latest&#34;</span> <span class="p">|</span> grep tag_name <span class="p">|</span> cut -f4 -d <span class="s2">&#34;\&#34;&#34;</span> <span class="p">|</span> grep -oE <span class="s1">&#39;([0-9]+\.?)+&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">wget https://github.com/gohugoio/hugo/releases/download/v<span class="si">${</span><span class="nv">version</span><span class="si">}</span>/hugo_extended_<span class="si">${</span><span class="nv">version</span><span class="si">}</span>_linux-amd64.deb
+</span></span><span class="line"><span class="cl">dpkg -i hugo_extended_<span class="si">${</span><span class="nv">version</span><span class="si">}</span>_linux-amd64.deb
+</span></span></code></pre></div><h3 id="vaultwarden_setup" data-numberify>vaultwarden<a class="anchor ms-1" href="#vaultwarden_setup"></a></h3>
+<p>需要先安装<code>docker</code>, 安装好后再</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">apt-get install ca-certificates curl gnupg
+</span></span><span class="line"><span class="cl">install -m <span class="m">0755</span> -d /etc/apt/keyrings
+</span></span><span class="line"><span class="cl">curl -fsSL https://download.docker.com/linux/debian/gpg <span class="p">|</span> gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+</span></span><span class="line"><span class="cl">chmod a+r /etc/apt/keyrings/docker.gpg
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;deb [arch=&#34;</span><span class="k">$(</span>dpkg --print-architecture<span class="k">)</span><span class="s2">&#34; signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian &#34;</span><span class="k">$(</span>. /etc/os-release <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$VERSION_CODENAME</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2">&#34; stable&#34;</span> <span class="p">|</span> tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+</span></span><span class="line"><span class="cl">apt-get update
+</span></span><span class="line"><span class="cl">apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker run -d --name vaultwarden <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -e <span class="nv">SIGNUPS_ALLOWED</span><span class="o">=</span><span class="nb">true</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -e <span class="nv">WEBSOCKET_ENABLED</span><span class="o">=</span><span class="nb">true</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -e <span class="nv">LOG_FILE</span><span class="o">=</span>/data/bitwarden.log <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -p @1<span class="o">{</span>vault_port<span class="o">}</span>:80 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -p @2<span class="o">{</span>vault_port<span class="o">}</span>:3012 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -v /vw-data/:/data/ <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  vaultwarden/server:1.27.0
+</span></span></code></pre></div><p>此处的<code>@1{vault-port}</code>和<code>@2{vault-port}</code>需要替换掉成之后你在<code>caddy</code>的配置文件中反代的端口, 因此建议配置好其他之后再安装这个</p>
+<h2 id="配置" data-numberify>配置<a class="anchor ms-1" href="#配置"></a></h2>
+<p>变量解释如下，需要将下面所有配置文件中出现的地方替换成你自己的</p>
+<pre tabindex="0"><code>@1{vault_port}:80	--caddy反代的bitwarden端口，例如8080：80
+@2{vault_port}:3012	--caddy反代的bitwarden端口，例如3012：3012
+@3{v2ray_port}	--caddy反代的v2ray端口，例如2233
+
+@1{cer_path}	--bitwarden网站的证书cer部分，例如usr/local/etc/ssl/bitwarden.cer
+@1{key_path} 	--bitwarden网站的证书key部分, 例如usr/local/etc/ssl/bitwarden.key
+@2{cer_path}	--blog网站的证书cer部分
+@2{key_path}	--blog网站的证书key部分
+@3{v2ray_path}	--v2ray的访问路径，以/开头，例如/vvv。但是不能和@4{v2ray_www_path}的最后一级相同，即如果@4{v2ray_www_path}是/var/www/v2ray的话，就不能是/v2ray
+@4{v2ray_www_path}	--v2ray网站的存放路径，例如/var/www/v2ray
+@5{blog_path}	--存放博客网站的地址, 例如/var/www/myblog
+
+@1{vault_domain}	--bitwarden的域名
+@2{blog_domain}		--blog的域名
+@3{v2ray_domain}	--v2ray的伪装域名
+
+@1{github_url}		--存放博客文档的github仓库地址
+@1{github_token}	--有存放博客文档的github仓库访问权限的token
+@1{github_secret}	--webhook的secret
+
+@1{v2ray_uuid}	--v2ray配置
+@1{your_email}	--注册域名时使用的邮箱
+
+@1{cloudflare_key}	--cloudflare的key
+</code></pre><h3 id="caddy-2" data-numberify>caddy<a class="anchor ms-1" href="#caddy-2"></a></h3>
+<h4 id="caddyservice" data-numberify>caddy.service<a class="anchor ms-1" href="#caddyservice"></a></h4>
+<p>首先需要修改以下<code>caddy.service</code>配置相关服务</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">vim /etc/systemd/system/caddy.service
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># caddy.service</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># For using Caddy with a config file.</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Make sure the ExecStart and ExecReload commands are correct</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># for your installation.</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># See https://caddyserver.com/docs/install for instructions.</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># WARNING: This service does not use the --resume flag, so if you</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># use the API to make changes, they will be overwritten by the</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Caddyfile next time the service is restarted. If you intend to</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># use Caddy&#39;s API to configure it, add the --resume flag to the</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># `caddy run` command or use the caddy-api.service file instead.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Unit<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="nv">Description</span><span class="o">=</span>Caddy
+</span></span><span class="line"><span class="cl"><span class="nv">Documentation</span><span class="o">=</span>https://caddyserver.com/docs/
+</span></span><span class="line"><span class="cl"><span class="nv">After</span><span class="o">=</span>network.target network-online.target
+</span></span><span class="line"><span class="cl"><span class="nv">Requires</span><span class="o">=</span>network-online.target
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Service<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="nv">Type</span><span class="o">=</span>notify
+</span></span><span class="line"><span class="cl"><span class="nv">User</span><span class="o">=</span>caddy
+</span></span><span class="line"><span class="cl"><span class="nv">Group</span><span class="o">=</span>caddy
+</span></span><span class="line"><span class="cl"><span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/caddy run --environ --config /etc/caddy/caddyfile.json
+</span></span><span class="line"><span class="cl"><span class="nv">ExecReload</span><span class="o">=</span>/usr/bin/caddy reload --config /etc/caddy/caddyfile.json --force
+</span></span><span class="line"><span class="cl"><span class="nv">TimeoutStopSec</span><span class="o">=</span>5s
+</span></span><span class="line"><span class="cl"><span class="nv">LimitNOFILE</span><span class="o">=</span><span class="m">1048576</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LimitNPROC</span><span class="o">=</span><span class="m">512</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PrivateTmp</span><span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="nv">ProtectSystem</span><span class="o">=</span>full
+</span></span><span class="line"><span class="cl"><span class="nv">AmbientCapabilities</span><span class="o">=</span>CAP_NET_BIND_SERVICE
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Install<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown root:root /etc/systemd/system/caddy.service
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /etc/systemd/system/caddy.service
+</span></span><span class="line"><span class="cl">systemctl daemon-reload
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown root:root /usr/bin/caddy
+</span></span><span class="line"><span class="cl">chmod <span class="m">755</span> /usr/bin/caddy
+</span></span><span class="line"><span class="cl">setcap <span class="s1">&#39;cap_net_bind_service=+ep&#39;</span> /usr/bin/caddy
+</span></span><span class="line"><span class="cl">groupadd -g <span class="m">33</span> caddy
+</span></span><span class="line"><span class="cl">useradd <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -g caddy --no-user-group <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --home-dir /var/caddy --no-create-home <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --shell /usr/sbin/nologin <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --system --uid <span class="m">33</span> caddy
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mkdir /etc/caddy
+</span></span><span class="line"><span class="cl">mkdir /var/www
+</span></span><span class="line"><span class="cl">mkdir /var/caddy
+</span></span><span class="line"><span class="cl">mkdir /etc/ssl/caddy
+</span></span><span class="line"><span class="cl">touch /etc/caddy/caddyfile.json
+</span></span><span class="line"><span class="cl">touch /var/log/caddy.log
+</span></span><span class="line"><span class="cl">chown caddy:caddy /var/caddy
+</span></span><span class="line"><span class="cl">chown -R root:caddy /etc/caddy
+</span></span><span class="line"><span class="cl">chown -R root:caddy /etc/ssl/caddy
+</span></span><span class="line"><span class="cl">chown -R root:caddy /var/www
+</span></span><span class="line"><span class="cl">chmod <span class="m">555</span> /var/caddy
+</span></span><span class="line"><span class="cl">chmod <span class="m">777</span> /var/www
+</span></span><span class="line"><span class="cl">chmod <span class="m">0770</span> /etc/ssl/caddy
+</span></span><span class="line"><span class="cl">chown root:caddy /var/log/caddy.log
+</span></span><span class="line"><span class="cl">chown root:root /etc/caddy/caddyfile.json
+</span></span><span class="line"><span class="cl">chmod <span class="m">770</span> /var/log/caddy.log
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /etc/caddy/caddyfile.json
+</span></span></code></pre></div><h4 id="caddyfilejson" data-numberify>caddyfile.json<a class="anchor ms-1" href="#caddyfilejson"></a></h4>
+<p>接着配置<code>caddyfile.json</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="err">vim</span> <span class="err">/etc/caddy/caddyfile.json</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;logging&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;logs&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;default&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;exclude&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;http.log.access.log0&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;http.log.access.log1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;http.log.access.log2&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;log0&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;writer&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;filename&#34;</span><span class="p">:</span> <span class="s2">&#34;/var/log/caddy.log&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;output&#34;</span><span class="p">:</span> <span class="s2">&#34;file&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;roll_keep&#34;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;roll_size_mb&#34;</span><span class="p">:</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;level&#34;</span><span class="p">:</span> <span class="s2">&#34;INFO&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;include&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;http.log.access.log0&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;log1&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;writer&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;filename&#34;</span><span class="p">:</span> <span class="s2">&#34;/var/log/caddy.log&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;output&#34;</span><span class="p">:</span> <span class="s2">&#34;file&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;include&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;http.log.access.log1&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;log2&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;writer&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;filename&#34;</span><span class="p">:</span> <span class="s2">&#34;/var/log/caddy.log&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;output&#34;</span><span class="p">:</span> <span class="s2">&#34;file&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;include&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;http.log.access.log2&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;apps&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;tls&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;certificates&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;load_files&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;certificate&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{cer_path}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;key&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{key_path}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;tags&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;cert0&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;certificate&#34;</span><span class="p">:</span> <span class="s2">&#34;@2{cer_path}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;key&#34;</span><span class="p">:</span> <span class="s2">&#34;@2{cer_path}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;tags&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;cert1&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;automation&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;policies&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;subjects&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;@1{vault_domain}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;@2{blog_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;subjects&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;@3{v2ray_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;issuers&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;email&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{your_email}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;module&#34;</span><span class="p">:</span> <span class="s2">&#34;acme&#34;</span>
+</span></span><span class="line"><span class="cl">              <span class="p">},</span>
+</span></span><span class="line"><span class="cl">              <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;email&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{your_email}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;module&#34;</span><span class="p">:</span> <span class="s2">&#34;zerossl&#34;</span>
+</span></span><span class="line"><span class="cl">              <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;http&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;servers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;srv1&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;listen&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;:80&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;host&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;@1{vault_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;subroute&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;static_response&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;Location&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                              <span class="s2">&#34;https://@1{vault_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;status_code&#34;</span><span class="p">:</span> <span class="mi">302</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;terminal&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;host&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;@2{blog_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;subroute&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;static_response&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;Location&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                              <span class="s2">&#34;https://@2{blog_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;status_code&#34;</span><span class="p">:</span> <span class="mi">302</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;terminal&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;host&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;@3{v2ray_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;subroute&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;static_response&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;Location&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                              <span class="s2">&#34;https://@3{v2ray_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;status_code&#34;</span><span class="p">:</span> <span class="mi">302</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;terminal&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;srv0&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;listen&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;:443&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;tls_connection_policies&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;sni&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="s2">&#34;@2{blog_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">              <span class="p">},</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;certificate_selection&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;any_tag&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="s2">&#34;cert1&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">              <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;sni&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="s2">&#34;@1{vault_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">              <span class="p">},</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;certificate_selection&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;any_tag&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="s2">&#34;cert0&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">              <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&#34;sni&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                  <span class="s2">&#34;@3{v2ray_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">              <span class="p">},</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;cipher_suites&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256&#34;</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;protocol_min&#34;</span><span class="p">:</span> <span class="s2">&#34;tls1.2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;protocol_max&#34;</span><span class="p">:</span> <span class="s2">&#34;tls1.3&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">          <span class="p">],</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;logs&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;logger_names&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;@3{v2ray_domain}&#34;</span><span class="p">:</span> <span class="s2">&#34;log0&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;logger_names&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;@1{vault_domain}&#34;</span><span class="p">:</span> <span class="s2">&#34;log1&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;logger_names&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;@2{blog_domain}&#34;</span><span class="p">:</span> <span class="s2">&#34;log2&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;skip_hosts&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;@1{vault_domain}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;@2{blog_domain}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="s2">&#34;@3{v2ray_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;host&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;@3{v2ray_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;subroute&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;vars&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;root&#34;</span><span class="p">:</span> <span class="s2">&#34;@4{v2ray_www_path}&#34;</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;encodings&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;gzip&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;encode&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;prefer&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;gzip&#34;</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;reverse_proxy&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;upstreams&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                              <span class="nt">&#34;dial&#34;</span><span class="p">:</span> <span class="s2">&#34;localhost:@3{v2ray_port}&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;header&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;Connection&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                              <span class="s2">&#34;*Upgrade*&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">],</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;Upgrade&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                              <span class="s2">&#34;websocket&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;@3{v2ray_path}&#34;</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;file_server&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;hide&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;/etc/caddy/Caddyfile&#34;</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;terminal&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;host&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;@1{vault_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;subroute&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;encodings&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;gzip&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;encode&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;prefer&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;gzip&#34;</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;reverse_proxy&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;upstreams&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                              <span class="nt">&#34;dial&#34;</span><span class="p">:</span> <span class="s2">&#34;localhost:@2{vault_port}&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;/notifications/hub&#34;</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;reverse_proxy&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                            <span class="nt">&#34;request&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                              <span class="nt">&#34;set&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                                <span class="nt">&#34;X-Real-Ip&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                                  <span class="s2">&#34;localhost&#34;</span>
+</span></span><span class="line"><span class="cl">                                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                              <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;upstreams&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                              <span class="nt">&#34;dial&#34;</span><span class="p">:</span> <span class="s2">&#34;localhost:@1{vault_port}&#34;</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;terminal&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;host&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;@5{blog_domain}&#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;subroute&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;vars&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;root&#34;</span><span class="p">:</span> <span class="s2">&#34;@5{blog_path}/public&#34;</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;file_server&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;hide&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;/etc/caddy/Caddyfile&#34;</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;terminal&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;not&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="s2">&#34;/webhook&#34;</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;subroute&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;routes&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                      <span class="nt">&#34;handle&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;branch&#34;</span><span class="p">:</span> <span class="s2">&#34;main&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;handler&#34;</span><span class="p">:</span> <span class="s2">&#34;webhook&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="s2">&#34;@5{blog_path}/content&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;repo&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{github_url}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;token&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{github_token}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;secret&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{github_secret}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;command&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;hugo&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;--destination&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="s2">&#34;@5{blog_path}/public&#34;</span>
+</span></span><span class="line"><span class="cl">                          <span class="p">],</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;submodule&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;github&#34;</span>
+</span></span><span class="line"><span class="cl">                        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">],</span>
+</span></span><span class="line"><span class="cl">              <span class="nt">&#34;match&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                  <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;/webhook&#34;</span>
+</span></span><span class="line"><span class="cl">                  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">              <span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">          <span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="v2ray" data-numberify>v2ray<a class="anchor ms-1" href="#v2ray"></a></h3>
+<p><a href="https://github.com/zxcvos/Xray-script" target="_blank" rel="noopener noreferrer">https://github.com/zxcvos/Xray-script<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<h4 id="configjson" data-numberify>config.json<a class="anchor ms-1" href="#configjson"></a></h4>
+<p>mkdir -p /usr/local/etc/v2ray/</p>
+<p>mkdir -p /usr/local/etc/ssl/ecc/</p>
+<p>vim /usr/local/etc/v2ray/config.json</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;log&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;access&#34;</span><span class="p">:</span> <span class="s2">&#34;/var/log/v2ray/access.log&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;error&#34;</span><span class="p">:</span> <span class="s2">&#34;/var/log/v2ray/error.log&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;loglevel&#34;</span><span class="p">:</span> <span class="s2">&#34;warning&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;dns&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;stats&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;inbounds&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;port&#34;</span><span class="p">:</span> <span class="err">@</span><span class="mi">3</span><span class="p">{</span><span class="err">v2ray_port</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;listen&#34;</span><span class="p">:</span> <span class="s2">&#34;127.0.0.1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;protocol&#34;</span><span class="p">:</span> <span class="s2">&#34;vmess&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;settings&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;clients&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{v2ray_uuid}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;level&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nt">&#34;email&#34;</span><span class="p">:</span> <span class="s2">&#34;@1{your_email}&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;decryption&#34;</span><span class="p">:</span> <span class="s2">&#34;none&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;streamSettings&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;network&#34;</span><span class="p">:</span> <span class="s2">&#34;ws&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;security&#34;</span><span class="p">:</span> <span class="s2">&#34;none&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;wsSettings&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="s2">&#34;@3{v2ray_path}&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;outbounds&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;tag&#34;</span><span class="p">:</span> <span class="s2">&#34;direct&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;protocol&#34;</span><span class="p">:</span> <span class="s2">&#34;freedom&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;settings&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;tag&#34;</span><span class="p">:</span> <span class="s2">&#34;blocked&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;protocol&#34;</span><span class="p">:</span> <span class="s2">&#34;blackhole&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;settings&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;routing&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;domainStrategy&#34;</span><span class="p">:</span> <span class="s2">&#34;IPIfNonMatch&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;rules&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;field&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;domain&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;googleapis.cn&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;goofle.cn&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;outboundTag&#34;</span><span class="p">:</span> <span class="s2">&#34;direct&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;outboundTag&#34;</span><span class="p">:</span> <span class="s2">&#34;blocked&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;ip&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;geoip:private&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;field&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;policy&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;reverse&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;transport&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="hugo-2" data-numberify>hugo<a class="anchor ms-1" href="#hugo-2"></a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">hugo new site @5<span class="o">{</span>blog_path<span class="o">}</span>
+</span></span></code></pre></div><p>会在<code>@5{blog_path}</code>处建立网站的目录</p>
+<h3 id="vaultwardenvaultwarden_setup" data-numberify>vaultwarden<a class="anchor ms-1" href="#vaultwardenvaultwarden_setup"></a></h3>
+<h3 id="编写脚本监视git活动并更新网页" data-numberify>编写脚本监视git活动并更新网页<a class="anchor ms-1" href="#编写脚本监视git活动并更新网页"></a></h3>
+<p>按理来说是不需要这一步的，应该是<code>caddy</code>接收到<code>github</code>发来的<code>webhook</code>然后就启动相关插件把更新的仓库<code>pull</code>下来, 然后就调用<code>hugo --destination @5{blog_path}/public</code>命令更新网页了</p>
+<p>但实际上发现这个命令居然是在<code>/</code>根目录下执行的, 即使在<code>caddyfile.json</code>里指定<code>root * @5{blog_path} </code>了也不行.</p>
+<p>开始还想把命令换成执行其他的脚本, 然后在脚本中<code>cd</code>到路径再执行<code>hugo</code>生成网页. 但是好像也没法正常运行起来</p>
+<p>只能退而求其次, 单独编写一个<code>inotify.sh</code>监测<code>@5{blog_path}/content/.git/index</code>这个文件的变动情况然后再执行更新网页, 脚本如下(需要先安装<code>inotify</code>)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/sh
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="nv">filename</span><span class="o">=</span><span class="nv">$@</span>5<span class="o">{</span>blog_path<span class="o">}</span>/content/.git/index
+</span></span><span class="line"><span class="cl">inotifywait -mrq --format <span class="s1">&#39;%e&#39;</span> --event create,delete,modify  <span class="nv">$filename</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> event
+</span></span><span class="line"><span class="cl">  <span class="k">do</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">cd</span> @5<span class="o">{</span>blog_path<span class="o">}</span> <span class="o">&amp;&amp;</span> hugo
+</span></span><span class="line"><span class="cl">  <span class="k">done</span>
+</span></span></code></pre></div><p>之后执行<code>nohup bash inotify.sh &gt; /dev/null 2&gt;&amp;1</code>让脚本在后台运行就可以了</p>
+<h2 id="为网站申请证书-以cloudflare为例" data-numberify>为网站申请证书 (以cloudflare为例)<a class="anchor ms-1" href="#为网站申请证书-以cloudflare为例"></a></h2>
+<p>安装<code>acme.sh</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl https://get.acme.sh <span class="p">|</span> sh
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> ~/.bashrc
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CF_Key</span><span class="o">=</span><span class="s2">&#34;@1{cloudflare_key}&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">CF_Email</span><span class="o">=</span><span class="s2">&#34;@1{your_email}&#34;</span>
+</span></span><span class="line"><span class="cl">acme.sh --register-account -m @1<span class="o">{</span>your_email<span class="o">}</span>
+</span></span></code></pre></div><p>之后运行如下命令即可为<code>blog</code>网站申请证书</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">acme.sh --issue --dns dns_cf -d @2<span class="o">{</span>blog_domain<span class="o">}</span> --keylength ec-256 <span class="c1">#--debug 2 如果出错可以加这个参数看看哪里报错</span>
+</span></span></code></pre></div><p>如下命令可将证书安装在<code>@2{cer_path}</code>, <code>@2{key_path}</code>路径下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">acme.sh --installcert -d @2<span class="o">{</span>blog_domain<span class="o">}</span> --ecc --key-file @2<span class="o">{</span>key_path<span class="o">}</span> --fullchain-file @2<span class="o">{</span>cer_path<span class="o">}</span> --force
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">vim /etc/sysctl.conf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># max open files</span>
+</span></span><span class="line"><span class="cl">fs.file-max <span class="o">=</span> <span class="m">51200</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># max read buffer</span>
+</span></span><span class="line"><span class="cl">net.core.rmem_max <span class="o">=</span> <span class="m">67108864</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># max write buffer</span>
+</span></span><span class="line"><span class="cl">net.core.wmem_max <span class="o">=</span> <span class="m">67108864</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># default read buffer</span>
+</span></span><span class="line"><span class="cl">net.core.rmem_default <span class="o">=</span> <span class="m">65536</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># default write buffer</span>
+</span></span><span class="line"><span class="cl">net.core.wmem_default <span class="o">=</span> <span class="m">65536</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># max processor input queue</span>
+</span></span><span class="line"><span class="cl">net.core.netdev_max_backlog <span class="o">=</span> <span class="m">4096</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># max backlog</span>
+</span></span><span class="line"><span class="cl">net.core.somaxconn <span class="o">=</span> <span class="m">4096</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># resist SYN flood attacks</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_syncookies <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># reuse timewait sockets when safe</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_tw_reuse <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># turn off fast timewait sockets recycling</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_tw_recycle <span class="o">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># short FIN timeout</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_fin_timeout <span class="o">=</span> <span class="m">30</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># short keepalive time</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_keepalive_time <span class="o">=</span> <span class="m">1200</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># outbound port range</span>
+</span></span><span class="line"><span class="cl">net.ipv4.ip_local_port_range <span class="o">=</span> <span class="m">10000</span> <span class="m">65000</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># max SYN backlog</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_max_syn_backlog <span class="o">=</span> <span class="m">4096</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># max timewait sockets held by system simultaneously</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_max_tw_buckets <span class="o">=</span> <span class="m">5000</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># TCP receive buffer</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_rmem <span class="o">=</span> <span class="m">4096</span> <span class="m">87380</span> <span class="m">67108864</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># TCP write buffer</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_wmem <span class="o">=</span> <span class="m">4096</span> <span class="m">65536</span> <span class="m">67108864</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># turn on path MTU discovery</span>
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_mtu_probing <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># for high-latency network</span>
+</span></span><span class="line"><span class="cl">net.core.default_qdisc<span class="o">=</span>fq
+</span></span><span class="line"><span class="cl">net.ipv4.tcp_congestion_control <span class="o">=</span> bbr
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sysctl -p
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">apt install libcap2-bin
+</span></span><span class="line"><span class="cl">setcap <span class="s1">&#39;cap_net_bind_service=+ep&#39;</span> /usr/bin/caddy
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown root:root /usr/bin/caddy
+</span></span><span class="line"><span class="cl">chown -R root:root /etc/caddy
+</span></span><span class="line"><span class="cl">chown -R root:www-data /etc/ssl/caddy
+</span></span><span class="line"><span class="cl">chown root:www-data /var/log/caddy.log
+</span></span><span class="line"><span class="cl">chown root:root /etc/systemd/system/caddy.service
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chmod <span class="m">755</span> /usr/bin/caddy
+</span></span><span class="line"><span class="cl">chmod <span class="m">770</span> /etc/ssl/caddy
+</span></span><span class="line"><span class="cl">chmod <span class="m">770</span> /var/log/caddy.log
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /etc/systemd/system/caddy.service
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown root:root /usr/local/etc/v2ray/v2ray.cer
+</span></span><span class="line"><span class="cl">chown root:root /usr/local/etc/v2ray/v2ray.key
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /usr/local/etc/v2ray/v2ray.cer
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /usr/local/etc/v2ray/v2ray.key
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown root:root /usr/local/etc/ssl/ecc/password.cer
+</span></span><span class="line"><span class="cl">chown root:root /usr/local/etc/ssl/ecc/password.key
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /usr/local/etc/ssl/ecc/password.cer
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /usr/local/etc/ssl/ecc/password.key
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown root:root /usr/local/etc/v2ray/txt.cer
+</span></span><span class="line"><span class="cl">chown root:root /usr/local/etc/v2ray/txt.key
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /usr/local/etc/v2ray/txt.cer
+</span></span><span class="line"><span class="cl">chmod <span class="m">644</span> /usr/local/etc/v2ray/txt.key
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mkdir /var/www/public
+</span></span><span class="line"><span class="cl">vim /var/www/public/index.html
+</span></span></code></pre></div><h2 id="常用命令表" data-numberify>常用命令表<a class="anchor ms-1" href="#常用命令表"></a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">bash &lt;<span class="o">(</span>curl -L -s check.unlock.media<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">acme:
+</span></span><span class="line"><span class="cl">    <span class="nb">export</span> <span class="nv">CF_Key</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">export</span> <span class="nv">CF_Email</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    acme.sh --register-account -m example@gmail.com
+</span></span><span class="line"><span class="cl">    acme.sh --issue --dns dns_cf -d example.com --keylength ec-256 --debug <span class="m">2</span>
+</span></span><span class="line"><span class="cl">    acme.sh --installcert -d example.com --ecc --key-file /usr/local/etc/ssl/example.key --fullchain-file /usr/local/etc/ssl/example.cer --force
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">caddy:
+</span></span><span class="line"><span class="cl">	vim /etc/caddy/caddyfile.json
+</span></span><span class="line"><span class="cl">    systemctl daemon-reload
+</span></span><span class="line"><span class="cl">    caddy list-modules	<span class="c1">#查看caddy安装了哪些插件</span>
+</span></span><span class="line"><span class="cl">    journalctl --boot -u caddy.service	<span class="c1">#查看caddy详细运行日志</span>
+</span></span><span class="line"><span class="cl">    systemctl restart caddy <span class="o">&amp;&amp;</span> systemctl status caddy	<span class="c1">#重启caddy并查看运行状态</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">v2ray：
+</span></span><span class="line"><span class="cl">    vim /usr/local/etc/v2ray/config.json
+</span></span><span class="line"><span class="cl">	systemctl daemon-reload
+</span></span><span class="line"><span class="cl">	systemctl stop v2ray
+</span></span><span class="line"><span class="cl">    systemctl restart v2ray <span class="o">&amp;&amp;</span> systemctl status v2ray
+</span></span><span class="line"><span class="cl">    journalctl -u v2ray
+</span></span><span class="line"><span class="cl">	bash install-release.sh	<span class="c1">#更新v2ray版本</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ufw:
+</span></span><span class="line"><span class="cl">	utf allow 80	<span class="c1">#防火墙开启80端口允许外界访问， 需要提前apt安装ufw</span>
+</span></span><span class="line"><span class="cl">	ufw delete 80	<span class="c1">#关闭80端口</span>
+</span></span><span class="line"><span class="cl">    ufw status numbered	<span class="c1">#查看开启了哪些端口</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker：
+</span></span><span class="line"><span class="cl">	docker run -d --name vaultwarden <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -e <span class="nv">SIGNUPS_ALLOWED</span><span class="o">=</span><span class="nb">true</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -e <span class="nv">WEBSOCKET_ENABLED</span><span class="o">=</span><span class="nb">true</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -e <span class="nv">LOG_FILE</span><span class="o">=</span>/data/bitwarden.log <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -p @1<span class="o">{</span>vault_port<span class="o">}</span>:80 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -p @2<span class="o">{</span>vault_port<span class="o">}</span>:3012 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  -v /vw-data/:/data/ <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  vaultwarden/server:1.27.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">xcaddy：
+</span></span><span class="line"><span class="cl">	xcaddy build v2.6.0 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>	--with github.com/WingLim/caddy-webhook <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>	--with github.com/mholt/caddy-webdav <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>	--with github.com/vrongmeal/caddygit
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">inotify:
+</span></span><span class="line"><span class="cl">	  nohup bash inotify.sh &gt; /dev/null 2&gt;<span class="p">&amp;</span><span class="m">1</span>
+</span></span></code></pre></div><h2 id="其他" data-numberify>其他<a class="anchor ms-1" href="#其他"></a></h2>
+<p>搭建所用的所有配置文件如上所示, 接下来写写我在搭建中遇到的一些问题</p>
+<ol>
+<li>原本v2ray使用的是h2+tls协议, 但是似乎没法在caddy v2中正常运行, 然后看到好多教程都是用ws, 我就也改成了ws, 然后就顺利运行了</li>
+<li>bitwarden之前的官方docker镜像是可以直接监听443端口传来的https请求. 但新版的Vaultwarden要配备https的话好像很麻烦, 并且申请的证书是在docker容器里的, caddy无法访问. 但实际上可以先给域名申请证书, https的请求发给caddy之后再让caddy转发到aultwarden的docker容器映射的80端口那里. 这样实际访问的时候依然是https加密访问. 不用担心安全问题</li>
+</ol>
+<h2 id="参考资料" data-numberify>参考资料<a class="anchor ms-1" href="#参考资料"></a></h2>
+<p>在搭建这篇博客时参考了以下链接, 感谢各位大佬的分享</p>
+<h3 id="caddy-3" data-numberify>caddy:<a class="anchor ms-1" href="#caddy-3"></a></h3>
+<p><a href="https://mritd.com/2021/01/07/lets-start-using-caddy2" target="_blank" rel="noopener noreferrer">Caddy2 简明教程<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://blog.wangjunfeng.com/post/caddy-hugo/#%e6%b3%a8%e5%86%8ccaddy%e6%9c%8d%e5%8a%a1" target="_blank" rel="noopener noreferrer">利用Caddy实现Hugo个人博客的自动化部署<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://github.com/LadderOperator/docker-caddy2-hugo-alidns" target="_blank" rel="noopener noreferrer">vrongmeal/caddygit<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://github.com/vrongmeal/caddygit" target="_blank" rel="noopener noreferrer">WingLim/caddy-webhook<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://github.com/WingLim/caddy-webhook" target="_blank" rel="noopener noreferrer">WingLim/caddy-webhook<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://github.com/LadderOperator/docker-caddy2-hugo-alidns" target="_blank" rel="noopener noreferrer">LadderOperator/docker-caddy2-hugo-alidns<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://caddy.community/t/caddy-reverse-proxy-nextcloud-collabora-vaultwarden-with-local-https/12052/2" target="_blank" rel="noopener noreferrer">caddy community<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<h3 id="vaultwarden" data-numberify>vaultwarden:<a class="anchor ms-1" href="#vaultwarden"></a></h3>
+<p><a href="https://github.com/dani-garcia/vaultwarden/wiki/Proxy-examples" target="_blank" rel="noopener noreferrer">dani-garcia/vaultwarden<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<h3 id="hugo-3" data-numberify>hugo:<a class="anchor ms-1" href="#hugo-3"></a></h3>
+<p><a href="https://www.andbible.com/post/hugo-command-usage" target="_blank" rel="noopener noreferrer">hugo-command-usage<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://www.jianshu.com/p/c5297a8bb1e7" target="_blank" rel="noopener noreferrer">Hugo 目录组织<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://niceram.xyz/2021/03/04/20210304_1125" target="_blank" rel="noopener noreferrer">Hugo 静态博客食用指南<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+<p><a href="https://site.zhelper.net/Hugo/hugo-stack" target="_blank" rel="noopener noreferrer">Stack主题<i class="fas fa-external-link-square-alt ms-1"></i></a></p>
+</div>
+</div>
+</div></article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title fs-4 my-2 text-surface">Copyright</h2>
+    </div>
+    <div class="card-body"><a class="d-flex align-items-center flex-column" target="_blank" rel="license noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">
+  <span><i class="fab fa-fw fa-2x fa-creative-commons"></i><i class="fab fa-fw fa-2x fa-creative-commons-by"></i><i class="fab fa-fw fa-2x fa-creative-commons-nc"></i><i class="fab fa-fw fa-2x fa-creative-commons-sa"></i></span>
+  CC BY-NC-SA 4.0 
+</a>
+
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title my-2 fs-4 text-surface">Comments</h2>
+  </div>
+  <div class="card-body"><script src="https://utteranc.es/client.js"
+  repo="TioeAre/tioe-blog-comments"
+  issue-term="pathname"
+  label="comment"
+  theme="github-light"
+  crossorigin="anonymous"
+  async>
+</script>
+
+
+
+</div>
+</div></div>
+</div>
+<aside class="col-xxl-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    
+    
+<div class="accordion profile">
+  <div class="accordion-item card row text-center component">
+    <div class="accordion-header card-header border-0" id="profile-header">
+      <a
+        class="accordion-button d-lg-none mb-2 shadow-none p-0 bg-transparent text-surface collapsed"
+        role="button" data-bs-toggle="collapse" href="#profile" aria-expanded="false" aria-controls="profile">
+        Profile
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="profile" aria-labelledby="profile-header">
+      <div class="col-12 d-flex align-items-center justify-content-center"><picture><img class="profile-avatar rounded-circle " alt="Tioe Are" src="https://www.blog.tioe.xyz/images/avatar.png" loading="lazy" data-viewer-invisible width="428" height="393" />
+</picture>
+</div>
+      <div class="col-12 profile-meta"><div class="profile-name fw-fold fs-lg">Tioe Are</div><div class="profile-bio">洗心革面, 潜心学习</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>zzu</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><a class="profile-about text-primary" href="/about/"><i class="fas fa-fw fa-user"></i>About</a><a class="profile-contact text-primary" href="/contact/"><i class="fas fa-fw fa-question-circle"></i>Contact Us</a></div>
+
+
+<nav class="social-links nav justify-content-center mt-1 justify-content-around">
+      <a class="nav-link social-link" target="_blank" href="https://space.bilibili.com/359367522" title="Bilibili" rel="me">
+        <i class="fa-fw fa-2x fab fa-bilibili"
+           style="color: #fb7299;"></i>
+      </a>
+    <a class="nav-link social-link" href="mailto:are10032@outlook.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope" style="color: #0963ac;"></i>
+    </a>
+      <a class="nav-link social-link" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fa-2x fab fa-github"
+          ></i>
+      </a>
+      <a class="nav-link social-link" target="_blank" href="https://www.zhihu.com/people/tioeare" title="Zhihu" rel="me">
+        <i class="fa-fw fa-2x fab fa-zhihu"
+           style="color: #056de8;"></i>
+      </a>
+  <a class="nav-link social-link" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-2x fa-rss" style="color: #ea6221;"></i>
+  </a>
+</nav>
+</div>
+  </div>
+</div>
+
+
+<div class="accordion post-toc d-none d-lg-block">
+  <div class="accordion-item row mb-4 card component" id="postTOC">
+    <div class="card-header accordion-header">
+      <h2 class="card-title fs-4 my-2 text-surface d-none d-lg-block">Contents</h2>
+      <a class="accordion-button d-lg-none mb-1 collapsed shadow-none p-0 bg-transparent" role="button" data-bs-toggle="collapse" href="#post-toc" aria-expanded="false" aria-controls="post-toc">
+        Contents
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="post-toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#项目概述">项目概述</a>
+      <ul>
+        <li><a href="#版本说明">版本说明</a></li>
+        <li><a href="#格式说明">格式说明</a></li>
+      </ul>
+    </li>
+    <li><a href="#安装">安装</a>
+      <ul>
+        <li><a href="#caddy-1">caddy</a></li>
+        <li><a href="#hugo-1">hugo</a></li>
+        <li><a href="#vaultwarden_setup">vaultwarden</a></li>
+      </ul>
+    </li>
+    <li><a href="#配置">配置</a>
+      <ul>
+        <li><a href="#caddy-2">caddy</a></li>
+        <li><a href="#v2ray">v2ray</a></li>
+        <li><a href="#hugo-2">hugo</a></li>
+        <li><a href="#vaultwardenvaultwarden_setup"><a href="#vaultwarden_setup">vaultwarden</a></a></li>
+        <li><a href="#编写脚本监视git活动并更新网页">编写脚本监视git活动并更新网页</a></li>
+      </ul>
+    </li>
+    <li><a href="#为网站申请证书-以cloudflare为例">为网站申请证书 (以cloudflare为例)</a></li>
+    <li><a href="#常用命令表">常用命令表</a></li>
+    <li><a href="#其他">其他</a></li>
+    <li><a href="#参考资料">参考资料</a>
+      <ul>
+        <li><a href="#caddy-3"><code>caddy</code>:</a></li>
+        <li><a href="#vaultwarden"><code>vaultwarden</code>:</a></li>
+        <li><a href="#hugo-3"><code>hugo</code>:</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+  </div>
+</div>
+
+  <div class="accordion recent-posts">
+    <section class="row card component">
+      <div class="card-header">
+        <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+          Recent Posts
+        </h2>
+        <a
+          class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent collapsed"
+          role="button"
+          data-bs-toggle="collapse"
+          href="#recent-posts"
+          aria-expanded="false"
+          aria-controls="recent-posts">
+          Recent Posts
+        </a>
+      </div>
+      <div
+        class="card-body collapse accordion-collapse accordion-body d-lg-block"
+        id="recent-posts">
+        <ul class="post-list list-unstyled ms-1">
+            <li class="mb-2">
+              <a href="/study/ransac/">RANSAC</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/nnsensorfusion/">使用神经网络融合位置数据(第一版)</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/nice_slam/">Nice Slam论文解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_ekf3/">APM中ekf3算法</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_t265/">APM中t265数据解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/study/apm_optical_flow/">APM光流传感器解析</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/multi-sensor-fusion/">空地无人机GPS与T265，光流传感器等的数据融合</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/ublox/">使用ublox F9p GPS模块</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/orbslam3/">Orb_slam3稠密建图</a>
+            </li>
+            <li class="mb-2">
+              <a href="/project/indentifyapron/">Gazebo仿真环境下停机坪的识别</a>
+            </li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+      <div class="accordion categories-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/categories">Categories</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-categories" aria-expanded="false" aria-controls="taxonomy-categories">
+                Categories
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-categories">
+            <div class="py-2">
+              <a href="/categories/multi-sensor/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Multi-Sensor">
+                Multi-Sensor
+                  <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+              </a>
+              <a href="/categories/bug/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="bug">
+                bug
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/categories/installation/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Installation">
+                Installation
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/categories/opencv/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="OpenCV">
+                OpenCV
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/categories/slam/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="slam">
+                slam
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/categories/gps/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="GPS">
+                GPS
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/probability/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Probability">
+                Probability
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/%E5%AE%9E%E9%AA%8C%E8%AE%B0%E5%BD%95/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="实验记录">
+                实验记录
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="服务器">
+                服务器
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="accordion tags-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/tags">Tags</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-tags" aria-expanded="false" aria-controls="taxonomy-tags">
+                Tags
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-tags">
+            <div class="py-2">
+              <a href="/tags/bug/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="bug">
+                bug
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/tags/ros/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="ros">
+                ros
+                  <span class="badge badge-sm text-secondary bg-white ms-1">3</span>
+              </a>
+              <a href="/tags/gps/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="GPS">
+                GPS
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/linux/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Linux">
+                Linux
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/opencv/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="OpenCV">
+                OpenCV
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/slam/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="slam">
+                slam
+                  <span class="badge badge-sm text-secondary bg-white ms-1">2</span>
+              </a>
+              <a href="/tags/arch-linux/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Arch Linux">
+                Arch Linux
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/bitwarden/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="bitwarden">
+                bitwarden
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/c&#43;&#43;/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="c&#43;&#43;">
+                c&#43;&#43;
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+              <a href="/tags/caddy/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="caddy">
+                caddy
+                  <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+              </a>
+            <a href="https://www.blog.tioe.xyz/tags" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title='ALL'>
+              ALL
+              <span class="badge badge-sm text-secondary bg-white ms-1">20</span>
+            </a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="accordion series-taxonomies">
+         <section class="row card component">
+          <div class="card-header">
+            <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+              <a href="https://www.blog.tioe.xyz/series">Series</a>
+            </h2>
+            <a
+              class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent text-surface collapsed"
+              role="button" data-bs-toggle="collapse" href="#taxonomy-series" aria-expanded="false" aria-controls="taxonomy-series">
+                Series
+            </a>
+          </div>
+          <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="taxonomy-series">
+            <div class="py-2">
+              <a href="/series/guide/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-series me-2 mb-2" title="Guide">
+                Guide
+                  <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+<div class="accordion archives">
+  <section class="row card component">
+      <div class="card-header">
+        <h2 class="card-title my-2 fs-4 text-surface d-none d-lg-block">
+            <a href="/archives/">Archives</a>
+        </h2>
+        <a
+          class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent collapsed"
+          role="button" data-bs-toggle="collapse" href="#archives" aria-expanded="false" aria-controls="archives">
+            Archives
+        </a>
+      </div>
+      <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="archives">
+
+    <a href="/archives/2023/" class="btn btn-sm btn-secondary post-taxonomy ps-3 me-2 mb-2" title="2023">
+    2023 <span class="badge badge-sm text-secondary bg-white ms-1">10</span>
+    </a>
+
+    <a href="" class="btn btn-sm btn-secondary post-taxonomy ps-3 me-2 mb-2" title="2022">
+    2022 <span class="badge badge-sm text-secondary bg-white ms-1">4</span>
+    </a>
+
+
+      </div>
+  </section>
+</div>
+
+
+    
+  </div>
+</aside>
+
+      </div>
+    </main><footer class="footer mt-auto py-3 text-center container"><div class="offcanvas offcanvas-bottom h-auto" tabindex="-1" id="offcanvasActionsPanel"
+  aria-labelledby="offcanvasActionsPanelLabel">
+  <div class="offcanvas-header">
+    <div class="offcanvas-title h5" id="offcanvasActionsPanelLabel">
+      <i class="fas fa-fw fa-th-large me-1"></i>
+      Actions
+    </div>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" data-bs-target="offcanvasActionsPanel" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body mt-2"><div class="social-share mb-4 d-flex overflow-auto">
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=Offline&url=https%3a%2f%2fwww.blog.tioe.xyz%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-twitter mb-2"></i> Twitter
+      </a>
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Facebook Share Button"
+        target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fwww.blog.tioe.xyz%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-facebook-f mb-2"></i> Facebook
+      </a>
+    </div>
+    <hr class="mb-4"><div class="actions d-flex overflow-auto align-items-center">
+      <a role="button" class="action action-go-back d-flex flex-column align-items-center me-3" href="javascript: window.history.back();">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-90"></i></span> Go back
+      </a>
+      <a role="button" class="action action-reload-page d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+      </a>
+      <a role="button" class="action action-copy-url d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-link"></i></span> Copy URL
+      </a>
+    </div>
+  </div>
+</div><div class="row text-center">
+  <div class="col-12 mt-2">
+    <p class="mb-2">Tioe&#39;s website</p>
+    <p class="text-secondary mb-2"><small>my pirsonal web</small></p><div class="copyright mb-2 text-secondary">
+  <small>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</small>
+</div>
+<div class="powered-by mb-2 text-secondary">
+  <small>
+    Build with ❤️ from the <a class="text-primary" href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a class="text-primary" href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">HBS</a> theme.
+  </small>
+</div>
+
+
+<nav class="social-links nav justify-content-center mb-2 mt-3">
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://space.bilibili.com/359367522" title="Bilibili" rel="me">
+        <i class="fa-fw fa-2x fab fa-bilibili"
+           style="color: #fb7299;"></i>
+      </a>
+    <a class="nav-link social-link p-0 me-1 mb-2" href="mailto:are10032@outlook.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope" style="color: #0963ac;"></i>
+    </a>
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://github.com/TioeAre" title="GitHub" rel="me">
+        <i class="fa-fw fa-2x fab fa-github"
+          ></i>
+      </a>
+      <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="https://www.zhihu.com/people/tioeare" title="Zhihu" rel="me">
+        <i class="fa-fw fa-2x fab fa-zhihu"
+           style="color: #056de8;"></i>
+      </a>
+  <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-2x fa-rss" style="color: #ea6221;"></i>
+  </a>
+</nav>
+</div>
+  <div class="col-12 col-lg-8 offset-0 offset-lg-1"></div>
+</div>
+</footer>
+<script data-precache src="/assets/main/bundle.min.7b0b844603567e21d803318e39a00e4a40cba615a1fed3a176983a6341954616.js" integrity="sha256-ewuERgNWfiHYAzGOOaAOSkDLphWh/tOhdpg6Y0GVRhY=" crossorigin="anonymous" async></script><script data-precache src="/assets/icons/bundle.min.4f30d5267a9f2f9d45ed93969d45ec626100a969a8b91f71f753315a261e9034.js" integrity="sha256-TzDVJnqfL51F7ZOWnUXsYmEAqWmouR9x91MxWiYekDQ=" crossorigin="anonymous" defer></script>
+<script data-precache src="/assets/viewer/bundle.min.0a0d0099935beee41b7a7bf4543cd55e793e5f830a571b0794ef8c3602c5823c.js" integrity="sha256-Cg0AmZNb7uQbenv0VDzVXnk&#43;X4MKVxsHlO&#43;MNgLFgjw=" crossorigin="anonymous" defer></script>
+  <script data-precache defer src="/assets/katex/bundle.min.ba934031af2a70b39e62782984e88913923c1ea7ba5d19e7e8e8dbea3862ec17.js" integrity="sha256-upNAMa8qcLOeYngphOiJE5I8Hqe6XRnn6Ojb6jhi7Bc=" crossorigin="anonymous"></script>
+<script data-precache defer src="/assets/mermaid/bundle.min.bd1045face50939ea18921e0a1dee594789e354704b26e1b1ad61b9c66bec1f1.js" integrity="sha256-vRBF&#43;s5Qk56hiSHgod7llHieNUcEsm4bGtYbnGa&#43;wfE=" crossorigin="anonymous"></script>
+
+<script src="/js/sw-register.js" defer></script>
+
+
+  </body>
+</html>

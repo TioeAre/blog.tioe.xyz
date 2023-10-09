@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://www.blog.tioe.xyz/sitemap.xml

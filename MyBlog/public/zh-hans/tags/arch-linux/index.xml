@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Arch Linux on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/zh-hans/tags/arch-linux/</link>
+    <description>Recent content in Arch Linux on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-hans</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Tue, 06 Sep 2022 22:42:23 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/zh-hans/tags/arch-linux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Install on Arch Linux</title>
+      <link>https://www.blog.tioe.xyz/zh-hans/docs/installation/linux/archlinux/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/zh-hans/docs/installation/linux/archlinux/</guid>
+      <description><![CDATA[This guide show you how to install on Arch Linux.]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

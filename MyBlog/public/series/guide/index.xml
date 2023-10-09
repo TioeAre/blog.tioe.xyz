@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Guide on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/series/guide/</link>
+    <description>Recent content in Guide on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Tue, 06 Sep 2022 22:42:23 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/series/guide/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Install on Arch Linux</title>
+      <link>https://www.blog.tioe.xyz/docs/installation/linux/archlinux/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/installation/linux/archlinux/</guid>
+      <description><![CDATA[This guide show you how to install on Arch Linux.]]></description>
+    </item>
+    
+    <item>
+      <title>Introduction</title>
+      <link>https://www.blog.tioe.xyz/docs/introduction/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/introduction/</guid>
+      <description><![CDATA[A fast, responsive and feature-rich Hugo theme for blog and documentations site.]]></description>
+    </item>
+    
+    <item>
+      <title>Install on Ubuntu</title>
+      <link>https://www.blog.tioe.xyz/docs/installation/linux/ubuntu/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/installation/linux/ubuntu/</guid>
+      <description><![CDATA[This guide show you how to install on Ubuntu.]]></description>
+    </item>
+    
+    <item>
+      <title>Install on Windows</title>
+      <link>https://www.blog.tioe.xyz/docs/installation/windows/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/installation/windows/</guid>
+      <description><![CDATA[This guide show you how to install on Windows.]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Projects on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/project/</link>
+    <description>Recent content in Projects on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Sat, 17 Jun 2023 19:30:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用神经网络融合位置数据(第一版)</title>
+      <link>https://www.blog.tioe.xyz/project/nnsensorfusion/</link>
+      <pubDate>Sat, 17 Jun 2023 19:30:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/nnsensorfusion/</guid>
+      <description><![CDATA[本文受NICE-SLAM启发, 最初是想要设计一个网络, 使其能够将不同传感器的数据融合起来得到一个准确的无人机位置. 首先设计并训练一个用来融合数据的网络, 训练出的网络作为拟合位置的函数, 然后用神经隐式表达的方法, 给出一个无人机位置的先验, 然后用刚才预训练好的网络来decode出不同传感器可能的读数, 再将该读数与真实读到的数据做loss, 反向梯度计算出在什么样的位置下最有可能用这几种传感器读到这些读数. 从而得到最大似然的无人机位置.
+然后首先便需要训练一个能够起到decode作用的网络. 在训练之前我想要先训练一个正向融合数据的网络作为测试, 然后想到了FCN全卷积网络, 当时觉得全卷积网络不限置输入和输出的大小, 训练的是卷积核, 似乎刚好符合我想要训练一个融合不同传感器数值的函数的目的.
+为了训练网络, 首先需要数据. 在网上找到了t265的xacro的模型, 根据该模型将其转换为gazebo的px4无人机仿真中使用的sdf模型, 具体文件如下
+&lt;?xml version=&#34;1.0&#34;?&gt; &lt;sdf version=&#39;1.5&#39;&gt; &lt;model name=&#39;realsense_t265&#39;&gt; &lt;link name=&#39;base_link&#39;&gt; &lt;inertial&gt; &lt;pose&gt;0 0 0 0 0 0&lt;/pose&gt; &lt;mass&gt;0.055&lt;/mass&gt; &lt;inertia&gt; &lt;ixx&gt;9.108e-05&lt;/ixx&gt; &lt;ixy&gt;0&lt;/ixy&gt; &lt;ixz&gt;0&lt;/ixz&gt; &lt;iyy&gt;2.51e-06&lt;/iyy&gt; &lt;iyz&gt;0&lt;/iyz&gt; &lt;izz&gt;8.931e-05&lt;/izz&gt; &lt;/inertia&gt; &lt;/inertial&gt; &lt;collision name=&#39;base_link_fixed_joint_lump__t265_pose_frame_collision&#39;&gt; &lt;pose&gt;0 0 0 0 -0 0&lt;/pose&gt; &lt;geometry&gt; &lt;box&gt; &lt;size&gt;0.013 0.108 0.024&lt;/size&gt; &lt;/box&gt; &lt;/geometry&gt; &lt;/collision&gt; &lt;visual name=&#39;base_link_fixed_joint_lump__t265_pose_frame_visual&#39;&gt; &lt;pose&gt;0 0 0 1.57 -0 1.]]></description>
+    </item>
+    
+    <item>
+      <title>使用ublox f9p GPS模块</title>
+      <link>https://www.blog.tioe.xyz/project/ublox/</link>
+      <pubDate>Fri, 05 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/ublox/</guid>
+      <description><![CDATA[编译报错 /home/tioeare/project/FASTLAB/gps_ws/src/ublox/ublox_gps/src/node.cpp:39:10: fatal error: rtcm_msgs/Message.h: No such file or directory 39 | #include &lt;rtcm_msgs/Message.h&gt; | ^~~~~~~~~~~~~~~~~~~~~ compilation terminated. make[2]: *** [ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/build.make:76: ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/src/node.cpp.o] Error 1 make[1]: *** [CMakeFiles/Makefile2:4154: ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/all] Error 2 make: *** [Makefile:146: all] Error 2 Invoking &#34;make -j8 -l8&#34; failed 下载https://github.com/tilk/rtcm_msgs放到gps_ws/src目录下
+/usr/bin/ld: CMakeFiles/ublox_gps_node.dir/src/node.cpp.o: in function `ublox_node::UbloxNode::configureUblox()&#39;: node.cpp:(.text+0x86b7): undefined reference to `ublox_node::UbloxNode::kResetWait&#39; /usr/bin/ld: /home/tioeare/project/FASTLAB/gps_ws/devel/lib/libublox_gps.so: undefined reference to `ublox_gps::Gps::kSetBaudrateSleepMs&#39; collect2: error: ld returned 1 exit status make[2]: *** [ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/build.make:151: /home/tioeare/project/FASTLAB/gps_ws/devel/lib/ublox_gps/ublox_gps] Error 1 make[1]: *** [CMakeFiles/Makefile2:4505: ublox/ublox_gps/CMakeFiles/ublox_gps_node.]]></description>
+    </item>
+    
+    <item>
+      <title>空地无人机GPS与T265，光流传感器等的数据融合</title>
+      <link>https://www.blog.tioe.xyz/project/multi-sensor-fusion/</link>
+      <pubDate>Fri, 05 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/multi-sensor-fusion/</guid>
+      <description><![CDATA[apm坐标系 相机相比无人机中心:
+x正方向朝前
+y正方向朝右
+z正方向朝下
+数据格式 GPS 经度，维度，高度的绝对值
+gps获取到的数据的协方差(正常室外时协方差&lt;1.5)
+topic: /gps/fix
+type: sensor_msgs/NavSatFix
+uint8 COVARIANCE_TYPE_UNKNOWN=0 uint8 COVARIANCE_TYPE_APPROXIMATED=1 uint8 COVARIANCE_TYPE_DIAGONAL_KNOWN=2 uint8 COVARIANCE_TYPE_KNOWN=3 std_msgs/Header header uint32 seq time stamp string frame_id sensor_msgs/NavSatStatus status int8 STATUS_NO_FIX=-1 int8 STATUS_FIX=0 int8 STATUS_SBAS_FIX=1 int8 STATUS_GBAS_FIX=2 uint16 SERVICE_GPS=1 uint16 SERVICE_GLONASS=2 uint16 SERVICE_COMPASS=4 uint16 SERVICE_GALILEO=8 int8 status uint16 service float64 latitude float64 longitude float64 altitude float64[9] position_covariance uint8 position_covariance_type 光流 光流x，y轴速度及竖直方向上相对地面的高度
+信号强度，光流质量
+# 自定义光流数据 std_msgs/Header header uint32 seq time stamp string frame_id float32 distance uint8 strength uint8 precision uint8 tof_status float32 flow_vel_x float32 flow_vel_y uint8 flow_quality uint8 flow_status # 板载imu数据 std_msgs/Header header uint32 seq time stamp string frame_id geometry_msgs/Quaternion orientation float64 x float64 y float64 z float64 w float64[9] orientation_covariance geometry_msgs/Vector3 angular_velocity float64 x float64 y float64 z float64[9] angular_velocity_covariance geometry_msgs/Vector3 linear_acceleration float64 x float64 y float64 z float64[9] linear_acceleration_covariance t265 相机当前坐标(相对于开机时的坐标)及姿态四元数]]></description>
+    </item>
+    
+    <item>
+      <title>orb_slam3稠密建图</title>
+      <link>https://www.blog.tioe.xyz/project/orbslam3/</link>
+      <pubDate>Mon, 03 Apr 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/orbslam3/</guid>
+      <description><![CDATA[orb slam3稠密建图 项目介绍 开发环境 ubuntu 20.04
+ros noetic
+OpenCV 4.5.5
+pcl 1.13
+orb_slam3_pcl_mapping ├── CMakeLists.txt ├── package.xml ├── README.md └── src ├── PointCloudMapper.cc ├── PointCloudMapper.h └── pointcloud_mapping.cpp 主要参照以下项目进行修改适配orb slam3与d455，并增加点云的回环
+https://blog.csdn.net/crp997576280/article/details/104220926
+https://github.com/xiaobainixi/ORB-SLAM2_RGBD_DENSE_MAP
+代码简介 PointCloudMapper.cc 头文件中主要定义了相关变量和函数
+void viewer(); 唯一一个由外部调用的函数，主要用于点云的拼接和显示，以及判断当前是否检测到回环
+while (ros::ok()) { ros::spinOnce(); //用于检测是否有关键帧加入 KFUpdate = false; { std::unique_lock&lt;std::mutex&gt; lck(keyframeMutex); N = mvGlobalPointCloudsPose.size(); KFUpdate = mbKeyFrameUpdate; mbKeyFrameUpdate = false; } //是否有关键帧加入或是否是回环模式 if ((KFUpdate &amp;&amp; N &gt; lastKeyframeSize) || is_loop_for_remap) { std::unique_lock&lt;std::mutex&gt; lock_loop(loopUpdateMutex); //如果是回环的话根据BA后的位姿重新绘制点云 if (is_loop_for_remap) { std::cout &lt;&lt; RED &lt;&lt; &#34;detect loop!]]></description>
+    </item>
+    
+    <item>
+      <title>gazebo仿真环境下停机坪的识别</title>
+      <link>https://www.blog.tioe.xyz/project/indentifyapron/</link>
+      <pubDate>Thu, 16 Mar 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/indentifyapron/</guid>
+      <description><![CDATA[OpenCV识别停机坪 整体算法目标为能够在真机通过intel D435i深度相机与下视的工业相机完成无人机对周边环境的感知, 并建立起稠密地图. 计划目标为先在方针环境中进行算法编写与验证. 然后再部署到真机中进行调整和测试. 本周的主要完成的在仿真环境中对停机坪的识别, 并添加ros支持
+停机坪示意图如下
+停机坪识别概述 工程目录 identifyApron ├── bug.md	#记录程序编写过程中遇到的bug及解决方法 ├── CMakeLists.txt	#工程配置文件 ├── include	#存放头文件 │ ├── getImage.h │ └── identify.h ├── media	#存放测试或程序运行用到的图像文件 │ ├── E.jpg │ ├── image.png │ ├── N.jpg │ ├── S.jpg │ └── W.jpg ├── package.xml	#ros依赖项配置 └── src	#存放源文件 ├── getImage.cpp ├── identify.cpp └── main.cpp 本项目主要有getImage和identify两个文件, 其中getimage用于ros的订阅和发布图像节点. identify用于识别停机坪
+配置文件 CMakeLists.txt cmake中主要需要包含有eigen和opencv这两个库, 可以选用ros自带的opencv4.2然后通过ros安装eigen, 在这里我选用了之前本地安装过的eigen3.4和opencv4.5.5版本
+为能够使用本地版本, 需要在CMakeLists.txt中添加以下配置
+set(CMAKE_CXX_FLAGS &#34;${CMAKE_CXX_FLAGS} -std=c++14&#34;) set(cv_bridge_DIR &#34;/home/${your_username}/cvbridge_build_ws/devel/share/cv_bridge/cmake&#34;) set(OpenCV_DIR /usr/local/share/opencv4) include_directories(${OpenCV_INCLUDE_DIRS}) include_directories(/home/${your_path_to_eigen}/eigen-3.]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

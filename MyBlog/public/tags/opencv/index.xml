@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>OpenCV on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/tags/opencv/</link>
+    <description>Recent content in OpenCV on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Mon, 18 Sep 2023 13:57:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/tags/opencv/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>RANSAC</title>
+      <link>https://www.blog.tioe.xyz/study/ransac/</link>
+      <pubDate>Mon, 18 Sep 2023 13:57:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/ransac/</guid>
+      <description><![CDATA[]]></description>
+    </item>
+    
+    <item>
+      <title>gazebo仿真环境下停机坪的识别</title>
+      <link>https://www.blog.tioe.xyz/project/indentifyapron/</link>
+      <pubDate>Thu, 16 Mar 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/indentifyapron/</guid>
+      <description><![CDATA[OpenCV识别停机坪 整体算法目标为能够在真机通过intel D435i深度相机与下视的工业相机完成无人机对周边环境的感知, 并建立起稠密地图. 计划目标为先在方针环境中进行算法编写与验证. 然后再部署到真机中进行调整和测试. 本周的主要完成的在仿真环境中对停机坪的识别, 并添加ros支持
+停机坪示意图如下
+停机坪识别概述 工程目录 identifyApron ├── bug.md	#记录程序编写过程中遇到的bug及解决方法 ├── CMakeLists.txt	#工程配置文件 ├── include	#存放头文件 │ ├── getImage.h │ └── identify.h ├── media	#存放测试或程序运行用到的图像文件 │ ├── E.jpg │ ├── image.png │ ├── N.jpg │ ├── S.jpg │ └── W.jpg ├── package.xml	#ros依赖项配置 └── src	#存放源文件 ├── getImage.cpp ├── identify.cpp └── main.cpp 本项目主要有getImage和identify两个文件, 其中getimage用于ros的订阅和发布图像节点. identify用于识别停机坪
+配置文件 CMakeLists.txt cmake中主要需要包含有eigen和opencv这两个库, 可以选用ros自带的opencv4.2然后通过ros安装eigen, 在这里我选用了之前本地安装过的eigen3.4和opencv4.5.5版本
+为能够使用本地版本, 需要在CMakeLists.txt中添加以下配置
+set(CMAKE_CXX_FLAGS &#34;${CMAKE_CXX_FLAGS} -std=c++14&#34;) set(cv_bridge_DIR &#34;/home/${your_username}/cvbridge_build_ws/devel/share/cv_bridge/cmake&#34;) set(OpenCV_DIR /usr/local/share/opencv4) include_directories(${OpenCV_INCLUDE_DIRS}) include_directories(/home/${your_path_to_eigen}/eigen-3.]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

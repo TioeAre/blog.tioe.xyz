@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/</link>
+    <description>Recent content on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Mon, 18 Sep 2023 13:57:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>RANSAC</title>
+      <link>https://www.blog.tioe.xyz/study/ransac/</link>
+      <pubDate>Mon, 18 Sep 2023 13:57:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/ransac/</guid>
+      <description><![CDATA[]]></description>
+    </item>
+    
+    <item>
+      <title>使用神经网络融合位置数据(第一版)</title>
+      <link>https://www.blog.tioe.xyz/project/nnsensorfusion/</link>
+      <pubDate>Sat, 17 Jun 2023 19:30:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/nnsensorfusion/</guid>
+      <description><![CDATA[本文受NICE-SLAM启发, 最初是想要设计一个网络, 使其能够将不同传感器的数据融合起来得到一个准确的无人机位置. 首先设计并训练一个用来融合数据的网络, 训练出的网络作为拟合位置的函数, 然后用神经隐式表达的方法, 给出一个无人机位置的先验, 然后用刚才预训练好的网络来decode出不同传感器可能的读数, 再将该读数与真实读到的数据做loss, 反向梯度计算出在什么样的位置下最有可能用这几种传感器读到这些读数. 从而得到最大似然的无人机位置.
+然后首先便需要训练一个能够起到decode作用的网络. 在训练之前我想要先训练一个正向融合数据的网络作为测试, 然后想到了FCN全卷积网络, 当时觉得全卷积网络不限置输入和输出的大小, 训练的是卷积核, 似乎刚好符合我想要训练一个融合不同传感器数值的函数的目的.
+为了训练网络, 首先需要数据. 在网上找到了t265的xacro的模型, 根据该模型将其转换为gazebo的px4无人机仿真中使用的sdf模型, 具体文件如下
+&lt;?xml version=&#34;1.0&#34;?&gt; &lt;sdf version=&#39;1.5&#39;&gt; &lt;model name=&#39;realsense_t265&#39;&gt; &lt;link name=&#39;base_link&#39;&gt; &lt;inertial&gt; &lt;pose&gt;0 0 0 0 0 0&lt;/pose&gt; &lt;mass&gt;0.055&lt;/mass&gt; &lt;inertia&gt; &lt;ixx&gt;9.108e-05&lt;/ixx&gt; &lt;ixy&gt;0&lt;/ixy&gt; &lt;ixz&gt;0&lt;/ixz&gt; &lt;iyy&gt;2.51e-06&lt;/iyy&gt; &lt;iyz&gt;0&lt;/iyz&gt; &lt;izz&gt;8.931e-05&lt;/izz&gt; &lt;/inertia&gt; &lt;/inertial&gt; &lt;collision name=&#39;base_link_fixed_joint_lump__t265_pose_frame_collision&#39;&gt; &lt;pose&gt;0 0 0 0 -0 0&lt;/pose&gt; &lt;geometry&gt; &lt;box&gt; &lt;size&gt;0.013 0.108 0.024&lt;/size&gt; &lt;/box&gt; &lt;/geometry&gt; &lt;/collision&gt; &lt;visual name=&#39;base_link_fixed_joint_lump__t265_pose_frame_visual&#39;&gt; &lt;pose&gt;0 0 0 1.57 -0 1.]]></description>
+    </item>
+    
+    <item>
+      <title>nice slam论文解析</title>
+      <link>https://www.blog.tioe.xyz/study/nice_slam/</link>
+      <pubDate>Tue, 30 May 2023 09:57:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/nice_slam/</guid>
+      <description><![CDATA[​	NICE-SLAM是一种利用神经隐式表达的稠密slam系统,主要维护了一个4层的feature grids的全局地图, 每个grid表示当前相机位姿下的局部的场景, 4个层级分别表示由粗到细的三个深度图和一个rgb层. 每个层级的每个grid储存32维的特征向量.
+​	从右到左: 系统相当于一个场景渲染器。接收场景的特征网格和相机位姿，生成带有深度信息和色彩信息的RGB-D图像（深度信息处理为场景三维模型，色彩信息处理为贴图）；
+​	从左往右: 输入采集的RGB-D图像流（ground truth），把右边渲染出的RGB-D估计值与坐边输入的RGB-D实际值比对，分别计算关于深度和色彩的损失函数，并且将损失函数沿着可微分渲染器反向传播。经过迭代，对特征网格和相机位姿进行优化（将损失函数降到最低），完成建图（Mapping）和定位（Tracking）
+​	在建图过程中, NICE-SLAM使用如上图所示的架构, 首先得到一个先验的相机位姿, 然后在这个相机位姿下的不同层级的grid中按照相机朝向的ray进行随机采样一些点, 再用线性插值的方法得到每个grid中点的32维feature. 再用一个预训练好的decoder对这些先验的 feature点进行decode成深度图和彩色图. 再将decode出的深度图和彩色图与实际深度相机得到的深度图和彩色图进行对比做loss. 然后反过来去训练输入的feature上的点. 最终的到能够decode成正确深度图和彩色图的feature grid. 此时的feature grid就是slam建立起的稠密地图
+​	NICE-SLAM建图的过程是tracking和mapping交替进行。Mapping的过程是以当前相机的RGB和depth作为真值，根据Feature grids渲染得到的RGB和depth作为预测值，构建几何或光度误差损失函数，同时对相机位姿和Feature grids中的feature进行优化。Tracking的过程就是基于Feature grids和估计的位姿渲染depth和rgb，通过和相机实际采集的depth和rgb对比，从而优化相机位姿。
+​	NICE-SLAM的优势主要是与iMAP相比, iMAP是基于经典的NERF架构, 整个网络使用一个大的MLP来储存场景信息, 难以对大型场景进行细节建图, 并且在每次更新地图时都要对整个MLP的网络进行更新, 容易将已经学习到的细节覆盖掉造成场景的遗忘. 相比而言, NICE-SLAM使用 由粗到细的分场景表达, 对三个层级分别应用不同的预训练好的MLP. 并且能够允许对每个grid进行局部更新. 此时分辨率较低的coarse主要进行大场景的渲染, 因为分辨率较高, 所以能够允许网络对相机观测不到的场景也进行一个简单的预判, 大致填充没有观测到的区域. 分辨率最高的fine层级则负责对局部场景进行建模, 保证了网络渲染出的地图的精确度. 但是NICE-SLAM中对rgb信息的训练只用了一个MLP, 因此在回复每个体素的rgb时会存在一定的遗忘问题.
+​	在网络架构中最右侧的黄色部分表示分层的特征网络, 其中红色的点表示空间中的样本点P, 与P相连的深蓝色的点表示三线性插值得到的几何参数表示为$\theta$. 此时这个样本点周围的函数场就表示为$\phi_\theta(p)$, 即深蓝色点与红色点的连线. 与每个特征网络对应的是各自的decode $f$, decode将样本点P和feature map中的值解码成体素的占用概率$o_p$, 针对分辨率最高的fine层级额外添加了一个独立的网络$\psi_\omega$用于表示rgb色彩信息对应decoder $g_\omega$, 在分辨率最高的层级中渲染出彩色的稠密地图
+​	分辨率最低的corase层级仅用于估计没有观测到的场景中的缝隙$o^0_p=f^0(p,\phi^0_\theta(p))$
+​	在渲染过程中, mid层级的decoder将输入样本点座标和feature grid计算出基础占用$o^1_p=f^1(p,\phi^1_\theta(p))$]]></description>
+    </item>
+    
+    <item>
+      <title>APM中ekf3算法</title>
+      <link>https://www.blog.tioe.xyz/study/apm_ekf3/</link>
+      <pubDate>Tue, 23 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_ekf3/</guid>
+      <description><![CDATA[ekf3用于估计位姿, 导航坐标系为NED(北东地)
+数学推导参考PX4和APM导航解算过程推导-24维状态EKF
+matlab见InertialNav-Github
+ekf2代码介绍EKF2
+AP_NavEKF3.cpp bool InitialiseFilter() 用于初始化滤波器, 滤波器可以有好几个core, 每个core或lane对应一种传感器和imu的状态估计, 初始化时EK3_PRIMARY可以在为某个core或lane. 但之后可能会在运行时被修改成其他的lane. Affinity允许不设置首要lane, 并用lane error存储不同传感器的差值, 使系统能够效果最好的作为状态估计. lane error随时间积累并通过EK3_ERR_THRESH参数设置non-primary and primary lane比较的阈值, 当超过阈值时会切换用于估计的传感器(下文中的所有core与lane几乎是可以表示同一个东西)
+函数中首先获取循环一次的时间, 每个imu对应一个core, 一个imu不能用于多个滤波器, 然后为ekf core申请内存, 如果申请成功的话就调用NavEKF3_core()创建每个core, 然后调用resetCoreErrors()初始化上文提到的每个core对应的lane error
+NavEKF3_core()初始化时使用了libraries/AP_NavEKF3/AP_NavEKF3_core.cpp中几个函数InitialiseFilterBootstrap() InitialiseVariables()&amp;&amp;CovarianceInit() InitialiseVariablesMag()(依次调用), 使系统运行中能够在必要时初始化滤波器(在UpdateFilter()中, 如果filterStatus.value==0的话会调用InitialiseFilterBootstrap()重新初始化)
+协方差初始化时, 初始化为对角矩阵
+memset(&amp;P[0][0], 0, sizeof(P)); // define the initial angle uncertainty as variances for a rotation vector Vector3F rot_vec_var; rot_vec_var.x = rot_vec_var.y = rot_vec_var.z = sq(0.1f); // reset the quaternion state covariances CovariancePrediction(&amp;rot_vec_var); // velocities P[4][4] = sq(frontend-&gt;_gpsHorizVelNoise); P[5][5] = P[4][4]; P[6][6] = sq(frontend-&gt;_gpsVertVelNoise); // positions P[7][7] = sq(frontend-&gt;_gpsHorizPosNoise); P[8][8] = P[7][7]; P[9][9] = sq(frontend-&gt;_baroAltNoise); // gyro delta angle biases P[10][10] = sq(radians(InitialGyroBiasUncertainty() * dtEkfAvg)); P[11][11] = P[10][10]; P[12][12] = P[10][10]; // delta velocity biases P[13][13] = sq(ACCEL_BIAS_LIM_SCALER * frontend-&gt;_accBiasLim * dtEkfAvg); P[14][14] = P[13][13]; P[15][15] = P[13][13]; // earth magnetic field P[16][16] = sq(frontend-&gt;_magNoise); P[17][17] = P[16][16]; P[18][18] = P[16][16]; // body magnetic field P[19][19] = sq(frontend-&gt;_magNoise); P[20][20] = P[19][19]; P[21][21] = P[19][19]; // wind velocities P[22][22] = 0.]]></description>
+    </item>
+    
+    <item>
+      <title>APM中t265数据解析</title>
+      <link>https://www.blog.tioe.xyz/study/apm_t265/</link>
+      <pubDate>Mon, 15 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_t265/</guid>
+      <description><![CDATA[libraries/AP_VisualOdom/AP_VisualOdom.h 参数有相机的类别, 相机相对飞控的位移, 相机相对飞控摆放的方向(前后左右向下), 相机数据的缩放系数, 延迟, 速度\位置\yaw的噪声
+float posErr = 0; float angErr = 0; if (!isnan(m.pose_covariance[0])) { posErr = cbrtf(sq(m.pose_covariance[0])+sq(m.pose_covariance[6])+sq(m.pose_covariance[11])); angErr = cbrtf(sq(m.pose_covariance[15])+sq(m.pose_covariance[18])+sq(m.pose_covariance[20])); } // 噪声直接是将协方差矩阵中的相加 主要函数有
+init()
+// create backend switch (VisualOdom_Type(_type.get())) { case VisualOdom_Type::None: // do nothing break; #if AP_VISUALODOM_MAV_ENABLED case VisualOdom_Type::MAV: _driver = new AP_VisualOdom_MAV(*this); break; #endif #if AP_VISUALODOM_INTELT265_ENABLED case VisualOdom_Type::IntelT265: case VisualOdom_Type::VOXL: _driver = new AP_VisualOdom_IntelT265(*this); break; #endif } 如果是t265的话默认成VOXL, 这两个应该用的是类似的数据
+handle_vision_position_delta_msg()
+调用_driver-&gt;handle_vision_position_delta_msg()获取角度和位置数据
+handle_vision_position_estimate()
+获取四元数或者三轴角度然后调用_driver-&gt;handle_vision_position_estimate()进行位置估计]]></description>
+    </item>
+    
+    <item>
+      <title>APM光流传感器解析</title>
+      <link>https://www.blog.tioe.xyz/study/apm_optical_flow/</link>
+      <pubDate>Sun, 14 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_optical_flow/</guid>
+      <description><![CDATA[libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中
+if (_calibrator != nullptr) { if (_calibrator-&gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 + (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 + (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.set_and_save_ifchanged((flow_scalerx_as_multiplier - 1.0) * 1000.0); _flowScalerY.set_and_save_ifchanged((flow_scalery_as_multiplier - 1.0) * 1000.0); _flowScalerX.notify(); _flowScalerY.notify(); GCS_SEND_TEXT(MAV_SEVERITY_INFO, &#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;, (int)_flowScalerX, (int)_flowScalerY); } } _flowScalerX, _flowScalerY是地面站设置中的缩放参数.]]></description>
+    </item>
+    
+    <item>
+      <title>使用ublox f9p GPS模块</title>
+      <link>https://www.blog.tioe.xyz/project/ublox/</link>
+      <pubDate>Fri, 05 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/ublox/</guid>
+      <description><![CDATA[编译报错 /home/tioeare/project/FASTLAB/gps_ws/src/ublox/ublox_gps/src/node.cpp:39:10: fatal error: rtcm_msgs/Message.h: No such file or directory 39 | #include &lt;rtcm_msgs/Message.h&gt; | ^~~~~~~~~~~~~~~~~~~~~ compilation terminated. make[2]: *** [ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/build.make:76: ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/src/node.cpp.o] Error 1 make[1]: *** [CMakeFiles/Makefile2:4154: ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/all] Error 2 make: *** [Makefile:146: all] Error 2 Invoking &#34;make -j8 -l8&#34; failed 下载https://github.com/tilk/rtcm_msgs放到gps_ws/src目录下
+/usr/bin/ld: CMakeFiles/ublox_gps_node.dir/src/node.cpp.o: in function `ublox_node::UbloxNode::configureUblox()&#39;: node.cpp:(.text+0x86b7): undefined reference to `ublox_node::UbloxNode::kResetWait&#39; /usr/bin/ld: /home/tioeare/project/FASTLAB/gps_ws/devel/lib/libublox_gps.so: undefined reference to `ublox_gps::Gps::kSetBaudrateSleepMs&#39; collect2: error: ld returned 1 exit status make[2]: *** [ublox/ublox_gps/CMakeFiles/ublox_gps_node.dir/build.make:151: /home/tioeare/project/FASTLAB/gps_ws/devel/lib/ublox_gps/ublox_gps] Error 1 make[1]: *** [CMakeFiles/Makefile2:4505: ublox/ublox_gps/CMakeFiles/ublox_gps_node.]]></description>
+    </item>
+    
+    <item>
+      <title>空地无人机GPS与T265，光流传感器等的数据融合</title>
+      <link>https://www.blog.tioe.xyz/project/multi-sensor-fusion/</link>
+      <pubDate>Fri, 05 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/multi-sensor-fusion/</guid>
+      <description><![CDATA[apm坐标系 相机相比无人机中心:
+x正方向朝前
+y正方向朝右
+z正方向朝下
+数据格式 GPS 经度，维度，高度的绝对值
+gps获取到的数据的协方差(正常室外时协方差&lt;1.5)
+topic: /gps/fix
+type: sensor_msgs/NavSatFix
+uint8 COVARIANCE_TYPE_UNKNOWN=0 uint8 COVARIANCE_TYPE_APPROXIMATED=1 uint8 COVARIANCE_TYPE_DIAGONAL_KNOWN=2 uint8 COVARIANCE_TYPE_KNOWN=3 std_msgs/Header header uint32 seq time stamp string frame_id sensor_msgs/NavSatStatus status int8 STATUS_NO_FIX=-1 int8 STATUS_FIX=0 int8 STATUS_SBAS_FIX=1 int8 STATUS_GBAS_FIX=2 uint16 SERVICE_GPS=1 uint16 SERVICE_GLONASS=2 uint16 SERVICE_COMPASS=4 uint16 SERVICE_GALILEO=8 int8 status uint16 service float64 latitude float64 longitude float64 altitude float64[9] position_covariance uint8 position_covariance_type 光流 光流x，y轴速度及竖直方向上相对地面的高度
+信号强度，光流质量
+# 自定义光流数据 std_msgs/Header header uint32 seq time stamp string frame_id float32 distance uint8 strength uint8 precision uint8 tof_status float32 flow_vel_x float32 flow_vel_y uint8 flow_quality uint8 flow_status # 板载imu数据 std_msgs/Header header uint32 seq time stamp string frame_id geometry_msgs/Quaternion orientation float64 x float64 y float64 z float64 w float64[9] orientation_covariance geometry_msgs/Vector3 angular_velocity float64 x float64 y float64 z float64[9] angular_velocity_covariance geometry_msgs/Vector3 linear_acceleration float64 x float64 y float64 z float64[9] linear_acceleration_covariance t265 相机当前坐标(相对于开机时的坐标)及姿态四元数]]></description>
+    </item>
+    
+    <item>
+      <title>orb_slam3稠密建图</title>
+      <link>https://www.blog.tioe.xyz/project/orbslam3/</link>
+      <pubDate>Mon, 03 Apr 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/orbslam3/</guid>
+      <description><![CDATA[orb slam3稠密建图 项目介绍 开发环境 ubuntu 20.04
+ros noetic
+OpenCV 4.5.5
+pcl 1.13
+orb_slam3_pcl_mapping ├── CMakeLists.txt ├── package.xml ├── README.md └── src ├── PointCloudMapper.cc ├── PointCloudMapper.h └── pointcloud_mapping.cpp 主要参照以下项目进行修改适配orb slam3与d455，并增加点云的回环
+https://blog.csdn.net/crp997576280/article/details/104220926
+https://github.com/xiaobainixi/ORB-SLAM2_RGBD_DENSE_MAP
+代码简介 PointCloudMapper.cc 头文件中主要定义了相关变量和函数
+void viewer(); 唯一一个由外部调用的函数，主要用于点云的拼接和显示，以及判断当前是否检测到回环
+while (ros::ok()) { ros::spinOnce(); //用于检测是否有关键帧加入 KFUpdate = false; { std::unique_lock&lt;std::mutex&gt; lck(keyframeMutex); N = mvGlobalPointCloudsPose.size(); KFUpdate = mbKeyFrameUpdate; mbKeyFrameUpdate = false; } //是否有关键帧加入或是否是回环模式 if ((KFUpdate &amp;&amp; N &gt; lastKeyframeSize) || is_loop_for_remap) { std::unique_lock&lt;std::mutex&gt; lock_loop(loopUpdateMutex); //如果是回环的话根据BA后的位姿重新绘制点云 if (is_loop_for_remap) { std::cout &lt;&lt; RED &lt;&lt; &#34;detect loop!]]></description>
+    </item>
+    
+    <item>
+      <title>gazebo仿真环境下停机坪的识别</title>
+      <link>https://www.blog.tioe.xyz/project/indentifyapron/</link>
+      <pubDate>Thu, 16 Mar 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/project/indentifyapron/</guid>
+      <description><![CDATA[OpenCV识别停机坪 整体算法目标为能够在真机通过intel D435i深度相机与下视的工业相机完成无人机对周边环境的感知, 并建立起稠密地图. 计划目标为先在方针环境中进行算法编写与验证. 然后再部署到真机中进行调整和测试. 本周的主要完成的在仿真环境中对停机坪的识别, 并添加ros支持
+停机坪示意图如下
+停机坪识别概述 工程目录 identifyApron ├── bug.md	#记录程序编写过程中遇到的bug及解决方法 ├── CMakeLists.txt	#工程配置文件 ├── include	#存放头文件 │ ├── getImage.h │ └── identify.h ├── media	#存放测试或程序运行用到的图像文件 │ ├── E.jpg │ ├── image.png │ ├── N.jpg │ ├── S.jpg │ └── W.jpg ├── package.xml	#ros依赖项配置 └── src	#存放源文件 ├── getImage.cpp ├── identify.cpp └── main.cpp 本项目主要有getImage和identify两个文件, 其中getimage用于ros的订阅和发布图像节点. identify用于识别停机坪
+配置文件 CMakeLists.txt cmake中主要需要包含有eigen和opencv这两个库, 可以选用ros自带的opencv4.2然后通过ros安装eigen, 在这里我选用了之前本地安装过的eigen3.4和opencv4.5.5版本
+为能够使用本地版本, 需要在CMakeLists.txt中添加以下配置
+set(CMAKE_CXX_FLAGS &#34;${CMAKE_CXX_FLAGS} -std=c++14&#34;) set(cv_bridge_DIR &#34;/home/${your_username}/cvbridge_build_ws/devel/share/cv_bridge/cmake&#34;) set(OpenCV_DIR /usr/local/share/opencv4) include_directories(${OpenCV_INCLUDE_DIRS}) include_directories(/home/${your_path_to_eigen}/eigen-3.]]></description>
+    </item>
+    
+    <item>
+      <title>Install on Arch Linux</title>
+      <link>https://www.blog.tioe.xyz/docs/installation/linux/archlinux/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/installation/linux/archlinux/</guid>
+      <description><![CDATA[This guide show you how to install on Arch Linux.]]></description>
+    </item>
+    
+    <item>
+      <title>Introduction</title>
+      <link>https://www.blog.tioe.xyz/docs/introduction/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/introduction/</guid>
+      <description><![CDATA[A fast, responsive and feature-rich Hugo theme for blog and documentations site.]]></description>
+    </item>
+    
+    <item>
+      <title>Install on Ubuntu</title>
+      <link>https://www.blog.tioe.xyz/docs/installation/linux/ubuntu/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/installation/linux/ubuntu/</guid>
+      <description><![CDATA[This guide show you how to install on Ubuntu.]]></description>
+    </item>
+    
+    <item>
+      <title>Install on Windows</title>
+      <link>https://www.blog.tioe.xyz/docs/installation/windows/</link>
+      <pubDate>Tue, 06 Sep 2022 22:42:23 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/docs/installation/windows/</guid>
+      <description><![CDATA[This guide show you how to install on Windows.]]></description>
+    </item>
+    
+  </channel>
+</rss>
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>t265 on Tioe&#39;s website</title>
+    <link>https://www.blog.tioe.xyz/tags/t265/</link>
+    <description>Recent content in t265 on Tioe&#39;s website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright © 2023-2023 TioeAre. All Rights Reserved.
+</copyright>
+    <lastBuildDate>Mon, 15 May 2023 16:14:45 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/tags/t265/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>APM中t265数据解析</title>
+      <link>https://www.blog.tioe.xyz/study/apm_t265/</link>
+      <pubDate>Mon, 15 May 2023 16:14:45 +0800</pubDate>
+      
+      <guid>https://www.blog.tioe.xyz/study/apm_t265/</guid>
+      <description><![CDATA[libraries/AP_VisualOdom/AP_VisualOdom.h 参数有相机的类别, 相机相对飞控的位移, 相机相对飞控摆放的方向(前后左右向下), 相机数据的缩放系数, 延迟, 速度\位置\yaw的噪声
+float posErr = 0; float angErr = 0; if (!isnan(m.pose_covariance[0])) { posErr = cbrtf(sq(m.pose_covariance[0])+sq(m.pose_covariance[6])+sq(m.pose_covariance[11])); angErr = cbrtf(sq(m.pose_covariance[15])+sq(m.pose_covariance[18])+sq(m.pose_covariance[20])); } // 噪声直接是将协方差矩阵中的相加 主要函数有
+init()
+// create backend switch (VisualOdom_Type(_type.get())) { case VisualOdom_Type::None: // do nothing break; #if AP_VISUALODOM_MAV_ENABLED case VisualOdom_Type::MAV: _driver = new AP_VisualOdom_MAV(*this); break; #endif #if AP_VISUALODOM_INTELT265_ENABLED case VisualOdom_Type::IntelT265: case VisualOdom_Type::VOXL: _driver = new AP_VisualOdom_IntelT265(*this); break; #endif } 如果是t265的话默认成VOXL, 这两个应该用的是类似的数据
+handle_vision_position_delta_msg()
+调用_driver-&gt;handle_vision_position_delta_msg()获取角度和位置数据
+handle_vision_position_estimate()
+获取四元数或者三轴角度然后调用_driver-&gt;handle_vision_position_estimate()进行位置估计]]></description>
+    </item>
+    
+  </channel>
+</rss>
+
