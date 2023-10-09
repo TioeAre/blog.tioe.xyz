@@ -1,0 +1,45 @@
+main:
+  - name: 主页
+    identifier: home
+    weight: 1
+    url:
+    params:
+      icon: '<i class="fas fa-home"></i>'
+
+main:
+  - name: 博客
+    identifier: blog
+    weight: 2
+    url:
+    params:
+      icon: '<i class="fas fa-fw fa-blog"></i>'
+
+main:
+  - name: 文档
+    identifier: documentations
+    url:
+    params:
+      icon: '<i class="fas fa-fw fa-book"></i>'
+
+main:
+  - name: 仓库
+    identifier: repository
+    url: https://github.com/TioeAre
+    params:
+      icon: '<i class="fab fa-fw fa-github text-primary"></i>'
+
+main:
+  - name: Features Request
+    identifier: feature-request
+    url: https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=feature_request.yml
+    params:
+      description: "Suggest new or updated features."
+      icon: '<i class="fas fa-fw fa-lightbulb text-warning"></i>'
+
+main:
+  - name: Bug Report
+    identifier: bug-report
+    url: "https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=bug_report.yml"
+    params:
+      description: "Tell us about a bug or issue."
+      icon: '<i class="fas fa-fw fa-bug text-danger"></i>'

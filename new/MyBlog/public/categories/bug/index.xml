@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>bug on TioeAre</title>
+        <link>https://www.blog.tioe.xyz/categories/bug/</link>
+        <description>Recent content in bug on TioeAre</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Fri, 21 Apr 2023 12:36:00 +0800</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/categories/bug/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>ardupilot编译依赖项安装失败</title>
+        <link>https://www.blog.tioe.xyz/bug/apm%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/</link>
+        <pubDate>Fri, 21 Apr 2023 12:36:00 +0800</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/bug/apm%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/</guid>
+        <description>&lt;img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/72581865_p0_master1200.jpg" alt="Featured image of post ardupilot编译依赖项安装失败" /&gt;&lt;p&gt;前两天下载了ardupilot的源码，在配置编译环境的时候用了官方提供的&lt;code&gt;Tools/environment_install/install-prereqs-ubuntu.sh&lt;/code&gt;，结果好多报错。&lt;/p&gt;
+&lt;p&gt;然后我去&lt;a class=&#34;link&#34; href=&#34;https://pkgs.org/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;pkgs&lt;/a&gt;一个一个找apt安装失败的包，然后手动下载安装，遇到依赖问题就继续重新安装，到最后虽然成功安装好了，我一重启发现安装的时候好像给我桌面环境什么的自动卸掉了，想要&lt;code&gt;sudo apt install ubuntu-desktop&lt;/code&gt;按回来，但是一直失败，提示我找不到这个包。我又wget下载了一个deb的包想用dpkg安装看看到底哪里有问题，发现确实是新安装的依赖的问题。&lt;/p&gt;
+&lt;p&gt;最后换了一下源，我之前一直用的初始的main源，现在换清华源了之后一下就好了，自动把我的所有依赖都更新成适合的，成功apt安装回桌面&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;</description>
+        </item>
+        <item>
+        <title>vscode cmake find_package()找不到catkin</title>
+        <link>https://www.blog.tioe.xyz/bug/vscode/</link>
+        <pubDate>Fri, 21 Apr 2023 12:36:00 +0800</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/bug/vscode/</guid>
+        <description>&lt;img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/77816288_p0_master1200.jpg" alt="Featured image of post vscode cmake find_package()找不到catkin" /&gt;&lt;p&gt;之前一直在用clion，但是clion占用内存太多了，打开有点慢，并且同时运行几项目的话有点卡，补全和提示之类的功能延迟会变得很高甚至就没有了。&lt;/p&gt;
+&lt;p&gt;然后想转到vscode只做为临时打开某个项目运行一下的编辑器，开始用了几天没遇到什么大问题，然后今天突然打开一个ros项目的时候，cmake报错找不到catkin。就很奇怪，不知道怎么回事，后来找到一个只能说是临时的解决方案，在&lt;code&gt;setting.json&lt;/code&gt;中加一行&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;cmake.configureArgs&amp;#34;&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;s2&#34;&gt;&amp;#34;-DCMAKE_PREFIX_PATH=/opt/ros/noetic&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;手动设置一下cmake的查找路径&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>ThunderrBird同步</title>
+        <link>https://www.blog.tioe.xyz/bug/thunderbird/</link>
+        <pubDate>Thu, 06 Apr 2023 00:00:00 +0800</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/bug/thunderbird/</guid>
+        <description>&lt;img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/74923161_p0_master1200.jpg" alt="Featured image of post ThunderrBird同步" /&gt;&lt;p&gt;ThunderrBird是ubuntu下自带的一个很好用的邮件软件，但是实际使用中总会遇到一些同步失败的情况，之前在windows下用outlook同步一些邮件的时候也会时常发生同步失败，并且由于没有那么经常用邮箱。而我的三星手机自带的邮件app又从未发生过同步失败，并没有很影响我的正常生活，所以之前也就一直没有管他。今天刚好又遇到了这个问题，就查了一下准备彻底解决他。&lt;/p&gt;
+&lt;h2 id=&#34;gmail无法同步&#34;&gt;gmail无法同步&lt;/h2&gt;
+&lt;p&gt;即使挂了代理，也经常会出现同步失败，登陆验证不了的情况。&lt;/p&gt;
+&lt;p&gt;最后查过之后发现是账户设置的问题，thunderbird会自动把gmail的登陆验证模式改为OAuth2&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/snSbaso.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;iIzQXF&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;需要在Saved Passwords&amp;hellip;中将imap，smtp开头的gamil密码删掉，只保留oauth开头的密码&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/ZoB4FrQ.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;iIFfcL&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;h2 id=&#34;outlook同步失败&#34;&gt;outlook同步失败&lt;/h2&gt;
+&lt;p&gt;此外还发现一个比较奇怪的现象，outlook在开代理之后不论是登陆还是同步都会失败，代理关掉就正常了。按理来说微软的outlook国外ip不应该不能访问的呀。&lt;/p&gt;
+&lt;p&gt;无奈，只能手动取消掉outlook的代理&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/ddOV8ON.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;iIFpvN&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;h2 id=&#34;同步outlook日历&#34;&gt;同步outlook日历&lt;/h2&gt;
+&lt;p&gt;安装这三个插件并在TbSync中登陆outlook账号即可&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/PwPAoo2.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;iIFdpk&#34;
+	
+	
+&gt;&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

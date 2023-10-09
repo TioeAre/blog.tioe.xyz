@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='c&#43;&#43;通过opencv识别仿真环境中的停机坪'>
+<title>gazebo仿真环境下停机坪的识别</title>
+
+<link rel='canonical' href='https://www.blog.tioe.xyz/project/indentifyapron/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='gazebo仿真环境下停机坪的识别'>
+<meta property='og:description' content='c&#43;&#43;通过opencv识别仿真环境中的停机坪'>
+<meta property='og:url' content='https://www.blog.tioe.xyz/project/indentifyapron/'>
+<meta property='og:site_name' content='TioeAre'>
+<meta property='og:type' content='article'><meta property='article:section' content='Project' /><meta property='article:tag' content='c&#43;&#43;' /><meta property='article:tag' content='OpenCV' /><meta property='article:published_time' content='2023-03-16T16:14:45&#43;08:00'/><meta property='article:modified_time' content='2023-03-16T16:14:45&#43;08:00'/><meta property='og:image' content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/103449092_p0_master1200.jpg' />
+<meta name="twitter:title" content="gazebo仿真环境下停机坪的识别">
+<meta name="twitter:description" content="c&#43;&#43;通过opencv识别仿真环境中的停机坪"><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/103449092_p0_master1200.jpg' />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z7Z9EX371"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-8Z7Z9EX371', { 'anonymize_ip': false });
+}
+</script>
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu59d45283e55c90c93de2408cb8730bfd_124382_300x0_resize_box_3.png" width="300"
+                            height="275" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">TioeAre</a></h1>
+            <h2 class="site-description">洗心革面，潜心学习</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://space.bilibili.com/359367522'
+                        target="_blank"
+                        title="bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="bilibili.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata28">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs26" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview24"
+     showgrid="false"
+     inkscape:zoom="0.295"
+     inkscape:cx="400"
+     inkscape:cy="400"
+     inkscape:window-x="712"
+     inkscape:window-y="273"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg22" />
+  <g
+     id="g20"
+     transform="matrix(1.0974577,0,0,1.1186441,-1.1186441,-1.4237288)">
+    <path
+       d="M 0,0 H 24 V 24 H 0 Z"
+       id="path16"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       d="m 18.223,3.086 a 1.25,1.25 0 0 1 0,1.768 L 17.08,5.996 h 1.17 A 3.75,3.75 0 0 1 22,9.747 v 7.5 a 3.75,3.75 0 0 1 -3.75,3.75 H 5.75 A 3.75,3.75 0 0 1 2,17.247 v -7.5 A 3.75,3.75 0 0 1 5.75,5.997 H 6.916 L 5.775,4.855 A 1.25,1.25 0 1 1 7.542,3.087 l 2.652,2.652 c 0.079,0.079 0.145,0.165 0.198,0.257 h 3.213 c 0.053,-0.092 0.12,-0.18 0.199,-0.258 l 2.651,-2.652 a 1.25,1.25 0 0 1 1.768,0 z m 0.027,5.42 H 5.75 A 1.25,1.25 0 0 0 4.503,9.663 L 4.5,9.757 v 7.5 c 0,0.659 0.51,1.199 1.157,1.246 l 0.093,0.004 h 12.5 A 1.25,1.25 0 0 0 19.497,17.35 L 19.5,17.257 v -7.5 c 0,-0.69 -0.56,-1.25 -1.25,-1.25 z m -10,2.5 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z m 7.5,0 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z"
+       id="path18"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/TioeAre'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/study/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-notebook"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="notebook.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="13.424887"
+     inkscape:window-x="532"
+     inkscape:window-y="380"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg10" />
+  <g
+     id="g8"
+     transform="translate(-3.0729831,-2.7496101)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 6,4 h 11 a 2,2 0 0 1 2,2 v 12 a 2,2 0 0 1 -2,2 H 6 A 1,1 0 0 1 5,19 V 5 A 1,1 0 0 1 6,4 m 3,0 v 18"
+       inkscape:connector-curvature="0" />
+    <line
+       id="svg_3"
+       y2="8"
+       x2="15"
+       y1="8"
+       x1="13" />
+    <line
+       id="svg_4"
+       y2="12"
+       x2="15"
+       y1="12"
+       x1="13" />
+  </g>
+</svg>
+
+                
+                <span>学习笔记</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/project/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-file-code"
+   version="1.1"
+   id="svg11"
+   sodipodi:docname="file-code.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata17">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs15" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview13"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="35"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg11" />
+  <g
+     id="g9"
+     transform="matrix(0.9166574,0,0,0.91195382,-0.79700322,-0.77403561)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 14,3 v 4 a 1,1 0 0 0 1,1 h 4"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_3"
+       d="M 17,21 H 7 A 2,2 0 0 1 5,19 V 5 A 2,2 0 0 1 7,3 h 7 l 5,5 v 11 a 2,2 0 0 1 -2,2 z"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_4"
+       d="m 10,13 -1,2 1,2"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_5"
+       d="m 14,13 1,2 -1,2"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                
+                <span>项目记录</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://www.blog.tioe.xyz/en/" >English</option>
+                        
+                            <option value="https://www.blog.tioe.xyz/" selected>中文</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>暗色模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#停机坪识别概述">停机坪识别概述</a>
+      <ol>
+        <li><a href="#工程目录">工程目录</a></li>
+        <li><a href="#配置文件">配置文件</a>
+          <ol>
+            <li><a href="#cmakeliststxt"><code>CMakeLists.txt</code></a></li>
+            <li><a href="#packagexml"><code>package.xml</code></a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#算法实现">算法实现</a>
+      <ol>
+        <li><a href="#ros部分"><code>ros</code>部分</a>
+          <ol>
+            <li><a href="#getimageh">getImage.h</a></li>
+            <li><a href="#getimagecpp">getImage.cpp</a></li>
+          </ol>
+        </li>
+        <li><a href="#识别部分">识别部分</a>
+          <ol>
+            <li><a href="#identiyfh"><code>identiyf.h</code></a></li>
+            <li><a href="#identifycpp"><code>identify.cpp</code></a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/project/indentifyapron/">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/103449092_p0_master1200.jpg" loading="lazy" alt="Featured image of post gazebo仿真环境下停机坪的识别" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/opencv/" style="background-color: #2a9d8f; color: #fff;">
+                OpenCV
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/project/indentifyapron/">gazebo仿真环境下停机坪的识别</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            c&#43;&#43;通过opencv识别仿真环境中的停机坪
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 16, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="opencv识别停机坪">OpenCV识别停机坪</h1>
+<p>整体算法目标为能够在真机通过<code>intel D435i</code>深度相机与下视的工业相机完成无人机对周边环境的感知, 并建立起稠密地图. 计划目标为先在方针环境中进行算法编写与验证. 然后再部署到真机中进行调整和测试. 本周的主要完成的在仿真环境中对停机坪的识别, 并添加<code>ros</code>支持</p>
+<p>停机坪示意图如下</p>
+<p><img src="https://i.imgur.com/ZsU1Wny.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="iDBArx"
+	
+	
+></p>
+<h2 id="停机坪识别概述">停机坪识别概述</h2>
+<h3 id="工程目录">工程目录</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">identifyApron
+</span></span><span class="line"><span class="cl">├── bug.md	<span class="c1">#记录程序编写过程中遇到的bug及解决方法</span>
+</span></span><span class="line"><span class="cl">├── CMakeLists.txt	<span class="c1">#工程配置文件</span>
+</span></span><span class="line"><span class="cl">├── include	<span class="c1">#存放头文件</span>
+</span></span><span class="line"><span class="cl">│   ├── getImage.h
+</span></span><span class="line"><span class="cl">│   └── identify.h
+</span></span><span class="line"><span class="cl">├── media	<span class="c1">#存放测试或程序运行用到的图像文件</span>
+</span></span><span class="line"><span class="cl">│   ├── E.jpg
+</span></span><span class="line"><span class="cl">│   ├── image.png
+</span></span><span class="line"><span class="cl">│   ├── N.jpg
+</span></span><span class="line"><span class="cl">│   ├── S.jpg
+</span></span><span class="line"><span class="cl">│   └── W.jpg
+</span></span><span class="line"><span class="cl">├── package.xml	<span class="c1">#ros依赖项配置</span>
+</span></span><span class="line"><span class="cl">└── src	<span class="c1">#存放源文件</span>
+</span></span><span class="line"><span class="cl">    ├── getImage.cpp
+</span></span><span class="line"><span class="cl">    ├── identify.cpp
+</span></span><span class="line"><span class="cl">    └── main.cpp
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>本项目主要有<code>getImage</code>和<code>identify</code>两个文件, 其中<code>getimage</code>用于<code>ros</code>的订阅和发布图像节点. <code>identify</code>用于识别停机坪</p>
+<h3 id="配置文件">配置文件</h3>
+<h4 id="cmakeliststxt"><code>CMakeLists.txt</code></h4>
+<p><code>cmake</code>中主要需要包含有<code>eigen</code>和<code>opencv</code>这两个库, 可以选用<code>ros</code>自带的<code>opencv4.2</code>然后通过<code>ros</code>安装<code>eigen</code>, 在这里我选用了之前本地安装过的<code>eigen3.4</code>和<code>opencv4.5.5</code>版本</p>
+<p>为能够使用本地版本, 需要在<code>CMakeLists.txt</code>中添加以下配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_FLAGS</span> <span class="s2">&#34;${CMAKE_CXX_FLAGS} -std=c++14&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">cv_bridge_DIR</span> <span class="s2">&#34;/home/${your_username}/cvbridge_build_ws/devel/share/cv_bridge/cmake&#34;</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">set</span><span class="p">(</span><span class="s">OpenCV_DIR</span> <span class="s">/usr/local/share/opencv4</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">include_directories</span><span class="p">(</span><span class="o">${</span><span class="nv">OpenCV_INCLUDE_DIRS</span><span class="o">}</span><span class="p">)</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="nb">include_directories</span><span class="p">(</span><span class="s">/home/</span><span class="o">${</span><span class="nv">your_path_to_eigen</span><span class="o">}</span><span class="s">/eigen-3.4.0/Eigen</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先指定<code>C++</code>版本为<code>c++14</code>, 以免某些特性无法通过编译. 其次需要自己手动重新编译一份<code>cv_bridge</code>, 原因是由于<code>ros</code>自带的<code>cv_bridge</code>匹配的是4.2版本, 直接用的话不和我电脑上的<code>opencv</code>适配, 会报类似于<code>memory out of range</code>的错误. 然后指定<code>cv_bridge_dir</code>为你重新编译的路径, 同时也需要手动指定<code>opencv</code>路径为你的安装路径</p>
+<h4 id="packagexml"><code>package.xml</code></h4>
+<p><code>ros</code>包依赖中需要以下依赖</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl"><span class="nt">&lt;buildtool_depend&gt;</span>catkin<span class="nt">&lt;/buildtool_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>cv_bridge<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>image_transport<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>roscpp<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>sensor_msgs<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_depend&gt;</span>std_msgs<span class="nt">&lt;/build_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>cv_bridge<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>image_transport<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>roscpp<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>sensor_msgs<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;build_export_depend&gt;</span>std_msgs<span class="nt">&lt;/build_export_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>cv_bridge<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>image_transport<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>roscpp<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>sensor_msgs<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="nt">&lt;exec_depend&gt;</span>std_msgs<span class="nt">&lt;/exec_depend&gt;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>主要用于订阅和发布图像传输的节点, 自定义发布数据</p>
+<h2 id="算法实现">算法实现</h2>
+<h3 id="ros部分"><code>ros</code>部分</h3>
+<p><code>ros</code>部分主要就是订阅和发布图像, 下面根据代码进行解释</p>
+<h4 id="getimageh">getImage.h</h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">//定义一个转换的类
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">class</span> <span class="nc">ImageDetector</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">private</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ros</span><span class="o">::</span><span class="n">NodeHandle</span> <span class="n">nh_</span><span class="p">;</span>    <span class="c1">//定义ROS节点句柄
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_transport</span><span class="o">::</span><span class="n">ImageTransport</span> <span class="n">it_</span><span class="p">;</span>    <span class="c1">//定义一个image_transport实例,用来发布和订阅ROS系统的图像
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_transport</span><span class="o">::</span><span class="n">Subscriber</span> <span class="n">image_sub_</span><span class="p">;</span> <span class="c1">//定义ROS图象接收器 ,订阅主题的变量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_transport</span><span class="o">::</span><span class="n">Publisher</span> <span class="n">image_pub_</span><span class="p">;</span>  <span class="c1">//定义ROS图象发布器 ,发布主题的变量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">identifyApron</span> <span class="n">iden</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ImageDetector</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">~</span><span class="n">ImageDetector</span><span class="p">()</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">convert_callback</span><span class="p">(</span><span class="k">const</span> <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">ImageConstPtr</span> <span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>   <span class="c1">//回调函数包含识别和发布识别后的图片
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span> <span class="nf">advertiseDone</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先头文件中定义一个用于将<code>opencv</code>的<code>Mat</code>类型的图像转化为<code>ros</code>中的数据格式, 在后面的源文件中有相关介绍, 头文件主要定义了用到的变量</p>
+<p>定义了<code>ros</code>相关节点句柄和用于识别的<code>identifyApron</code>对象, 两个函数分别用于接受图像并转化和发布图像. 其中接受到图像后在<code>convert_callback</code>函数中调用<code>identifyApron</code>的相关接口进行识别</p>
+<h4 id="getimagecpp">getImage.cpp</h4>
+<p>源文件定义了类的构造函数和其他两个函数的写法</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">ImageDetector</span><span class="o">::</span><span class="n">ImageDetector</span><span class="p">()</span> <span class="o">:</span> <span class="n">it_</span><span class="p">(</span><span class="n">nh_</span><span class="p">)</span>   <span class="c1">//构造函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// /iris_0/camera/image_raw
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_sub_</span> <span class="o">=</span> <span class="n">it_</span><span class="p">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s">&#34;/iris_0/stereo_camera/left/image_raw&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ImageDetector</span><span class="o">::</span><span class="n">convert_callback</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                               <span class="k">this</span><span class="p">);</span>   <span class="c1">//定义图象接受器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">image_pub_</span> <span class="o">=</span> <span class="n">it_</span><span class="p">.</span><span class="n">advertise</span><span class="p">(</span><span class="s">&#34;/image_detector/output_video&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>  <span class="c1">//定义图象发布器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>构造函数接受头文件中定义的句柄并定义订阅和发布使用的节点</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">void</span> <span class="n">ImageDetector</span><span class="o">::</span><span class="n">convert_callback</span><span class="p">(</span><span class="k">const</span> <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">ImageConstPtr</span> <span class="o">&amp;</span><span class="n">msg</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv_bridge</span><span class="o">::</span><span class="n">CvImagePtr</span> <span class="n">cv_ptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv_ptr</span> <span class="o">=</span> <span class="n">cv_bridge</span><span class="o">::</span><span class="n">toCvCopy</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">image_encodings</span><span class="o">::</span><span class="n">BGR8</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">catch</span> <span class="p">(</span><span class="n">cv_bridge</span><span class="o">::</span><span class="n">Exception</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ROS_ERROR</span><span class="p">(</span><span class="s">&#34;cv_bridge exception: %s&#34;</span><span class="p">,</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">iden</span><span class="p">.</span><span class="n">detector</span><span class="p">(</span><span class="n">cv_ptr</span><span class="o">-&gt;</span><span class="n">image</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">advertiseDone</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="n">ImageDetector</span><span class="o">::</span><span class="n">advertiseDone</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sensor_msgs</span><span class="o">::</span><span class="n">ImagePtr</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">cv_bridge</span><span class="o">::</span><span class="n">CvImage</span><span class="p">(</span><span class="n">std_msgs</span><span class="o">::</span><span class="n">Header</span><span class="p">(),</span> <span class="s">&#34;bgr8&#34;</span><span class="p">,</span> <span class="n">iden</span><span class="p">.</span><span class="n">origin</span><span class="p">).</span><span class="n">toImageMsg</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image_pub_</span><span class="p">.</span><span class="n">publish</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>转化函数调用<code>cv_bridge</code>对<code>Mat</code>类型进行转化, 然后调用<code>identifyApron</code>中的<code>detector()</code>进行图像的识别, 最后调用发布识别后的图像的函数</p>
+<h3 id="识别部分">识别部分</h3>
+<p>接下来是工程最主要的识别部分</p>
+<h4 id="identiyfh"><code>identiyf.h</code></h4>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">identifyApron</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">origin</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">detector</span><span class="p">(</span><span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="o">&amp;</span><span class="n">frame</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">identifyApron</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">private</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span> <span class="n">scalarLow</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span> <span class="c1">//hsv分离最小阈值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span> <span class="n">scalarHigh</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">35</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">);</span>   <span class="c1">//hsv最大阈值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="o">&gt;&gt;</span> <span class="n">allContours</span><span class="p">;</span>   <span class="c1">//所有轮廓
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Vec4i</span><span class="o">&gt;</span> <span class="n">hiera</span><span class="p">;</span>   <span class="c1">//轮廓的层级关系
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">mediaB</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">//中值滤波窗口
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">openEle</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>   <span class="c1">//开运算尺寸
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">closeEle</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="c1">//闭运算尺寸
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">roughDilate</span> <span class="o">=</span> <span class="mi">52</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Vec3f</span><span class="o">&gt;</span> <span class="n">circles</span><span class="p">;</span> <span class="c1">//霍夫圆的轮廓点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span><span class="o">&gt;</span> <span class="n">alRect</span><span class="p">;</span>    <span class="c1">//所有旋转矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span><span class="o">&gt;</span> <span class="n">charRect</span><span class="p">;</span>  <span class="c1">//字母的旋转矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">charRectPts</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">direction</span> <span class="o">=</span> <span class="p">{{</span><span class="s">&#34;E&#34;</span><span class="p">,</span> <span class="mi">0</span><span class="p">},</span>    <span class="c1">//东西南北
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                                                           <span class="p">{</span><span class="s">&#34;W&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                                           <span class="p">{</span><span class="s">&#34;S&#34;</span><span class="p">,</span> <span class="mi">2</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">                                                           <span class="p">{</span><span class="s">&#34;N&#34;</span><span class="p">,</span> <span class="mi">3</span><span class="p">}};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&gt;</span> <span class="n">chars</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span><span class="o">&gt;</span> <span class="n">template_pictures</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="o">&gt;&gt;</span> <span class="n">char_matrix</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//    int mat_size = 50;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="nf">matchMat</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">src</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>头文件主要定义了函数接口和识别过程中用到的参数</p>
+<p><code>matchMat()</code>函数主要用于模板匹配, 为了识别出停机坪四周表示方向的字母</p>
+<h4 id="identifycpp"><code>identify.cpp</code></h4>
+<p>识别文件中首先定义了几个后续用到的函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">restore_Rect</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">points</span><span class="p">[</span><span class="mi">4</span><span class="p">]);</span>   <span class="c1">//还原外接矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">float</span> <span class="nf">dis</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts2</span><span class="p">);</span>  <span class="c1">//计算两点距离
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span> <span class="nf">drawRect</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span> <span class="n">rect</span><span class="p">,</span> <span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="o">&amp;</span><span class="n">image</span><span class="p">,</span> <span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span> <span class="n">scal</span><span class="p">);</span>   <span class="c1">//画出旋转矩形
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">getRectROI</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">RotatedRect</span> <span class="n">rect</span><span class="p">,</span> <span class="k">const</span> <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="o">&amp;</span><span class="n">bilfilter</span><span class="p">);</span>  <span class="c1">//得到旋转矩形的roi
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这几个函数的用途如注释中写的, 用于还原外接矩形四个点的顺序, 计算像素点之间的距离等</p>
+<p>主要的<code>detector()</code>函数首先将获取到的图像进行预处理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl">    <span class="n">origin</span> <span class="o">=</span> <span class="n">frame</span><span class="p">.</span><span class="n">clone</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">hsv</span><span class="p">,</span> <span class="n">filter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">masked</span><span class="p">,</span> <span class="n">cannied</span><span class="p">,</span> <span class="n">round</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">hsv</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">COLOR_BGR2HSV</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">inRange</span><span class="p">(</span><span class="n">hsv</span><span class="p">,</span> <span class="n">scalarLow</span><span class="p">,</span> <span class="n">scalarHigh</span><span class="p">,</span> <span class="n">masked</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">medianBlur</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="n">filter</span><span class="p">,</span> <span class="n">mediaB</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">bilateralFilter</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">openEle</span><span class="p">,</span> <span class="n">openEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_OPEN</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">closeEle</span><span class="p">,</span> <span class="n">closeEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>先复制一份图像以免处理图像时受到其他意外影响本函数的运行</p>
+<p>然后将<code>bgr</code>格式的图像转化到<code>hsv</code>色彩空间中, 这是由于<code>bgr</code>表示的图像像素点会受到光照影响从而改变颜色范围, 而<code>hsv</code>将图像表示为色相, 饱和度, 亮度三部分. 将亮度和色相分割开, 有效避免了阴影与图像颜色的影响</p>
+<p><img src="https://i.imgur.com/wQJRapK.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="iDBfJw"
+	
+	
+></p>
+<p>可以看到阈值化后已经隔除了红色墙壁和绿色部分对识别的影响, 但是图像中仔细观察会发现还有白色部分里有一些小黑点, 会影响到后续的识别. 因此需要再进行膨胀, 腐蚀, 滤波等处理</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">medianBlur</span><span class="p">(</span><span class="n">masked</span><span class="p">,</span> <span class="n">filter</span><span class="p">,</span> <span class="n">mediaB</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">bilateralFilter</span><span class="p">(</span><span class="n">filter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">openEle</span><span class="p">,</span> <span class="n">openEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_OPEN</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">struElement</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getStructuringElement</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">MORPH_RECT</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Size</span><span class="p">(</span><span class="n">closeEle</span><span class="p">,</span> <span class="n">closeEle</span><span class="p">),</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">MORPH_CLOSE</span><span class="p">,</span> <span class="n">struElement</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Canny</span><span class="p">(</span><span class="n">round</span><span class="p">,</span> <span class="n">cannied</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先中值滤波取出可能存在的椒盐噪点, 然后双边滤波和闭运算, 处理完成后再进行边缘检测用于霍夫圆监测</p>
+<p>边缘检测效果如下</p>
+<p><img src="https://i.imgur.com/tV5CaOk.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="iDBVBz"
+	
+	
+></p>
+<p>在上上一步中获取到的图像在闭运算后可以用于检测字母, 其主要思想为</p>
+<ol>
+<li>查找图像中的所有轮廓并列出轮廓的层级关系, 很明显需要检测的字母轮廓是没有子轮廓和父轮廓的, 但是停机坪的圆弧同样没有父子轮廓</li>
+<li>但观察很容易可以看出字母的轮廓的最小外接矩形近似于正方形, 而圆弧的最小外接矩形为长宽差异很大的长方形. 因此可以先求出外接矩形的长宽比然后筛选得出字母的轮廓</li>
+<li>得到轮廓后需要进行识别, 这里识别字母可以用神经网络的方法进行训练(如<code>knn</code>, <code>lenet</code>等). 但是停机坪字母固定并且只有四个, 没有必要训练那么多, 因此我采用了类似模板匹配的方法</li>
+<li>首先制作一个字母灰度图的模板, 然后将<code>2</code>中获得的最小外接矩形旋转到正方向, 进行缩放为模板大小, 然后再循环<code>90</code>, <code>190</code>, <code>270</code>三种度数与模板做矩阵减法并求和, 此处用到了<code>eigen</code>将<code>Mat</code>转化为<code>Matrix</code>然后加快求解速度</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl">    <span class="c1">///检测字母
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cv</span><span class="o">::</span><span class="n">findContours</span><span class="p">(</span><span class="n">bilfilter</span><span class="p">,</span> <span class="n">allContours</span><span class="p">,</span> <span class="n">hiera</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">RETR_TREE</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">);</span>   <span class="c1">//查找轮廓
+</span></span></span><span class="line"><span class="cl"><span class="c1">//    cv::drawContours(origin, allContours, -1, cv::Scalar(0, 0, 255), 1);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="nl">itcHier</span><span class="p">:</span> <span class="n">hiera</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">itcHier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">itcHier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">alRect</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">minAreaRect</span><span class="p">(</span><span class="n">allContours</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span><span class="c1">//没有子轮廓和父轮廓可能是目标圆弧或字母
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">pts</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="nl">rect</span><span class="p">:</span> <span class="n">alRect</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">rect</span><span class="p">.</span><span class="n">points</span><span class="p">(</span><span class="n">pts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">restore_Rect</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">pts1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">float</span> <span class="n">width</span> <span class="o">=</span> <span class="n">dis</span><span class="p">(</span><span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">float</span> <span class="n">height</span> <span class="o">=</span> <span class="n">dis</span><span class="p">(</span><span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">((</span><span class="n">width</span> <span class="o">/</span> <span class="n">height</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.8</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="n">height</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.2</span><span class="p">)</span> <span class="p">{</span>   <span class="c1">///调参, 去除圆弧
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">x</span> <span class="o">=</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">y</span> <span class="o">=</span> <span class="n">pts1</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">charRect</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">rect</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">drawRect</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">100</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">            <span class="n">chars</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">getRectROI</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">bilfilter</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="n">chars</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">chars</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">int</span> <span class="n">number</span> <span class="o">=</span> <span class="n">matchMat</span><span class="p">(</span><span class="n">chars</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>    <span class="c1">//std::to_string(number)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">cv</span><span class="o">::</span><span class="n">putText</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">direction</span><span class="p">[</span><span class="n">number</span><span class="p">].</span><span class="n">first</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Point</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span> <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">charRectPts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">y</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">cv</span><span class="o">::</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">Scalar</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">LINE_AA</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>模板匹配实现如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">identifyApron</span><span class="o">::</span><span class="n">matchMat</span><span class="p">(</span><span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">src</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">angle</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nb">false</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nl">label</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">angle</span> <span class="o">&gt;</span> <span class="mi">270</span><span class="p">)</span> <span class="k">return</span> <span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">Size</span> <span class="n">dst_sz</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">cols</span><span class="p">,</span> <span class="n">src</span><span class="p">.</span><span class="n">rows</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">Point2f</span> <span class="n">center</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">cols</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">),</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">src</span><span class="p">.</span><span class="n">rows</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">angle</span> <span class="o">+=</span> <span class="mi">90</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">Mat</span> <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">cv</span><span class="o">::</span><span class="n">getRotationMatrix2D</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">rot_mat</span><span class="p">,</span> <span class="n">dst_sz</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">INTER_LINEAR</span><span class="p">,</span> <span class="n">cv</span><span class="o">::</span><span class="n">BORDER_REPLICATE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="nl">matrix</span><span class="p">:</span> <span class="n">char_matrix</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="o">&gt;</span> <span class="n">src_matrix</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cv</span><span class="o">::</span><span class="n">cv2eigen</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">src_matrix</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Eigen</span><span class="o">::</span><span class="n">ArrayXXi</span> <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">matrix</span> <span class="o">-</span> <span class="n">src_matrix</span><span class="p">).</span><span class="n">array</span><span class="p">().</span><span class="n">abs</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="n">re</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="n">result</span><span class="p">.</span><span class="n">sum</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">re</span> <span class="o">&lt;</span> <span class="mi">150000</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">label</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>该函数接受待匹配字母, 返回头文件中定义的<code>std::vector&lt;std::pair&lt;std::string , int&gt;&gt; direction</code>, 用&lt;字母, 数字&gt;表示方向</p>
+<p>最终识别效果如下</p>
+<p><img src="https://i.imgur.com/VCq1ocz.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="iDB4Aa"
+	
+	
+></p>
+<p>很好的识别出了四个方向的字母, 并拟合无人机的大概降落位置</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/c&#43;&#43;/">c&#43;&#43;</a>
+        
+            <a href="/tags/opencv/">OpenCV</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="TioeAre/tioe-blog-comments"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 TioeAre
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

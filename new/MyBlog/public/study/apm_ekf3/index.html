@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='ekf3用于估计位姿, 导航坐标系为NED(北东地)
+数学推导参考PX4和APM导航解算过程推导-24维状态EKF
+matlab见InertialNav-Github
+ekf2代码介绍EKF2
+AP_NavEKF3.cpp bool InitialiseFilter() 用于初始化滤波器, 滤波器可以有好几个core, 每个core或lane对应一种传感器和imu的状态估计, 初始化时EK3_PRIMARY可以在为某个core或lane. 但之后可能会在运行时被修改成其他的lane. Affinity允许不设置首要lane, 并用lane error存储不同传感器的差值, 使系统能够效果最好的作为状态估计. lane error随时间积累并通过EK3_ERR_THRESH参数设置non-primary and primary lane比较的阈值, 当超过阈值时会切换用于估计的传感器(下文中的所有core与lane几乎是可以表示同一个东西)
+函数中首先获取循环一次的时间, 每个imu对应一个core, 一个imu不能用于多个滤波器, 然后为ekf core申请内存, 如果申请成功的话就调用NavEKF3_core()创建每个core, 然后调用resetCoreErrors()初始化上文提到的每个core对应的lane error
+NavEKF3_core()初始化时使用了libraries/AP_NavEKF3/AP_NavEKF3_core.cpp中几个函数InitialiseFilterBootstrap() InitialiseVariables()&amp;amp;&amp;amp;CovarianceInit() InitialiseVariablesMag()(依次调用), 使系统运行中能够在必要时初始化滤波器(在UpdateFilter()中, 如果filterStatus.value==0的话会调用InitialiseFilterBootstrap()重新初始化)
+协方差初始化时, 初始化为对角矩阵
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 memset(&amp;amp;P[0][0], 0, sizeof(P)); // define the initial angle uncertainty as variances for a rotation vector Vector3F rot_vec_var; rot_vec_var.'>
+<title>APM中ekf3算法</title>
+
+<link rel='canonical' href='https://www.blog.tioe.xyz/study/apm_ekf3/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='APM中ekf3算法'>
+<meta property='og:description' content='ekf3用于估计位姿, 导航坐标系为NED(北东地)
+数学推导参考PX4和APM导航解算过程推导-24维状态EKF
+matlab见InertialNav-Github
+ekf2代码介绍EKF2
+AP_NavEKF3.cpp bool InitialiseFilter() 用于初始化滤波器, 滤波器可以有好几个core, 每个core或lane对应一种传感器和imu的状态估计, 初始化时EK3_PRIMARY可以在为某个core或lane. 但之后可能会在运行时被修改成其他的lane. Affinity允许不设置首要lane, 并用lane error存储不同传感器的差值, 使系统能够效果最好的作为状态估计. lane error随时间积累并通过EK3_ERR_THRESH参数设置non-primary and primary lane比较的阈值, 当超过阈值时会切换用于估计的传感器(下文中的所有core与lane几乎是可以表示同一个东西)
+函数中首先获取循环一次的时间, 每个imu对应一个core, 一个imu不能用于多个滤波器, 然后为ekf core申请内存, 如果申请成功的话就调用NavEKF3_core()创建每个core, 然后调用resetCoreErrors()初始化上文提到的每个core对应的lane error
+NavEKF3_core()初始化时使用了libraries/AP_NavEKF3/AP_NavEKF3_core.cpp中几个函数InitialiseFilterBootstrap() InitialiseVariables()&amp;amp;&amp;amp;CovarianceInit() InitialiseVariablesMag()(依次调用), 使系统运行中能够在必要时初始化滤波器(在UpdateFilter()中, 如果filterStatus.value==0的话会调用InitialiseFilterBootstrap()重新初始化)
+协方差初始化时, 初始化为对角矩阵
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 memset(&amp;amp;P[0][0], 0, sizeof(P)); // define the initial angle uncertainty as variances for a rotation vector Vector3F rot_vec_var; rot_vec_var.'>
+<meta property='og:url' content='https://www.blog.tioe.xyz/study/apm_ekf3/'>
+<meta property='og:site_name' content='TioeAre'>
+<meta property='og:type' content='article'><meta property='article:section' content='Study' /><meta property='article:tag' content='ekf' /><meta property='article:published_time' content='2023-05-23T16:14:45&#43;08:00'/><meta property='article:modified_time' content='2023-05-23T16:14:45&#43;08:00'/><meta property='og:image' content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/79509418_p0_master1200.jpg' />
+<meta name="twitter:title" content="APM中ekf3算法">
+<meta name="twitter:description" content="ekf3用于估计位姿, 导航坐标系为NED(北东地)
+数学推导参考PX4和APM导航解算过程推导-24维状态EKF
+matlab见InertialNav-Github
+ekf2代码介绍EKF2
+AP_NavEKF3.cpp bool InitialiseFilter() 用于初始化滤波器, 滤波器可以有好几个core, 每个core或lane对应一种传感器和imu的状态估计, 初始化时EK3_PRIMARY可以在为某个core或lane. 但之后可能会在运行时被修改成其他的lane. Affinity允许不设置首要lane, 并用lane error存储不同传感器的差值, 使系统能够效果最好的作为状态估计. lane error随时间积累并通过EK3_ERR_THRESH参数设置non-primary and primary lane比较的阈值, 当超过阈值时会切换用于估计的传感器(下文中的所有core与lane几乎是可以表示同一个东西)
+函数中首先获取循环一次的时间, 每个imu对应一个core, 一个imu不能用于多个滤波器, 然后为ekf core申请内存, 如果申请成功的话就调用NavEKF3_core()创建每个core, 然后调用resetCoreErrors()初始化上文提到的每个core对应的lane error
+NavEKF3_core()初始化时使用了libraries/AP_NavEKF3/AP_NavEKF3_core.cpp中几个函数InitialiseFilterBootstrap() InitialiseVariables()&amp;amp;&amp;amp;CovarianceInit() InitialiseVariablesMag()(依次调用), 使系统运行中能够在必要时初始化滤波器(在UpdateFilter()中, 如果filterStatus.value==0的话会调用InitialiseFilterBootstrap()重新初始化)
+协方差初始化时, 初始化为对角矩阵
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 memset(&amp;amp;P[0][0], 0, sizeof(P)); // define the initial angle uncertainty as variances for a rotation vector Vector3F rot_vec_var; rot_vec_var."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/79509418_p0_master1200.jpg' />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z7Z9EX371"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-8Z7Z9EX371', { 'anonymize_ip': false });
+}
+</script>
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu59d45283e55c90c93de2408cb8730bfd_124382_300x0_resize_box_3.png" width="300"
+                            height="275" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">TioeAre</a></h1>
+            <h2 class="site-description">洗心革面，潜心学习</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://space.bilibili.com/359367522'
+                        target="_blank"
+                        title="bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="bilibili.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata28">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs26" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview24"
+     showgrid="false"
+     inkscape:zoom="0.295"
+     inkscape:cx="400"
+     inkscape:cy="400"
+     inkscape:window-x="712"
+     inkscape:window-y="273"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg22" />
+  <g
+     id="g20"
+     transform="matrix(1.0974577,0,0,1.1186441,-1.1186441,-1.4237288)">
+    <path
+       d="M 0,0 H 24 V 24 H 0 Z"
+       id="path16"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       d="m 18.223,3.086 a 1.25,1.25 0 0 1 0,1.768 L 17.08,5.996 h 1.17 A 3.75,3.75 0 0 1 22,9.747 v 7.5 a 3.75,3.75 0 0 1 -3.75,3.75 H 5.75 A 3.75,3.75 0 0 1 2,17.247 v -7.5 A 3.75,3.75 0 0 1 5.75,5.997 H 6.916 L 5.775,4.855 A 1.25,1.25 0 1 1 7.542,3.087 l 2.652,2.652 c 0.079,0.079 0.145,0.165 0.198,0.257 h 3.213 c 0.053,-0.092 0.12,-0.18 0.199,-0.258 l 2.651,-2.652 a 1.25,1.25 0 0 1 1.768,0 z m 0.027,5.42 H 5.75 A 1.25,1.25 0 0 0 4.503,9.663 L 4.5,9.757 v 7.5 c 0,0.659 0.51,1.199 1.157,1.246 l 0.093,0.004 h 12.5 A 1.25,1.25 0 0 0 19.497,17.35 L 19.5,17.257 v -7.5 c 0,-0.69 -0.56,-1.25 -1.25,-1.25 z m -10,2.5 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z m 7.5,0 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z"
+       id="path18"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/TioeAre'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/study/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-notebook"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="notebook.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="13.424887"
+     inkscape:window-x="532"
+     inkscape:window-y="380"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg10" />
+  <g
+     id="g8"
+     transform="translate(-3.0729831,-2.7496101)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 6,4 h 11 a 2,2 0 0 1 2,2 v 12 a 2,2 0 0 1 -2,2 H 6 A 1,1 0 0 1 5,19 V 5 A 1,1 0 0 1 6,4 m 3,0 v 18"
+       inkscape:connector-curvature="0" />
+    <line
+       id="svg_3"
+       y2="8"
+       x2="15"
+       y1="8"
+       x1="13" />
+    <line
+       id="svg_4"
+       y2="12"
+       x2="15"
+       y1="12"
+       x1="13" />
+  </g>
+</svg>
+
+                
+                <span>学习笔记</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/project/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-file-code"
+   version="1.1"
+   id="svg11"
+   sodipodi:docname="file-code.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata17">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs15" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview13"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="35"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg11" />
+  <g
+     id="g9"
+     transform="matrix(0.9166574,0,0,0.91195382,-0.79700322,-0.77403561)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 14,3 v 4 a 1,1 0 0 0 1,1 h 4"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_3"
+       d="M 17,21 H 7 A 2,2 0 0 1 5,19 V 5 A 2,2 0 0 1 7,3 h 7 l 5,5 v 11 a 2,2 0 0 1 -2,2 z"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_4"
+       d="m 10,13 -1,2 1,2"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_5"
+       d="m 14,13 1,2 -1,2"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                
+                <span>项目记录</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://www.blog.tioe.xyz/en/" >English</option>
+                        
+                            <option value="https://www.blog.tioe.xyz/" selected>中文</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>暗色模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#ap_navekf3cpp">AP_NavEKF3.cpp</a>
+      <ol>
+        <li><a href="#bool-initialisefilter">bool InitialiseFilter()</a></li>
+        <li><a href="#bool-corebetterscore">bool coreBetterScore()</a></li>
+        <li><a href="#void-updatefilter">void UpdateFilter()</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/study/apm_ekf3/">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/79509418_p0_master1200.jpg" loading="lazy" alt="Featured image of post APM中ekf3算法" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/multi-sensor/" style="background-color: #2a9d8f; color: #fff;">
+                Multi-Sensor
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/study/apm_ekf3/">APM中ekf3算法</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 23, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><img src="https://i.imgur.com/K4eS6rE.jpg"
+	
+	
+	
+	loading="lazy"
+	
+		alt="VNQVrt"
+	
+	
+></p>
+<p>ekf3用于估计位姿, 导航坐标系为NED(北东地)</p>
+<p>数学推导参考<a class="link" href="https://blog.csdn.net/u014527548/article/details/107437177"  target="_blank" rel="noopener"
+    >PX4和APM导航解算过程推导-24维状态EKF</a></p>
+<p>matlab见<a class="link" href="https://github.com/priseborough/InertialNav"  target="_blank" rel="noopener"
+    >InertialNav-Github</a></p>
+<p>ekf2代码介绍<a class="link" href="https://blog.csdn.net/lixiaoweimashixiao/article/details/105900170"  target="_blank" rel="noopener"
+    >EKF2</a></p>
+<p><img src="https://i.imgur.com/BZhyhPM.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="VNQfhJ"
+	
+	
+></p>
+<p><img src="https://i.imgur.com/NbkcIkh.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="VNQ4Zc"
+	
+	
+></p>
+<p><img src="https://i.imgur.com/JcdfQMd.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="VNQWBd"
+	
+	
+></p>
+<p><img src="https://i.imgur.com/LTAZlbe.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="VNQc3y"
+	
+	
+></p>
+<p><img src="https://i.imgur.com/xPMVByA.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="VNQm55"
+	
+	
+></p>
+<p><img src="https://i.imgur.com/Dad1StY.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="VNQBi8"
+	
+	
+></p>
+<h2 id="ap_navekf3cpp">AP_NavEKF3.cpp</h2>
+<h3 id="bool-initialisefilter">bool InitialiseFilter()</h3>
+<p>用于初始化滤波器, 滤波器可以有好几个core, 每个core或lane对应一种传感器和imu的状态估计, 初始化时EK3_PRIMARY可以在为某个core或lane. 但之后可能会在运行时被修改成其他的lane. Affinity允许不设置首要lane, 并用lane error存储不同传感器的差值, 使系统能够效果最好的作为状态估计. lane error随时间积累并通过EK3_ERR_THRESH参数设置non-primary and primary lane比较的阈值, 当超过阈值时会切换用于估计的传感器(下文中的所有core与lane几乎是可以表示同一个东西)</p>
+<p>函数中首先获取循环一次的时间, 每个imu对应一个core, 一个imu不能用于多个滤波器, 然后为ekf core申请内存, 如果申请成功的话就调用<code>NavEKF3_core()</code>创建每个core, 然后调用<code>resetCoreErrors()</code>初始化上文提到的每个core对应的lane error</p>
+<p>NavEKF3_core()初始化时使用了<code>libraries/AP_NavEKF3/AP_NavEKF3_core.cpp</code>中几个函数<code>InitialiseFilterBootstrap() InitialiseVariables()&amp;&amp;CovarianceInit() InitialiseVariablesMag()</code>(依次调用), 使系统运行中能够在必要时初始化滤波器(在UpdateFilter()中, 如果filterStatus.value==0的话会调用InitialiseFilterBootstrap()重新初始化)</p>
+<p>协方差初始化时, 初始化为对角矩阵</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">P</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// define the initial angle uncertainty as variances for a rotation vector
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Vector3F</span> <span class="n">rot_vec_var</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">rot_vec_var</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">rot_vec_var</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">rot_vec_var</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="mf">0.1f</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// reset the quaternion state covariances
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">CovariancePrediction</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rot_vec_var</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// velocities
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">P</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>   <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_gpsHorizVelNoise</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">5</span><span class="p">]</span>   <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">6</span><span class="p">]</span>   <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_gpsVertVelNoise</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// positions
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">P</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">7</span><span class="p">]</span>   <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_gpsHorizPosNoise</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="mi">8</span><span class="p">]</span>   <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">7</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">9</span><span class="p">][</span><span class="mi">9</span><span class="p">]</span>   <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_baroAltNoise</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// gyro delta angle biases
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">P</span><span class="p">[</span><span class="mi">10</span><span class="p">][</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">radians</span><span class="p">(</span><span class="n">InitialGyroBiasUncertainty</span><span class="p">()</span> <span class="o">*</span> <span class="n">dtEkfAvg</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">10</span><span class="p">][</span><span class="mi">10</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">12</span><span class="p">][</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">10</span><span class="p">][</span><span class="mi">10</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// delta velocity biases
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">P</span><span class="p">[</span><span class="mi">13</span><span class="p">][</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">ACCEL_BIAS_LIM_SCALER</span> <span class="o">*</span> <span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_accBiasLim</span> <span class="o">*</span> <span class="n">dtEkfAvg</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">14</span><span class="p">][</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">13</span><span class="p">][</span><span class="mi">13</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">15</span><span class="p">][</span><span class="mi">15</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">13</span><span class="p">][</span><span class="mi">13</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// earth magnetic field
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">P</span><span class="p">[</span><span class="mi">16</span><span class="p">][</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_magNoise</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">17</span><span class="p">][</span><span class="mi">17</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">16</span><span class="p">][</span><span class="mi">16</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">18</span><span class="p">][</span><span class="mi">18</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">16</span><span class="p">][</span><span class="mi">16</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// body magnetic field
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">P</span><span class="p">[</span><span class="mi">19</span><span class="p">][</span><span class="mi">19</span><span class="p">]</span> <span class="o">=</span> <span class="n">sq</span><span class="p">(</span><span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_magNoise</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">20</span><span class="p">][</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">19</span><span class="p">][</span><span class="mi">19</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">21</span><span class="p">][</span><span class="mi">21</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">19</span><span class="p">][</span><span class="mi">19</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// wind velocities
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">P</span><span class="p">[</span><span class="mi">22</span><span class="p">][</span><span class="mi">22</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0f</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">P</span><span class="p">[</span><span class="mi">23</span><span class="p">][</span><span class="mi">23</span><span class="p">]</span>  <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">22</span><span class="p">][</span><span class="mi">22</span><span class="p">];</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="bool-corebetterscore">bool coreBetterScore()</h3>
+<p>这个函数用于判断是否切换主要的滤波器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">bool</span> <span class="n">NavEKF3</span><span class="o">::</span><span class="n">coreBetterScore</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">new_core</span><span class="p">,</span> <span class="kt">uint8_t</span> <span class="n">current_core</span><span class="p">)</span> <span class="k">const</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">NavEKF3_core</span> <span class="o">&amp;</span><span class="n">oldCore</span> <span class="o">=</span> <span class="n">core</span><span class="p">[</span><span class="n">current_core</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">NavEKF3_core</span> <span class="o">&amp;</span><span class="n">newCore</span> <span class="o">=</span> <span class="n">core</span><span class="p">[</span><span class="n">new_core</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">newCore</span><span class="p">.</span><span class="n">healthy</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// never consider a new core that isn&#39;t healthy
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">newCore</span><span class="p">.</span><span class="n">have_aligned_tilt</span><span class="p">()</span> <span class="o">!=</span> <span class="n">oldCore</span><span class="p">.</span><span class="n">have_aligned_tilt</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// tilt alignment is most critical, if one is tilt aligned and
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// the other isn&#39;t then use the tilt aligned lane
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="n">newCore</span><span class="p">.</span><span class="n">have_aligned_tilt</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">newCore</span><span class="p">.</span><span class="n">have_aligned_yaw</span><span class="p">()</span> <span class="o">!=</span> <span class="n">oldCore</span><span class="p">.</span><span class="n">have_aligned_yaw</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// yaw alignment is next most critical, if one is yaw aligned
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// and the other isn&#39;t then use the yaw aligned lane
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="n">newCore</span><span class="p">.</span><span class="n">have_aligned_yaw</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// if both cores are aligned then look at relative error scores
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">return</span> <span class="n">coreRelativeErrors</span><span class="p">[</span><span class="n">new_core</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">coreRelativeErrors</span><span class="p">[</span><span class="n">current_core</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>先判断新的core是否正常工作, 然后判断这两个core是否有倾斜对齐, 返回有对齐的那一个, 然后判断是否对齐的yaw, 最后再判断两者lane error的大小</p>
+<h3 id="void-updatefilter">void UpdateFilter()</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">state_elements</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">QuaternionF</span> <span class="n">quat</span><span class="p">;</span>           <span class="c1">// quaternion defining rotation from local NED earth frame to body frame 0..3
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Vector3F</span>    <span class="n">velocity</span><span class="p">;</span>       <span class="c1">// velocity of IMU in local NED earth frame (m/sec) 4..6
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Vector3F</span>    <span class="n">position</span><span class="p">;</span>       <span class="c1">// position of IMU in local NED earth frame (m)     7..9
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Vector3F</span>    <span class="n">gyro_bias</span><span class="p">;</span>      <span class="c1">// body frame delta angle IMU bias vector (rad)     10..12
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Vector3F</span>    <span class="n">accel_bias</span><span class="p">;</span>     <span class="c1">// body frame delta velocity IMU bias vector (m/sec) 13..15
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Vector3F</span>    <span class="n">earth_magfield</span><span class="p">;</span> <span class="c1">// earth frame magnetic field vector (Gauss)         16..18
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Vector3F</span>    <span class="n">body_magfield</span><span class="p">;</span>  <span class="c1">// body frame magnetic field vector (Gauss)          19..21
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Vector2F</span>    <span class="n">wind_vel</span><span class="p">;</span>       <span class="c1">// horizontal North East wind velocity vector in local NED earth frame (m/sec) 22..23
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>先判断两次更新之间是否丢帧, 没有丢帧的话就对每个core UpdateFilter()</p>
+<p>然后判断当前的主要core是否正常工作, 如果不正常工作的话就切换core, 此判断只有在主要core正常运行10s后才开始使用</p>
+<p>当无人机能够解锁并且主core已经正常运行了超过10s之后进入判断是否要切换primary core(但runCoreSelection这个变量好像只在上面这一个地方被赋值, 也就是说只要此时的primary core正常工作10s之后, 每次UpdateFilter()运行时都会判断是否要切换core)</p>
+<p>然后开始计算lane error,</p>
+<p>lane error计算的是每个传感器的观测值velPosObs与ekf滤波后的状态变量stateStruct中的值相减之后做平方和(即innovation)再除以方差的和, 感觉本质上就是把这个传感器的数据跟对应的imu的数据做个比较, 如果二者相差大的话就说明这个core没有正常工作</p>
+<p>计算每个lane error之后再计算了其他的lane error与primary lane error之间的差值, 并将差值累加起来</p>
+<p>如果这个差值小于阈值的话并且距离上一次切换时间超过10s的话并且yaw已经对齐了的话, 就发生切换并重置累加起来的每个lane error</p>
+<p>更新滤波器的步骤主要也是调用了<code>libraries/AP_NavEKF3/AP_NavEKF3_core.cpp</code>中的<code>UpdateFilter()</code>函数</p>
+<p>NavEKF3_core::UpdateFilter()中先调用update_sensor_selection()更新每个core中传感器的选择, 具体步骤以update_gps_selection()为例</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">const</span> <span class="k">auto</span> <span class="o">&amp;</span><span class="n">gps</span> <span class="o">=</span> <span class="n">dal</span><span class="p">.</span><span class="n">gps</span><span class="p">();</span>	<span class="c1">// 先获取gps的数据对象, 储存当前的gps信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">selected_gps</span> <span class="o">=</span> <span class="n">gps</span><span class="p">.</span><span class="n">primary_sensor</span><span class="p">();</span>	<span class="c1">// 设置当前的gps索引
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">preferred_gps</span> <span class="o">=</span> <span class="n">selected_gps</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">frontend</span><span class="o">-&gt;</span><span class="n">_affinity</span> <span class="o">&amp;</span> <span class="n">EKF_AFFINITY_GPS</span><span class="p">)</span> <span class="p">{</span>	<span class="c1">// 按位与判断gps是否符合affinity
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">core_index</span> <span class="o">&lt;</span> <span class="n">gps</span><span class="p">.</span><span class="n">num_sensors</span><span class="p">()</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">preferred_gps</span> <span class="o">=</span> <span class="n">core_index</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>	<span class="c1">// 判断是否有超过core_index个gps, 也就是当前的core是否有对应的gps
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">gps</span><span class="p">.</span><span class="n">status</span><span class="p">(</span><span class="n">preferred_gps</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">AP_DAL_GPS</span><span class="o">::</span><span class="n">GPS_OK_FIX_3D</span><span class="p">)</span> <span class="p">{</span>	<span class="c1">// 检查当前的第code_index个gps也就是当前core对应的第n个gps(如果有的话)的数据是否满足gps的3D定位的标准, 如果满足的话就改用当前core_index的gps
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">selected_gps</span> <span class="o">=</span> <span class="n">preferred_gps</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后调用controlFilterModes()检查飞行状态(电机状态, 飞行模式, 是否自动设置风力和磁场变化, 是否对齐飞行姿态, 设置导航辅助模式(导航辅助模式主要就是判断用了哪些传感器, 如果用了gps或气压计或视觉定位的话就是绝对测量, 否则用了光流或者机体坐标系原始数据的话设置为相对测量))</p>
+<p>然后调用readIMUData()读取imu的数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">dtIMUavg</span> <span class="o">=</span> <span class="mf">0.02f</span> <span class="o">*</span> <span class="n">constrain_ftype</span><span class="p">(</span><span class="n">ins</span><span class="p">.</span><span class="n">get_loop_delta_t</span><span class="p">(),</span><span class="mf">0.5f</span> <span class="o">*</span> <span class="n">dtIMUavg</span><span class="p">,</span> <span class="mf">2.0f</span> <span class="o">*</span> <span class="n">dtIMUavg</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.98f</span> <span class="o">*</span> <span class="n">dtIMUavg</span><span class="p">;</span>	<span class="c1">// 先计算imu频率时使用一个低通滤波
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后判断切换加速度计和陀螺仪, 如果切换的话直接赋值原先的偏差到切换来的上. 然后判断运动状态, 主要代码计算了陀螺仪和加速度计的的差值和差值的比例, 然后判断当前是否在地面上并且没有运动</p>
+<p>learnInactiveBiases()中主要是对陀螺仪和加速度计的偏差进行修正和赋值, 如果是activate gyro或accel的话就直接将ekf估计出的bias复制给他, 如果是inactivate的话就计算出他与activate之间的误差然后乘一个很小的缩放系数慢慢的将他对齐到activate的</p>
+<p>之后读取累积的imu数据, 然后矫正传感器误差</p>
+<p>开始更新时首先调用UpdateStrapdownEquationsNED()对imu的数据进行累加和转换, 转换到导航坐标系, 然后计算了imu测量出的各轴速度和加速度</p>
+<p>之后调用CovariancePrediction()更新协方差的先验</p>
+<p>调用runYawEstimatorPrediction()更新加速度计和陀螺仪对yaw的估计, 对齐姿态角</p>
+<p>调用SelectMagFusion()选择融合用的磁力计数据, 开始也是通过yaw source来作为姿态角的一个参照, 调用fuseEulerYaw()融合yaw并计算bias, 然后读取磁力计数据</p>
+<p>**SelectVelPosFusion()**开始融合速度和位置数据, 调用CorrectGPSForAntennaOffset()上一时刻的速度减去用delta角度除以时间得到当前时刻的gps速度, 同理得到z轴高度</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl">    <span class="c1">// 判断gps是否可用, pose source是否为gps
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">gpsDataToFuse</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">PV_AidingMode</span> <span class="o">==</span> <span class="n">AID_ABSOLUTE</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">posxy_source</span> <span class="o">==</span> <span class="n">AP_NavEKF_Source</span><span class="o">::</span><span class="n">SourceXY</span><span class="o">::</span><span class="n">GPS</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 判断是否融合gps的pose或vel
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">fuseVelData</span> <span class="o">=</span> <span class="n">frontend</span><span class="o">-&gt;</span><span class="n">sources</span><span class="p">.</span><span class="n">useVelXYSource</span><span class="p">(</span><span class="n">AP_NavEKF_Source</span><span class="o">::</span><span class="n">SourceXY</span><span class="o">::</span><span class="n">GPS</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">fusePosData</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#if EK3_FEATURE_EXTERNAL_NAV
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>        <span class="n">extNavUsedForPos</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="c1">// 把gps的有延迟的观测数据复制出来
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">fuseVelData</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">velPosObs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpsDataDelayed</span><span class="p">.</span><span class="n">vel</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">velPosObs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpsDataDelayed</span><span class="p">.</span><span class="n">vel</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">velPosObs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpsDataDelayed</span><span class="p">.</span><span class="n">vel</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="n">Location</span> <span class="n">gpsloc</span><span class="p">{</span><span class="n">gpsDataDelayed</span><span class="p">.</span><span class="n">lat</span><span class="p">,</span> <span class="n">gpsDataDelayed</span><span class="p">.</span><span class="n">lng</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Location</span><span class="o">::</span><span class="n">AltFrame</span><span class="o">::</span><span class="n">ABSOLUTE</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="n">Vector2F</span> <span class="n">posxy</span> <span class="o">=</span> <span class="n">EKF_origin</span><span class="p">.</span><span class="n">get_distance_NE_ftype</span><span class="p">(</span><span class="n">gpsloc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">velPosObs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">posxy</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">velPosObs</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">posxy</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#if EK3_FEATURE_EXTERNAL_NAV
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">extNavDataToFuse</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">PV_AidingMode</span> <span class="o">==</span> <span class="n">AID_ABSOLUTE</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">posxy_source</span> <span class="o">==</span> <span class="n">AP_NavEKF_Source</span><span class="o">::</span><span class="n">SourceXY</span><span class="o">::</span><span class="n">EXTNAV</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 如果启用了视觉的话观测数据就换成视觉传来的数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">extNavUsedForPos</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">fusePosData</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">velPosObs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">extNavDataDelayed</span><span class="p">.</span><span class="n">pos</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">velPosObs</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">extNavDataDelayed</span><span class="p">.</span><span class="n">pos</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif </span><span class="c1">// EK3_FEATURE_EXTERNAL_NAV
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>得到数据之后先调用selectHeightForFusion()选取要融合的高度source, 这个函数前半部分也都是在判断读取气压计, gps或其他的数据, 计算传感器测量数据与ekf估计之间的偏移. 在gps数据可以融合的时候用贝叶斯滤波融合gps的数据到ekf的数据和方差里</p>
+<p>然后将数据放到ekf的观测里, 然后判断如果用gps并且可用并且需要reset的话, 把ekf的状态量的位置改为gps测得的数据</p>
+<p>然后又是一堆判断之后调用了最重要的**FuseVelPosNED()**来融合数据</p>
+<p>先判断赋值观测误差, 然后计算ekf的状态量与观测值之间的差值用于判断是否丢帧</p>
+<p>如果可以融合数据的话就先计算新息</p>
+<p>待更新</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ekf/">ekf</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/study/apm_t265/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/74923161_p0_master1200.jpg" loading="lazy" data-key="" data-hash="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/74923161_p0_master1200.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">APM中t265数据解析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/study/apm_optical_flow/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/77816288_p0_master1200.jpg" loading="lazy" data-key="" data-hash="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/77816288_p0_master1200.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">APM光流传感器解析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/project/multi-sensor-fusion/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/84738802_p0_master1200.jpg" loading="lazy" data-key="" data-hash="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/84738802_p0_master1200.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">空地无人机GPS与T265，光流传感器等的数据融合</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="TioeAre/tioe-blog-comments"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 TioeAre
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

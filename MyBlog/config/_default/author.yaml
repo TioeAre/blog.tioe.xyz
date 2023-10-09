@@ -1,0 +1,19 @@
+name: Tioe Are
+avatar: images/avatar.png # Avatar image. Default to "images/profile.webp".
+bio: '洗心革面, 潜心学习'
+company: zzu # HTML markup are supported, such as: <a href="https://example.com" target="_blank" rel="noopener noreferrer">Company</a>.
+location: Earth # HTML markup are supported, such as: <a href='https://www.openstreetmap.org/search?query=Earth'>Earth</a>.
+# about: https://razonyang.com # The external about page. The internal about page will be used if not set.
+params: {
+  # layout: compact
+}
+# See https://hbs.razonyang.com/v1/en/docs/widgets/social-links/.
+social:
+  email: are10032@outlook.com
+  github: TioeAre
+  bilibili: "359367522"
+  zhihu: tioeare
+  # twitter: razonyang
+  # patreon: razonyang
+  # paypal: razonyang
+  # rss: "" # Remove RSS

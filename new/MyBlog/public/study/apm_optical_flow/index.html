@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&amp;gt;update()的函数, 之后_calibrator-&amp;gt;update()校准函数, _calibrator定义于start_calibration()中
+1 2 3 4 5 6 7 8 9 10 11 12 13 if (_calibrator != nullptr) { if (_calibrator-&amp;gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&amp;gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 &#43; (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 &#43; (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.'>
+<title>APM光流传感器解析</title>
+
+<link rel='canonical' href='https://www.blog.tioe.xyz/study/apm_optical_flow/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='APM光流传感器解析'>
+<meta property='og:description' content='libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&amp;gt;update()的函数, 之后_calibrator-&amp;gt;update()校准函数, _calibrator定义于start_calibration()中
+1 2 3 4 5 6 7 8 9 10 11 12 13 if (_calibrator != nullptr) { if (_calibrator-&amp;gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&amp;gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 &#43; (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 &#43; (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX.'>
+<meta property='og:url' content='https://www.blog.tioe.xyz/study/apm_optical_flow/'>
+<meta property='og:site_name' content='TioeAre'>
+<meta property='og:type' content='article'><meta property='article:section' content='Study' /><meta property='article:tag' content='OpticalFlow' /><meta property='article:published_time' content='2023-05-14T16:14:45&#43;08:00'/><meta property='article:modified_time' content='2023-05-14T16:14:45&#43;08:00'/><meta property='og:image' content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/77816288_p0_master1200.jpg' />
+<meta name="twitter:title" content="APM光流传感器解析">
+<meta name="twitter:description" content="libraries/AP_OpticalFlow/AP_OpticalFlow.cpp 主要定义了init(), handle_msp(), update(), start_calibration()等几个函数
+init()
+主要用于接收光流传感器的类型并定义backend, backend是libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的update(), handle_msg()函数, 分别用于获取光流数据和更新
+update()
+函数中主要调用了backend-&amp;gt;update()的函数, 之后_calibrator-&amp;gt;update()校准函数, _calibrator定义于start_calibration()中
+1 2 3 4 5 6 7 8 9 10 11 12 13 if (_calibrator != nullptr) { if (_calibrator-&amp;gt;update()) { // apply new calibration values const Vector2f new_scaling = _calibrator-&amp;gt;get_scalars(); const float flow_scalerx_as_multiplier = (1.0 &#43; (_flowScalerX * 0.001)) * new_scaling.x; const float flow_scalery_as_multiplier = (1.0 &#43; (_flowScalerY * 0.001)) * new_scaling.y; _flowScalerX."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/77816288_p0_master1200.jpg' />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z7Z9EX371"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-8Z7Z9EX371', { 'anonymize_ip': false });
+}
+</script>
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu59d45283e55c90c93de2408cb8730bfd_124382_300x0_resize_box_3.png" width="300"
+                            height="275" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">TioeAre</a></h1>
+            <h2 class="site-description">洗心革面，潜心学习</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://space.bilibili.com/359367522'
+                        target="_blank"
+                        title="bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="bilibili.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata28">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs26" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview24"
+     showgrid="false"
+     inkscape:zoom="0.295"
+     inkscape:cx="400"
+     inkscape:cy="400"
+     inkscape:window-x="712"
+     inkscape:window-y="273"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg22" />
+  <g
+     id="g20"
+     transform="matrix(1.0974577,0,0,1.1186441,-1.1186441,-1.4237288)">
+    <path
+       d="M 0,0 H 24 V 24 H 0 Z"
+       id="path16"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       d="m 18.223,3.086 a 1.25,1.25 0 0 1 0,1.768 L 17.08,5.996 h 1.17 A 3.75,3.75 0 0 1 22,9.747 v 7.5 a 3.75,3.75 0 0 1 -3.75,3.75 H 5.75 A 3.75,3.75 0 0 1 2,17.247 v -7.5 A 3.75,3.75 0 0 1 5.75,5.997 H 6.916 L 5.775,4.855 A 1.25,1.25 0 1 1 7.542,3.087 l 2.652,2.652 c 0.079,0.079 0.145,0.165 0.198,0.257 h 3.213 c 0.053,-0.092 0.12,-0.18 0.199,-0.258 l 2.651,-2.652 a 1.25,1.25 0 0 1 1.768,0 z m 0.027,5.42 H 5.75 A 1.25,1.25 0 0 0 4.503,9.663 L 4.5,9.757 v 7.5 c 0,0.659 0.51,1.199 1.157,1.246 l 0.093,0.004 h 12.5 A 1.25,1.25 0 0 0 19.497,17.35 L 19.5,17.257 v -7.5 c 0,-0.69 -0.56,-1.25 -1.25,-1.25 z m -10,2.5 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z m 7.5,0 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z"
+       id="path18"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/TioeAre'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/study/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-notebook"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="notebook.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="13.424887"
+     inkscape:window-x="532"
+     inkscape:window-y="380"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg10" />
+  <g
+     id="g8"
+     transform="translate(-3.0729831,-2.7496101)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 6,4 h 11 a 2,2 0 0 1 2,2 v 12 a 2,2 0 0 1 -2,2 H 6 A 1,1 0 0 1 5,19 V 5 A 1,1 0 0 1 6,4 m 3,0 v 18"
+       inkscape:connector-curvature="0" />
+    <line
+       id="svg_3"
+       y2="8"
+       x2="15"
+       y1="8"
+       x1="13" />
+    <line
+       id="svg_4"
+       y2="12"
+       x2="15"
+       y1="12"
+       x1="13" />
+  </g>
+</svg>
+
+                
+                <span>学习笔记</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/project/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-file-code"
+   version="1.1"
+   id="svg11"
+   sodipodi:docname="file-code.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata17">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs15" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview13"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="35"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg11" />
+  <g
+     id="g9"
+     transform="matrix(0.9166574,0,0,0.91195382,-0.79700322,-0.77403561)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 14,3 v 4 a 1,1 0 0 0 1,1 h 4"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_3"
+       d="M 17,21 H 7 A 2,2 0 0 1 5,19 V 5 A 2,2 0 0 1 7,3 h 7 l 5,5 v 11 a 2,2 0 0 1 -2,2 z"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_4"
+       d="m 10,13 -1,2 1,2"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_5"
+       d="m 14,13 1,2 -1,2"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                
+                <span>项目记录</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://www.blog.tioe.xyz/en/" >English</option>
+                        
+                            <option value="https://www.blog.tioe.xyz/" selected>中文</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>暗色模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#librariesap_opticalflowap_opticalflowcpp">libraries/AP_OpticalFlow/AP_OpticalFlow.cpp</a></li>
+    <li><a href="#librariesap_opticalflowap_opticalflow_mavcpp">libraries/AP_OpticalFlow/AP_OpticalFlow_MAV.cpp</a></li>
+    <li><a href="#librariesap_opticalflowap_opticalflow_calibratorcpp">libraries/AP_OpticalFlow/AP_OpticalFlow_Calibrator.cpp</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/study/apm_optical_flow/">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/77816288_p0_master1200.jpg" loading="lazy" alt="Featured image of post APM光流传感器解析" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/multi-sensor/" style="background-color: #2a9d8f; color: #fff;">
+                Multi-Sensor
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/study/apm_optical_flow/">APM光流传感器解析</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 14, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 4 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="librariesap_opticalflowap_opticalflowcpp">libraries/AP_OpticalFlow/AP_OpticalFlow.cpp</h2>
+<p>主要定义了<code>init()</code>, <code>handle_msp()</code>, <code>update()</code>, <code>start_calibration()</code>等几个函数</p>
+<ol>
+<li>
+<p><code>init()</code></p>
+<p>主要用于接收光流传感器的类型并定义backend, backend是<code>libraries/AP_OpticalFlow/AP_OpticalFlow_Backend.h</code>中定义的OpticalFlow_backend基类对象, 派生出了PX4Flow, MAVLINK等几个具体传感器类型的派生类, 每个派生中重载了这个类的<code>update(), handle_msg()</code>函数, 分别用于获取光流数据和更新</p>
+</li>
+<li>
+<p><code>update()</code></p>
+<p>函数中主要调用了backend-&gt;update()的函数, 之后_calibrator-&gt;update()校准函数, _calibrator定义于start_calibration()中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span><span class="o">-&gt;</span><span class="n">update</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// apply new calibration values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">const</span> <span class="n">Vector2f</span> <span class="n">new_scaling</span> <span class="o">=</span> <span class="n">_calibrator</span><span class="o">-&gt;</span><span class="n">get_scalars</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scalerx_as_multiplier</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">_flowScalerX</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">))</span> <span class="o">*</span> <span class="n">new_scaling</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scalery_as_multiplier</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">_flowScalerY</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">))</span> <span class="o">*</span> <span class="n">new_scaling</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerX</span><span class="p">.</span><span class="n">set_and_save_ifchanged</span><span class="p">((</span><span class="n">flow_scalerx_as_multiplier</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerY</span><span class="p">.</span><span class="n">set_and_save_ifchanged</span><span class="p">((</span><span class="n">flow_scalery_as_multiplier</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerX</span><span class="p">.</span><span class="n">notify</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_flowScalerY</span><span class="p">.</span><span class="n">notify</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;FlowCal: FLOW_FXSCALER=%d, FLOW_FYSCALER=%d&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_flowScalerX</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">_flowScalerY</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>_flowScalerX, _flowScalerY是地面站设置中的缩放参数. 这段代码用于更新缩放参数并发送给GCS</p>
+</li>
+<li>
+<p><code>start_calibration()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_calibrator</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AP_OpticalFlow_Calibrator</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_CRITICAL</span><span class="p">,</span> <span class="s">&#34;FlowCal: failed to start&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_calibrator</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_calibrator</span><span class="o">-&gt;</span><span class="n">start</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>用于给_calibrator赋值</p>
+</li>
+</ol>
+<h2 id="librariesap_opticalflowap_opticalflow_mavcpp">libraries/AP_OpticalFlow/AP_OpticalFlow_MAV.cpp</h2>
+<p>主要派生了<code>OpticalFlow_backend</code>类, 重载了获取数据和更新用的<code>handle_msg() update()</code>函数, 新增了几个用于计算的变量</p>
+<ol>
+<li>
+<p><code>handle_msg()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">mavlink_msg_optical_flow_decode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">packet</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">latest_frame_us</span> <span class="o">=</span> <span class="n">AP_HAL</span><span class="o">::</span><span class="n">micros64</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">flow_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">packet</span><span class="p">.</span><span class="n">flow_x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">flow_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">packet</span><span class="p">.</span><span class="n">flow_y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">quality_sum</span> <span class="o">+=</span> <span class="n">packet</span><span class="p">.</span><span class="n">quality</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">count</span><span class="o">++</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>从飞控读取数据后将这段时间的光流数据累加起来, 后续update时用的光流速度实际上是i这段时间的平均值</p>
+</li>
+<li>
+<p><code>update()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">gyro_sum_count</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">const</span> <span class="n">Vector3f</span><span class="o">&amp;</span> <span class="n">gyro</span> <span class="o">=</span> <span class="n">AP</span><span class="o">::</span><span class="n">ahrs</span><span class="p">().</span><span class="n">get_gyro</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gyro_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">gyro</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gyro_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">gyro</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">gyro_sum_count</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">is_positive</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">dt</span> <span class="o">&lt;</span> <span class="n">OPTFLOW_MAV_TIMEOUT_SEC</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// calculate flow values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scale_factor_x</span> <span class="o">=</span> <span class="mf">1.0f</span> <span class="o">+</span> <span class="mf">0.001f</span> <span class="o">*</span> <span class="n">_flowScaler</span><span class="p">().</span><span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="kt">float</span> <span class="n">flow_scale_factor_y</span> <span class="o">=</span> <span class="mf">1.0f</span> <span class="o">+</span> <span class="mf">0.001f</span> <span class="o">*</span> <span class="n">_flowScaler</span><span class="p">().</span><span class="n">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// copy flow rates to state structure
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">state</span><span class="p">.</span><span class="n">flowRate</span> <span class="o">=</span> <span class="p">{</span> <span class="p">((</span><span class="kt">float</span><span class="p">)</span><span class="n">flow_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span> <span class="o">*</span> <span class="n">flow_scale_factor_x</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                       <span class="p">((</span><span class="kt">float</span><span class="p">)</span><span class="n">flow_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span> <span class="o">*</span> <span class="n">flow_scale_factor_y</span> <span class="o">*</span> <span class="n">dt</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// copy average body rate to state structure
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">state</span><span class="p">.</span><span class="n">bodyRate</span> <span class="o">=</span> <span class="p">{</span> <span class="n">gyro_sum</span><span class="p">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">gyro_sum_count</span><span class="p">,</span> <span class="n">gyro_sum</span><span class="p">.</span><span class="n">y</span> <span class="o">/</span> <span class="n">gyro_sum_count</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// we only apply yaw to flowRate as body rate comes from AHRS
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">_applyYaw</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">flowRate</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// first frame received in some time so cannot calculate flow values
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">state</span><span class="p">.</span><span class="n">flowRate</span><span class="p">.</span><span class="n">zero</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">state</span><span class="p">.</span><span class="n">bodyRate</span><span class="p">.</span><span class="n">zero</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先读取了imu的数据然后也做了平均数, 光流中的<code>flowRate</code>就是光流速度平均值乘以缩放系数, <code>bodyRate</code>是imu的平均值</p>
+</li>
+</ol>
+<h2 id="librariesap_opticalflowap_opticalflow_calibratorcpp">libraries/AP_OpticalFlow/AP_OpticalFlow_Calibrator.cpp</h2>
+<p>主要用于计算最佳的缩放比例</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">sample_t</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">float</span> <span class="n">flow_rate</span><span class="p">;</span>	<span class="c1">// 光流速度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">float</span> <span class="n">body_rate</span><span class="p">;</span>	<span class="c1">// imu速度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kt">float</span> <span class="n">los_pred</span><span class="p">;</span>	<span class="c1">//ekf估计的在车辆运动方向的光流速度的分量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>
+<p><code>update()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">_cal_state</span> <span class="o">==</span> <span class="n">CalState</span><span class="o">::</span><span class="n">RUNNING</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">now_ms</span> <span class="o">=</span> <span class="n">AP_HAL</span><span class="o">::</span><span class="n">millis</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">timestamp_ms</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Vector2f</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">body_rate</span><span class="p">,</span> <span class="n">los_pred</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">AP</span><span class="o">::</span><span class="n">ahrs</span><span class="p">().</span><span class="n">getOptFlowSample</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="p">,</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">body_rate</span><span class="p">,</span> <span class="n">los_pred</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">add_sample</span><span class="p">(</span><span class="n">timestamp_ms</span><span class="p">,</span> <span class="n">flow_rate</span><span class="p">,</span> <span class="n">body_rate</span><span class="p">,</span> <span class="n">los_pred</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// while collecting samples display percentage complete
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">now_ms</span> <span class="o">-</span> <span class="n">_last_report_ms</span> <span class="o">&gt;</span> <span class="n">AP_OPTICALFLOW_CAL_STATUSINTERVAL_SEC</span> <span class="o">*</span> <span class="mi">1000UL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">_last_report_ms</span> <span class="o">=</span> <span class="n">now_ms</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s x:%d%% y:%d%%&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">prefix_str</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">(</span><span class="kt">int</span><span class="p">)((</span><span class="n">_cal_data</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">num_samples</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">AP_OPTICALFLOW_CAL_MAX_SAMPLES</span><span class="p">)),</span>
+</span></span><span class="line"><span class="cl">                            <span class="p">(</span><span class="kt">int</span><span class="p">)((</span><span class="n">_cal_data</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">num_samples</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">/</span> <span class="n">AP_OPTICALFLOW_CAL_MAX_SAMPLES</span><span class="p">)));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// advance state once sample buffers are full
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">sample_buffers_full</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">READY_TO_CALIBRATE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s samples collected&#34;</span><span class="p">,</span> <span class="n">prefix_str</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// check for timeout
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">now_ms</span> <span class="o">-</span> <span class="n">_start_time_ms</span> <span class="o">&gt;</span> <span class="n">AP_OPTICALFLOW_CAL_TIMEOUT_SEC</span> <span class="o">*</span> <span class="mi">1000UL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s timeout&#34;</span><span class="p">,</span> <span class="n">prefix_str</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">FAILED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// start calibration
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">_cal_state</span> <span class="o">==</span> <span class="n">CalState</span><span class="o">::</span><span class="n">READY_TO_CALIBRATE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// run calibration and mark failure or success
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">run_calibration</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">SUCCESS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">_cal_state</span> <span class="o">=</span> <span class="n">CalState</span><span class="o">::</span><span class="n">FAILED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>先从AHRS中获取时间辍, 光流的速度和机体imu的速度, 然后运行run_calibration()进行校准</p>
+</li>
+<li>
+<p><code>run_calibration()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="c1">// calculate total absolute residual from all samples
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">float</span> <span class="n">total_abs_residual</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">uint8_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_samples</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">sample_t</span><span class="o">&amp;</span> <span class="n">samplei</span> <span class="o">=</span> <span class="n">_cal_data</span><span class="p">[</span><span class="n">axis</span><span class="p">].</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total_abs_residual</span> <span class="o">+=</span> <span class="n">fabsf</span><span class="p">(</span><span class="n">calc_sample_residual</span><span class="p">(</span><span class="n">samplei</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 此时计算的是系数为1, 得到的也就是实际上的光流速度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 先计算残差和
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 如果残差和为零的话就返回1, 说明校准成功
+</span></span></span><span class="line"><span class="cl"><span class="c1">// for each sample calculate the residual and scalar that best reduces the residual
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">float</span> <span class="n">best_scalar_total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">uint8_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_samples</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">float</span> <span class="n">sample_best_scalar</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="n">sample_t</span><span class="o">&amp;</span> <span class="n">samplei</span> <span class="o">=</span> <span class="n">_cal_data</span><span class="p">[</span><span class="n">axis</span><span class="p">].</span><span class="n">samples</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">calc_sample_best_scalar</span><span class="p">(</span><span class="n">samplei</span><span class="p">,</span> <span class="n">sample_best_scalar</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// failed to find the best scalar for a single sample
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// this should never happen because of checks when capturing samples
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">GCS_SEND_TEXT</span><span class="p">(</span><span class="n">MAV_SEVERITY_INFO</span><span class="p">,</span> <span class="s">&#34;%s failed because of zero flow rate&#34;</span><span class="p">,</span> <span class="n">prefix_str</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">INTERNAL_ERROR</span><span class="p">(</span><span class="n">AP_InternalError</span><span class="o">::</span><span class="n">error_t</span><span class="o">::</span><span class="n">flow_of_control</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">const</span> <span class="kt">float</span> <span class="n">sample_residual</span> <span class="o">=</span> <span class="n">calc_sample_residual</span><span class="p">(</span><span class="n">samplei</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">best_scalar_total</span> <span class="o">+=</span> <span class="n">sample_best_scalar</span> <span class="o">*</span> <span class="n">fabsf</span><span class="p">(</span><span class="n">sample_residual</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_abs_residual</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 计算的是光流补偿量除以光流速度的平均值, 即系数的平均值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 最佳残差时的系数, 判断光流速度是否存在零, 如果存在零的话就返回false
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 当计算出的最佳缩放系数的均方残差, 当均方小于系数为1计算出的均方残差时返回true (不太理解, 只要系数小于1的话均方肯定也是比他小的呀)
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 返回的缩放系数为best_scalar_total
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><code>calc_sample_residual()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">float</span> <span class="n">AP_OpticalFlow_Calibrator</span><span class="o">::</span><span class="n">calc_sample_residual</span><span class="p">(</span><span class="k">const</span> <span class="n">sample_t</span><span class="o">&amp;</span> <span class="n">sample</span><span class="p">,</span> <span class="kt">float</span> <span class="n">scalar</span><span class="p">)</span> <span class="k">const</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="n">sample</span><span class="p">.</span><span class="n">body_rate</span> <span class="o">+</span> <span class="p">((</span><span class="n">sample</span><span class="p">.</span><span class="n">flow_rate</span> <span class="o">*</span> <span class="n">scalar</span><span class="p">)</span> <span class="o">-</span> <span class="n">sample</span><span class="p">.</span><span class="n">los_pred</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>计算的残差为$imu速度+(光流速度*缩放系数-EKF估计的光流速度在车辆运动方向的分量)$, (等于0时说明系数最佳)</p>
+</li>
+<li>
+<p><code>calc_sample_best_scalar()</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// if sample&#39;s flow_rate is zero scalar has no effect
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// this should never happen because samples should have been checked before being added
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">is_zero</span><span class="p">(</span><span class="n">sample</span><span class="p">.</span><span class="n">flow_rate</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">best_scalar</span> <span class="o">=</span> <span class="p">(</span><span class="n">sample</span><span class="p">.</span><span class="n">los_pred</span> <span class="o">-</span> <span class="n">sample</span><span class="p">.</span><span class="n">body_rate</span><span class="p">)</span> <span class="o">/</span> <span class="n">sample</span><span class="p">.</span><span class="n">flow_rate</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>$最佳系数=(EKF估计的光流速度在运动方向的分量-imu速度)/光流速度$</p>
+</li>
+</ol>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/opticalflow/">OpticalFlow</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="has-image">
+    <a href="/study/apm_ekf3/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/79509418_p0_master1200.jpg" loading="lazy" data-key="" data-hash="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/79509418_p0_master1200.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">APM中ekf3算法</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/study/apm_t265/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/74923161_p0_master1200.jpg" loading="lazy" data-key="" data-hash="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/74923161_p0_master1200.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">APM中t265数据解析</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="has-image">
+    <a href="/project/multi-sensor-fusion/">
+        
+        
+            <div class="article-image">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/84738802_p0_master1200.jpg" loading="lazy" data-key="" data-hash="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/84738802_p0_master1200.jpg"/>
+                
+            </div>
+        
+
+        <div class="article-details">
+            <h2 class="article-title">空地无人机GPS与T265，光流传感器等的数据融合</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="TioeAre/tioe-blog-comments"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 TioeAre
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

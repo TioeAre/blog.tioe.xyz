@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Pages on TioeAre</title>
+        <link>https://www.blog.tioe.xyz/en/page/</link>
+        <description>Recent content in Pages on TioeAre</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en</language><atom:link href="https://www.blog.tioe.xyz/en/page/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Links</title>
+        <link>https://www.blog.tioe.xyz/en/links/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/en/links/</guid>
+        <description>&lt;p&gt;Find me at&amp;hellip;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>Search</title>
+        <link>https://www.blog.tioe.xyz/en/search/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/en/search/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>

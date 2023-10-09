@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='RealSense D455的标定 imu自校准 intel发布的d455深度相机自带的有一个imu，在对相机进行标定之前首先要校准一下imu
+校准操作见官方文档，官方提供有python脚本用于自动化校准，pdf中对具体操作有明确表述。这里提到一点操作时的一个bug
+正常情况下执行校准程序输出应当类似于
+只要按照pdf中示例的方式摆放相机，当三轴角度都为true的时候就会自动收集数据，但是我最开始遇到了
+一直停留在Status.rotate状态，无论怎么转都无法稳定在collect中，然后在github的issue中发现了相似问题
+解决方法：
+修改rs-imu-calibration.py第100行与616行，范围改大一些到0.6就可以了
+1 2 3 self.max_norm = np.linalg.norm(np.array([0.6, 0.6, 0.6])) max_norm = np.linalg.norm(np.array([0.6, 0.6, 0.6])) 参考链接:https://github.com/IntelRealSense/librealsense/issues/10418#issuecomment-1103125414
+打开realsense-viewer可以发现校准后竖直摆放相机，重力加速度近似于9.8，而校准前显示为8.8，说明校准起到效果
+联合标定 出现了以下bug，需要sudo apt install libelf-dev
+1 2 3 /home/username/packages/realsense_imu_catkin_ws/src/code_utils/include/code_utils/backward.hpp:216:25: fatal error: elfutils/libdw.h: No such file or directory 216 | # include &amp;lt;elfutils/libdw.h&amp;gt; | ^~~~~~~~~~~~~~~~~~ 但是安装的时候apt报错
+1 2 3 4 5 6 7 8 9 10 Some packages could not be installed. This may mean that you have requested an impossible situation or if you are using the unstable distribution that some required packages have not yet been created or been moved out of Incoming.'>
+<title>D455标定与pcl点云库的学习</title>
+
+<link rel='canonical' href='https://www.blog.tioe.xyz/daily/2023.03.26/'>
+
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='D455标定与pcl点云库的学习'>
+<meta property='og:description' content='RealSense D455的标定 imu自校准 intel发布的d455深度相机自带的有一个imu，在对相机进行标定之前首先要校准一下imu
+校准操作见官方文档，官方提供有python脚本用于自动化校准，pdf中对具体操作有明确表述。这里提到一点操作时的一个bug
+正常情况下执行校准程序输出应当类似于
+只要按照pdf中示例的方式摆放相机，当三轴角度都为true的时候就会自动收集数据，但是我最开始遇到了
+一直停留在Status.rotate状态，无论怎么转都无法稳定在collect中，然后在github的issue中发现了相似问题
+解决方法：
+修改rs-imu-calibration.py第100行与616行，范围改大一些到0.6就可以了
+1 2 3 self.max_norm = np.linalg.norm(np.array([0.6, 0.6, 0.6])) max_norm = np.linalg.norm(np.array([0.6, 0.6, 0.6])) 参考链接:https://github.com/IntelRealSense/librealsense/issues/10418#issuecomment-1103125414
+打开realsense-viewer可以发现校准后竖直摆放相机，重力加速度近似于9.8，而校准前显示为8.8，说明校准起到效果
+联合标定 出现了以下bug，需要sudo apt install libelf-dev
+1 2 3 /home/username/packages/realsense_imu_catkin_ws/src/code_utils/include/code_utils/backward.hpp:216:25: fatal error: elfutils/libdw.h: No such file or directory 216 | # include &amp;lt;elfutils/libdw.h&amp;gt; | ^~~~~~~~~~~~~~~~~~ 但是安装的时候apt报错
+1 2 3 4 5 6 7 8 9 10 Some packages could not be installed. This may mean that you have requested an impossible situation or if you are using the unstable distribution that some required packages have not yet been created or been moved out of Incoming.'>
+<meta property='og:url' content='https://www.blog.tioe.xyz/daily/2023.03.26/'>
+<meta property='og:site_name' content='TioeAre'>
+<meta property='og:type' content='article'><meta property='article:section' content='Daily' /><meta property='article:published_time' content='2023-03-26T02:02:45&#43;05:00'/><meta property='article:modified_time' content='2023-03-26T02:02:45&#43;05:00'/><meta property='og:image' content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/102368197_p0_master1200.jpg' />
+<meta name="twitter:title" content="D455标定与pcl点云库的学习">
+<meta name="twitter:description" content="RealSense D455的标定 imu自校准 intel发布的d455深度相机自带的有一个imu，在对相机进行标定之前首先要校准一下imu
+校准操作见官方文档，官方提供有python脚本用于自动化校准，pdf中对具体操作有明确表述。这里提到一点操作时的一个bug
+正常情况下执行校准程序输出应当类似于
+只要按照pdf中示例的方式摆放相机，当三轴角度都为true的时候就会自动收集数据，但是我最开始遇到了
+一直停留在Status.rotate状态，无论怎么转都无法稳定在collect中，然后在github的issue中发现了相似问题
+解决方法：
+修改rs-imu-calibration.py第100行与616行，范围改大一些到0.6就可以了
+1 2 3 self.max_norm = np.linalg.norm(np.array([0.6, 0.6, 0.6])) max_norm = np.linalg.norm(np.array([0.6, 0.6, 0.6])) 参考链接:https://github.com/IntelRealSense/librealsense/issues/10418#issuecomment-1103125414
+打开realsense-viewer可以发现校准后竖直摆放相机，重力加速度近似于9.8，而校准前显示为8.8，说明校准起到效果
+联合标定 出现了以下bug，需要sudo apt install libelf-dev
+1 2 3 /home/username/packages/realsense_imu_catkin_ws/src/code_utils/include/code_utils/backward.hpp:216:25: fatal error: elfutils/libdw.h: No such file or directory 216 | # include &amp;lt;elfutils/libdw.h&amp;gt; | ^~~~~~~~~~~~~~~~~~ 但是安装的时候apt报错
+1 2 3 4 5 6 7 8 9 10 Some packages could not be installed. This may mean that you have requested an impossible situation or if you are using the unstable distribution that some required packages have not yet been created or been moved out of Incoming."><meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content='https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/102368197_p0_master1200.jpg' />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8Z7Z9EX371"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-8Z7Z9EX371', { 'anonymize_ip': false });
+}
+</script>
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu59d45283e55c90c93de2408cb8730bfd_124382_300x0_resize_box_3.png" width="300"
+                            height="275" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">TioeAre</a></h1>
+            <h2 class="site-description">洗心革面，潜心学习</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://space.bilibili.com/359367522'
+                        target="_blank"
+                        title="bilibili"
+                        rel="me"
+                    >
+                        
+                        
+                            <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg22"
+   sodipodi:docname="bilibili.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata28">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs26" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview24"
+     showgrid="false"
+     inkscape:zoom="0.295"
+     inkscape:cx="400"
+     inkscape:cy="400"
+     inkscape:window-x="712"
+     inkscape:window-y="273"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg22" />
+  <g
+     id="g20"
+     transform="matrix(1.0974577,0,0,1.1186441,-1.1186441,-1.4237288)">
+    <path
+       d="M 0,0 H 24 V 24 H 0 Z"
+       id="path16"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       d="m 18.223,3.086 a 1.25,1.25 0 0 1 0,1.768 L 17.08,5.996 h 1.17 A 3.75,3.75 0 0 1 22,9.747 v 7.5 a 3.75,3.75 0 0 1 -3.75,3.75 H 5.75 A 3.75,3.75 0 0 1 2,17.247 v -7.5 A 3.75,3.75 0 0 1 5.75,5.997 H 6.916 L 5.775,4.855 A 1.25,1.25 0 1 1 7.542,3.087 l 2.652,2.652 c 0.079,0.079 0.145,0.165 0.198,0.257 h 3.213 c 0.053,-0.092 0.12,-0.18 0.199,-0.258 l 2.651,-2.652 a 1.25,1.25 0 0 1 1.768,0 z m 0.027,5.42 H 5.75 A 1.25,1.25 0 0 0 4.503,9.663 L 4.5,9.757 v 7.5 c 0,0.659 0.51,1.199 1.157,1.246 l 0.093,0.004 h 12.5 A 1.25,1.25 0 0 0 19.497,17.35 L 19.5,17.257 v -7.5 c 0,-0.69 -0.56,-1.25 -1.25,-1.25 z m -10,2.5 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z m 7.5,0 c 0.69,0 1.25,0.56 1.25,1.25 v 1.25 a 1.25,1.25 0 1 1 -2.5,0 v -1.25 c 0,-0.69 0.56,-1.25 1.25,-1.25 z"
+       id="path18"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://github.com/TioeAre'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/study/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-notebook"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="notebook.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="13.424887"
+     inkscape:window-x="532"
+     inkscape:window-y="380"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg10" />
+  <g
+     id="g8"
+     transform="translate(-3.0729831,-2.7496101)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 6,4 h 11 a 2,2 0 0 1 2,2 v 12 a 2,2 0 0 1 -2,2 H 6 A 1,1 0 0 1 5,19 V 5 A 1,1 0 0 1 6,4 m 3,0 v 18"
+       inkscape:connector-curvature="0" />
+    <line
+       id="svg_3"
+       y2="8"
+       x2="15"
+       y1="8"
+       x1="13" />
+    <line
+       id="svg_4"
+       y2="12"
+       x2="15"
+       y1="12"
+       x1="13" />
+  </g>
+</svg>
+
+                
+                <span>学习笔记</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/project/' >
+                
+                
+                
+                    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24"
+   height="24"
+   stroke-linejoin="round"
+   stroke-linecap="round"
+   fill="none"
+   stroke="#2c3e50"
+   stroke-width="1.5"
+   class="icon icon-tabler icon-tabler-file-code"
+   version="1.1"
+   id="svg11"
+   sodipodi:docname="file-code.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata17">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs15" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview13"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="35"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg11" />
+  <g
+     id="g9"
+     transform="matrix(0.9166574,0,0,0.91195382,-0.79700322,-0.77403561)">
+    <title
+       id="title2">Layer 1</title>
+    <path
+       id="svg_1"
+       d="M 0,0 H 24 V 24 H 0 Z"
+       inkscape:connector-curvature="0"
+       style="fill:none" />
+    <path
+       id="svg_2"
+       d="m 14,3 v 4 a 1,1 0 0 0 1,1 h 4"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_3"
+       d="M 17,21 H 7 A 2,2 0 0 1 5,19 V 5 A 2,2 0 0 1 7,3 h 7 l 5,5 v 11 a 2,2 0 0 1 -2,2 z"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_4"
+       d="m 10,13 -1,2 1,2"
+       inkscape:connector-curvature="0" />
+    <path
+       id="svg_5"
+       d="m 14,13 1,2 -1,2"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+                
+                <span>项目记录</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://www.blog.tioe.xyz/en/" >English</option>
+                        
+                            <option value="https://www.blog.tioe.xyz/" selected>中文</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>暗色模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#imu自校准">imu自校准</a></li>
+    <li><a href="#联合标定">联合标定</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="has-image main-article">
+    <header class="article-header">
+        <div class="article-image">
+            <a href="/daily/2023.03.26/">
+                
+                    <img src="https://raw.githubusercontent.com/TioeAre/imageHost/main/pictures/102368197_p0_master1200.jpg" loading="lazy" alt="Featured image of post D455标定与pcl点云库的学习" />
+                
+            </a>
+        </div>
+    
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/daily/2023.03.26/">D455标定与pcl点云库的学习</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 26, 2023</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="realsense-d455的标定">RealSense D455的标定</h1>
+<h2 id="imu自校准">imu自校准</h2>
+<p>intel发布的d455深度相机自带的有一个imu，在对相机进行标定之前首先要校准一下imu</p>
+<p>校准操作见<a class="link" href="https://dev.intelrealsense.com/docs/imu-calibration-tool-for-intel-realsense-depth-camera"  target="_blank" rel="noopener"
+    >官方文档</a>，官方提供有python脚本用于自动化校准，pdf中对具体操作有明确表述。这里提到一点操作时的一个bug</p>
+<p>正常情况下执行校准程序输出应当类似于</p>
+<p><img src="https://i.imgur.com/IpKhwuV.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="iUc3Py"
+	
+	
+></p>
+<p>只要按照pdf中示例的方式摆放相机，当三轴角度都为true的时候就会自动收集数据，但是我最开始遇到了</p>
+<p><img src="https://i.imgur.com/RPZEi6f.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="iUcLPq"
+	
+	
+></p>
+<p>一直停留在<code>Status.rotate</code>状态，无论怎么转都无法稳定在<code>collect</code>中，然后在github的issue中发现了相似问题</p>
+<p>解决方法：</p>
+<p>修改<code>rs-imu-calibration.py</code>第<code>100</code>行与<code>616</code>行，范围改大一些到0.6就可以了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">max_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">max_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]))</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>参考链接:https://github.com/IntelRealSense/librealsense/issues/10418#issuecomment-1103125414</p>
+<p>打开<code>realsense-viewer</code>可以发现校准后竖直摆放相机，重力加速度近似于9.8，而校准前显示为8.8，说明校准起到效果</p>
+<p><img src="https://i.imgur.com/8eujYY2.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="calibration.png"
+	
+	
+></p>
+<h2 id="联合标定">联合标定</h2>
+<p>出现了以下bug，需要<code>sudo apt install libelf-dev</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/home/username/packages/realsense_imu_catkin_ws/src/code_utils/include/code_utils/backward.hpp:216:25: fatal error: elfutils/libdw.h: No such file or directory
+</span></span><span class="line"><span class="cl">  <span class="m">216</span> <span class="p">|</span> <span class="c1">#               include &lt;elfutils/libdw.h&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">|</span>                         ^~~~~~~~~~~~~~~~~~
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>但是安装的时候apt报错</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Some packages could not be installed. This may mean that you have
+</span></span><span class="line"><span class="cl">requested an impossible situation or <span class="k">if</span> you are using the unstable
+</span></span><span class="line"><span class="cl">distribution that some required packages have not yet been created
+</span></span><span class="line"><span class="cl">or been moved out of Incoming.
+</span></span><span class="line"><span class="cl">The following information may <span class="nb">help</span> to resolve the situation:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">The following packages have unmet dependencies.
+</span></span><span class="line"><span class="cl"> libdw-dev : Depends: libelf-dev but it is not going to be installed
+</span></span><span class="line"><span class="cl">             Depends: libdw1 <span class="o">(=</span> 0.165-3ubuntu1.2<span class="o">)</span> but 0.176-1.1build1 is to be installed
+</span></span><span class="line"><span class="cl">E: Unable to correct problems, you have held broken packages.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>下载最新的安装包手动安装</p>
+<p><a class="link" href="http://archive.ubuntu.com/ubuntu/pool/main/e/elfutils/libelf-dev_0.176-1.1build1_amd64.deb"  target="_blank" rel="noopener"
+    >http://archive.ubuntu.com/ubuntu/pool/main/e/elfutils/libelf-dev_0.176-1.1build1_amd64.deb</a></p>
+<p><a class="link" href="http://archive.ubuntu.com/ubuntu/pool/main/e/elfutils/libdw-dev_0.176-1.1build1_amd64.deb"  target="_blank" rel="noopener"
+    >http://archive.ubuntu.com/ubuntu/pool/main/e/elfutils/libdw-dev_0.176-1.1build1_amd64.deb</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/home/username/packages/realsense_imu_catkin_ws/src/code_utils/src/sumpixel_test.cpp:2:10: fatal error: backward.hpp: No such file or directory
+</span></span><span class="line"><span class="cl">    <span class="m">2</span> <span class="p">|</span> <span class="c1">#include &#34;backward.hpp&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">|</span>          ^~~~~~~~~~~~~~
+</span></span><span class="line"><span class="cl">compilation terminated.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改<code>sumpixel_test.cpp</code>第2行为`#include &ldquo;code_utils/backward.hpp&rdquo;</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">error: ‘integer_sequence’ is not a member of ‘std’ <span class="m">75</span> <span class="p">|</span> std::integer_sequence&lt;T, N, Ns...&gt;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改CMakests.txt</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cmake" data-lang="cmake"><span class="line"><span class="cl"><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD</span> <span class="s">14</span><span class="p">)</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/home/username/packages/realsense_imu_catkin_ws/src/code_utils/src/mat_io_test.cpp:33:47: error: ‘CV_LOAD_IMAGE_UNCHANGED’ was not declared in this scope
+</span></span><span class="line"><span class="cl">   <span class="m">33</span> <span class="p">|</span>     Mat <span class="nv">img1</span> <span class="o">=</span> imread<span class="o">(</span> <span class="s2">&#34;/home/gao/IMG_1.png&#34;</span>, CV_LOAD_IMAGE_UNCHANGED <span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">|</span>                                               ^~~~~~~~~~~~~~~~~~~~~~~
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>opencv版本宏定义问题，改相关代码为新版的就行</p>
+<p><a class="link" href="https://blog.csdn.net/weixin_44675820/article/details/124796674"  target="_blank" rel="noopener"
+    >https://blog.csdn.net/weixin_44675820/article/details/124796674</a></p>
+<p><a class="link" href="https://www.cnblogs.com/zzzsj/p/15699524.html"  target="_blank" rel="noopener"
+    >https://www.cnblogs.com/zzzsj/p/15699524.html</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/home/tioeare/packages/realsense_imu_catkin_ws/src/imu_utils/src/imu_an.cpp:68:19: error: aggregate ‘std::ofstream out_t’ has incomplete <span class="nb">type</span> and cannot be defined
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改<code>imu_an.cpp</code>，添加<code>#include &lt;fstream&gt;</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Errors     <span class="s">&lt;&lt; aslam_time:make /home/tioeare/packages/kalibr_workspace/logs/aslam_time</span>/build.make.000.log
+</span></span><span class="line"><span class="cl">/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_cv/aslam_time/src/time.cpp:84:25: error: ISO C++17 does not allow dynamic exception specifications
+</span></span><span class="line"><span class="cl">   <span class="m">84</span> <span class="p">|</span>                         throw <span class="o">(</span>NoHighPerformanceTimersException<span class="o">)</span>
+</span></span><span class="line"><span class="cl">      <span class="p">|</span>                         ^~~~~
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>2<span class="o">]</span>: *** <span class="o">[</span>CMakeFiles/aslam_time.dir/build.make:76: CMakeFiles/aslam_time.dir/src/time.cpp.o<span class="o">]</span> Error <span class="m">1</span>
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: *** <span class="o">[</span>CMakeFiles/Makefile2:295: CMakeFiles/aslam_time.dir/all<span class="o">]</span> Error <span class="m">2</span>
+</span></span><span class="line"><span class="cl">make: *** <span class="o">[</span>Makefile:146: all<span class="o">]</span> Error <span class="m">2</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>把代码里这一行注释掉，很奇怪，这种用法应该C++11就禁止了，github上也没人提</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span><span class="lnt">95
+</span><span class="lnt">96
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">gyr x  numData <span class="m">240384</span>
+</span></span><span class="line"><span class="cl">gyr x  start_t 1.6799e+09
+</span></span><span class="line"><span class="cl">gyr x  end_t 1.6799e+09
+</span></span><span class="line"><span class="cl">gyr x dt
+</span></span><span class="line"><span class="cl">-------------600.003 s
+</span></span><span class="line"><span class="cl">-------------10 min
+</span></span><span class="line"><span class="cl">-------------0.166667 h
+</span></span><span class="line"><span class="cl">gyr x  freq 400.636
+</span></span><span class="line"><span class="cl">gyr x  period 0.00249603
+</span></span><span class="line"><span class="cl">gyr y  numData <span class="m">240384</span>
+</span></span><span class="line"><span class="cl">gyr y  start_t 1.6799e+09
+</span></span><span class="line"><span class="cl">gyr y  end_t 1.6799e+09
+</span></span><span class="line"><span class="cl">gyr y dt
+</span></span><span class="line"><span class="cl">-------------600.003 s
+</span></span><span class="line"><span class="cl">-------------10 min
+</span></span><span class="line"><span class="cl">-------------0.166667 h
+</span></span><span class="line"><span class="cl">gyr y  freq 400.636
+</span></span><span class="line"><span class="cl">gyr y  period 0.00249603
+</span></span><span class="line"><span class="cl">gyr z  numData <span class="m">240384</span>
+</span></span><span class="line"><span class="cl">gyr z  start_t 1.6799e+09
+</span></span><span class="line"><span class="cl">gyr z  end_t 1.6799e+09
+</span></span><span class="line"><span class="cl">gyr z dt
+</span></span><span class="line"><span class="cl">-------------600.003 s
+</span></span><span class="line"><span class="cl">-------------10 min
+</span></span><span class="line"><span class="cl">-------------0.166667 h
+</span></span><span class="line"><span class="cl">gyr z  freq 400.636
+</span></span><span class="line"><span class="cl">gyr z  period 0.00249603
+</span></span><span class="line"><span class="cl">Gyro X
+</span></span><span class="line"><span class="cl">C   -2.40087    59.1038   -17.8144    3.38392 -0.0618206
+</span></span><span class="line"><span class="cl"> Bias Instability 3.00267e-05 rad/s
+</span></span><span class="line"><span class="cl"> Bias Instability 5.92447e-05 rad/s, at 26.0036 s
+</span></span><span class="line"><span class="cl"> White Noise 16.8009 rad/s
+</span></span><span class="line"><span class="cl"> White Noise 0.00479981 rad/s
+</span></span><span class="line"><span class="cl">  bias 0.0580428 degree/s
+</span></span><span class="line"><span class="cl">-------------------
+</span></span><span class="line"><span class="cl">Gyro y
+</span></span><span class="line"><span class="cl">C   -3.7193   89.2566  -24.0407   4.84558 -0.260302
+</span></span><span class="line"><span class="cl"> Bias Instability 2.69712e-06 rad/s
+</span></span><span class="line"><span class="cl"> Bias Instability 9.61604e-05 rad/s, at <span class="m">22</span> s
+</span></span><span class="line"><span class="cl"> White Noise 26.42 rad/s
+</span></span><span class="line"><span class="cl"> White Noise 0.00733927 rad/s
+</span></span><span class="line"><span class="cl">  bias -0.304682 degree/s
+</span></span><span class="line"><span class="cl">-------------------
+</span></span><span class="line"><span class="cl">Gyro z
+</span></span><span class="line"><span class="cl">C   -1.0341   30.2021  -13.4864   3.95908 -0.244715
+</span></span><span class="line"><span class="cl"> Bias Instability 4.5525e-06 rad/s
+</span></span><span class="line"><span class="cl"> Bias Instability 1.78885e-05 rad/s, at 56.7372 s
+</span></span><span class="line"><span class="cl"> White Noise 7.71113 rad/s
+</span></span><span class="line"><span class="cl"> White Noise 0.00214285 rad/s
+</span></span><span class="line"><span class="cl">  bias -0.095305 degree/s
+</span></span><span class="line"><span class="cl">-------------------
+</span></span><span class="line"><span class="cl"><span class="o">==============================================</span>
+</span></span><span class="line"><span class="cl"><span class="o">==============================================</span>
+</span></span><span class="line"><span class="cl">acc x  numData <span class="m">240384</span>
+</span></span><span class="line"><span class="cl">acc x  start_t 1.6799e+09
+</span></span><span class="line"><span class="cl">acc x  end_t 1.6799e+09
+</span></span><span class="line"><span class="cl">acc x dt
+</span></span><span class="line"><span class="cl">-------------600.003 s
+</span></span><span class="line"><span class="cl">-------------10 min
+</span></span><span class="line"><span class="cl">-------------0.166667 h
+</span></span><span class="line"><span class="cl">acc x  freq 400.636
+</span></span><span class="line"><span class="cl">acc x  period 0.00249603
+</span></span><span class="line"><span class="cl">acc y  numData <span class="m">240384</span>
+</span></span><span class="line"><span class="cl">acc y  start_t 1.6799e+09
+</span></span><span class="line"><span class="cl">acc y  end_t 1.6799e+09
+</span></span><span class="line"><span class="cl">acc y dt
+</span></span><span class="line"><span class="cl">-------------600.003 s
+</span></span><span class="line"><span class="cl">-------------10 min
+</span></span><span class="line"><span class="cl">-------------0.166667 h
+</span></span><span class="line"><span class="cl">acc y  freq 400.636
+</span></span><span class="line"><span class="cl">acc y  period 0.00249603
+</span></span><span class="line"><span class="cl">acc z  numData <span class="m">240384</span>
+</span></span><span class="line"><span class="cl">acc z  start_t 1.6799e+09
+</span></span><span class="line"><span class="cl">acc z  end_t 1.6799e+09
+</span></span><span class="line"><span class="cl">acc z dt
+</span></span><span class="line"><span class="cl">-------------600.003 s
+</span></span><span class="line"><span class="cl">-------------10 min
+</span></span><span class="line"><span class="cl">-------------0.166667 h
+</span></span><span class="line"><span class="cl">acc z  freq 400.636
+</span></span><span class="line"><span class="cl">acc z  period 0.00249603
+</span></span><span class="line"><span class="cl">acc X
+</span></span><span class="line"><span class="cl">C  -3.7565e-05   0.00153459 -0.000440891  5.14013e-05  1.36731e-05
+</span></span><span class="line"><span class="cl"> Bias Instability 0.000415133 m/s^2
+</span></span><span class="line"><span class="cl"> White Noise 0.0229567 m/s^2
+</span></span><span class="line"><span class="cl">-------------------
+</span></span><span class="line"><span class="cl">acc y
+</span></span><span class="line"><span class="cl">C -0.000153981   0.00273578  0.000838508 -0.000456266  4.36107e-05
+</span></span><span class="line"><span class="cl"> Bias Instability 0.000674808 m/s^2
+</span></span><span class="line"><span class="cl"> White Noise 0.0392674 m/s^2
+</span></span><span class="line"><span class="cl">-------------------
+</span></span><span class="line"><span class="cl">acc z
+</span></span><span class="line"><span class="cl">C -4.04458e-05   0.00242156  -0.00204122  0.000559034 -3.01212e-05
+</span></span><span class="line"><span class="cl"> Bias Instability 0.000795269 m/s^2
+</span></span><span class="line"><span class="cl"> White Noise 0.0348949 m/s^2
+</span></span><span class="line"><span class="cl">-------------------
+</span></span><span class="line"><span class="cl"><span class="o">[</span>imu_an-1<span class="o">]</span> process has finished cleanly
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;build/kalibr/atomic_configure/kalibr_calibrate_cameras&#34;</span>, line 15, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    exec<span class="o">(</span>compile<span class="o">(</span>fh.read<span class="o">()</span>, python_script, <span class="s1">&#39;exec&#39;</span><span class="o">)</span>, context<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_calibrate_cameras&#34;</span>, line 465, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    main<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_calibrate_cameras&#34;</span>, line 175, in main
+</span></span><span class="line"><span class="cl">    <span class="nv">cam</span> <span class="o">=</span> kcc.CameraGeometry<span class="o">(</span>cameraModel, targetConfig, dataset, <span class="nv">verbose</span><span class="o">=(</span>parsed.verbose or parsed.showextraction<span class="o">))</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_camera_calibration/CameraCalibrator.py&#34;</span>, line 48, in __init__
+</span></span><span class="line"><span class="cl">    self.ctarget <span class="o">=</span> TargetDetector<span class="o">(</span>targetConfig, self.geometry, <span class="nv">showCorners</span><span class="o">=</span>verbose<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_camera_calibration/CameraCalibrator.py&#34;</span>, line 81, in __init__
+</span></span><span class="line"><span class="cl">    <span class="nv">targetParams</span> <span class="o">=</span> targetConfig.getTargetParams<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 187, in func
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> f<span class="o">(</span>*args, **kwargs<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 620, in getTargetParams
+</span></span><span class="line"><span class="cl">    errList.append<span class="o">(</span><span class="s2">&#34;invalid tagSpacing (float)&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">NameError: name <span class="s1">&#39;errList&#39;</span> is not defined
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>相应位置的文件中errList全部换成途中的print语句</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;build/kalibr/atomic_configure/kalibr_calibrate_imu_camera&#34;</span>, line 15, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    exec<span class="o">(</span>compile<span class="o">(</span>fh.read<span class="o">()</span>, python_script, <span class="s1">&#39;exec&#39;</span><span class="o">)</span>, context<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_calibrate_imu_camera&#34;</span>, line 247, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">    main<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_calibrate_imu_camera&#34;</span>, line 173, in main
+</span></span><span class="line"><span class="cl">    chain.printDetails<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 765, in printDetails
+</span></span><span class="line"><span class="cl">    camConfig.printDetails<span class="o">(</span>dest<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 387, in printDetails
+</span></span><span class="line"><span class="cl">    dist_model, <span class="nv">dist_coeff</span> <span class="o">=</span> self.getDistortion<span class="o">()</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 187, in func
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> f<span class="o">(</span>*args, **kwargs<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 355, in getDistortion
+</span></span><span class="line"><span class="cl">    self.checkDistortion<span class="o">(</span>self.data<span class="o">[</span><span class="s2">&#34;distortion_model&#34;</span><span class="o">]</span>,
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 350, in checkDistortion
+</span></span><span class="line"><span class="cl">    self.raiseError<span class="o">(</span><span class="s2">&#34;distortion model &#39;{}&#39; requires {} coefficients; {} given&#34;</span>.format<span class="o">(</span>
+</span></span><span class="line"><span class="cl">  File <span class="s2">&#34;/home/tioeare/packages/kalibr_workspace/src/kalibr/aslam_offline_calibration/kalibr/python/kalibr_common/ConfigReader.py&#34;</span>, line 235, in raiseError
+</span></span><span class="line"><span class="cl">    raise RuntimeError<span class="o">(</span> <span class="s2">&#34;{0}{1}&#34;</span>.format<span class="o">(</span>header, message<span class="o">)</span> <span class="o">)</span>
+</span></span><span class="line"><span class="cl">RuntimeError: <span class="o">[</span>CameraConfig Reader<span class="o">]</span>: distortion model <span class="s1">&#39;radtan&#39;</span> requires <span class="m">4</span> coefficients<span class="p">;</span> <span class="m">1</span> given
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>chain.yaml加逗号</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">pcl</span><span class="o">::</span><span class="n">transformPointCloud</span><span class="p">(</span><span class="o">*</span><span class="n">cloud_voxel_tem</span><span class="p">,</span> <span class="o">*</span><span class="n">cloud1</span><span class="p">,</span> <span class="n">T</span><span class="p">.</span><span class="n">matrix</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//报错
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nl">Signal</span><span class="p">:</span> <span class="n">SIGSEGV</span> <span class="p">(</span><span class="n">Segmentation</span> <span class="n">fault</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="n">pcl</span><span class="o">::</span><span class="n">VoxelGrid</span><span class="o">::</span><span class="n">applyFilter</span><span class="p">]</span> <span class="n">Leaf</span> <span class="n">size</span> <span class="n">is</span> <span class="n">too</span> <span class="n">small</span> <span class="k">for</span> <span class="n">the</span> <span class="n">input</span> <span class="n">dataset</span><span class="p">.</span> <span class="n">Integer</span> <span class="n">indices</span> <span class="n">would</span> <span class="n">overflow</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="n">Assignment</span> <span class="n">with</span> <span class="n">new_width</span> <span class="n">equal</span> <span class="n">to</span> <span class="mi">0</span><span class="p">,</span><span class="n">setting</span> <span class="n">width</span> <span class="n">to</span> <span class="n">size</span> <span class="n">of</span> <span class="n">the</span> <span class="n">cloud</span> <span class="n">and</span> <span class="n">height</span> <span class="n">to</span> <span class="mi">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });})
+</script>
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="TioeAre/tioe-blog-comments"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    let utterancesLoaded = false;
+
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+
+        
+        utterancesLoaded = true;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (!utterancesLoaded) return;
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2023 TioeAre
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Pages on TioeAre</title>
+        <link>https://www.blog.tioe.xyz/page/</link>
+        <description>Recent content in Pages on TioeAre</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Thu, 16 Mar 2023 20:17:43 +0000</lastBuildDate><atom:link href="https://www.blog.tioe.xyz/page/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Archives</title>
+        <link>https://www.blog.tioe.xyz/archives/</link>
+        <pubDate>Thu, 16 Mar 2023 20:17:43 +0000</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/archives/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>关于</title>
+        <link>https://www.blog.tioe.xyz/%E5%85%B3%E4%BA%8E/</link>
+        <pubDate>Thu, 16 Mar 2023 02:02:45 +0800</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/%E5%85%B3%E4%BA%8E/</guid>
+        <description>&lt;p&gt;waitting to write&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>Links</title>
+        <link>https://www.blog.tioe.xyz/links/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/links/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Search</title>
+        <link>https://www.blog.tioe.xyz/search/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>https://www.blog.tioe.xyz/search/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>
