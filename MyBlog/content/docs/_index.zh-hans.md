@@ -1,8 +1,8 @@
 ---
-title: 示例文档
+title: 文档
 menu:
   main:
-    weight: 1
+    weight: 10
     params:
       icon: '<i class="fas fa-fw fa-file"></i>'
 ---

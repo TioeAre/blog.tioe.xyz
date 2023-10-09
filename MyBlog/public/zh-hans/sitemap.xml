@@ -197,19 +197,6 @@
                 href="https://www.blog.tioe.xyz/zh-hans/categories/"
                 />
   </url><url>
-    <loc>https://www.blog.tioe.xyz/zh-hans/tags/</loc>
-    <lastmod>2022-09-06T22:42:23+08:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://www.blog.tioe.xyz/tags/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="zh-hans"
-                href="https://www.blog.tioe.xyz/zh-hans/tags/"
-                />
-  </url><url>
     <loc>https://www.blog.tioe.xyz/zh-hans/docs/</loc>
     <lastmod>2022-09-06T22:42:23+08:00</lastmod>
     <xhtml:link
@@ -221,6 +208,19 @@
                 rel="alternate"
                 hreflang="zh-hans"
                 href="https://www.blog.tioe.xyz/zh-hans/docs/"
+                />
+  </url><url>
+    <loc>https://www.blog.tioe.xyz/zh-hans/tags/</loc>
+    <lastmod>2022-09-06T22:42:23+08:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://www.blog.tioe.xyz/tags/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="zh-hans"
+                href="https://www.blog.tioe.xyz/zh-hans/tags/"
                 />
   </url><url>
     <loc>https://www.blog.tioe.xyz/zh-hans/archives/2023/</loc>
