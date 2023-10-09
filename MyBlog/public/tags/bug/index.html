@@ -1,7 +1,7 @@
 <!doctype html>
 <html class="position-relative" itemscope itemtype="https://schema.org/WebPage" lang="en"
   data-bs-theme="auto" data-palette="purple">
-  <head><script src="/assets/init/bundle.min.226cc59cbae206e0c46e223059b9d56ec19f45bbe5ee8b161e8dcae6a1ff6c78.js" integrity="sha256-ImzFnLriBuDEbiIwWbnVbsGfRbvl7osWHo3K5qH/bHg=" crossorigin="anonymous"></script>
+  <head><script src="/assets/init/bundle.min.730afa1ca3510d1f16fd199c9b7af63ce47cccb08ae495036861acb4a577d0f1.js" integrity="sha256-cwr6HKNRDR8W/Rmcm3r2POR8zLCK5JUDaGGstKV30PE=" crossorigin="anonymous"></script>
 <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>bug - Tags - Tioe&#39;s website</title>
@@ -12,16 +12,16 @@
     <link rel="icon" href="/favicon_hu7405a6f45ba37783c0e9e4dcf0289a83_231978_192x192_resize_q75_h2_box_2.webp" sizes="192x192" type="image/webp">
 <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#6f42c1">
 <meta name="keywords" content="blog, documentation" />
-  <meta name="description" content="my pirsonal web" /><meta name="twitter:card" content="summary"/>
+  <meta name="description" content="my personal web" /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="bug"/>
-<meta name="twitter:description" content="my pirsonal web"/>
+<meta name="twitter:description" content="my personal web"/>
 <meta property="og:title" content="bug" />
-<meta property="og:description" content="my pirsonal web" />
+<meta property="og:description" content="my personal web" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://www.blog.tioe.xyz/tags/bug/" />
 
 <meta itemprop="name" content="bug">
-<meta itemprop="description" content="my pirsonal web">
+<meta itemprop="description" content="my personal web">
   <meta property="og:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
   <meta name="twitter:image" content="https://www.blog.tioe.xyz/images/favicon.ico"/>
   <meta property="og:image:alt" content="bug" />
@@ -66,6 +66,10 @@ Tioe
       <div class="offcanvas-body p-4 pt-0 p-xxl-0">
         <hr class="d-xxl-none">
         <ul class="navbar-nav flex-row flex-wrap align-items-center me-auto"><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=bug_report.yml" target="_blank" rel="noopener noreferrer">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-bug text-danger"></i></span>Bug Report
+            </a>
+          </li><li class="nav-item col-6 col-xxl-auto">
             <a class="nav-link py-2 px-0 px-xxl-2" href="https://www.blog.tioe.xyz/docs/">
 <span class="menu-icon me-1"><i class="fas fa-fw fa-file"></i></span>Documentation
             </a>
@@ -120,10 +124,6 @@ Tioe
                   </div></a>
               </li>
             </ul>
-          </li><li class="nav-item col-6 col-xxl-auto">
-            <a class="nav-link py-2 px-0 px-xxl-2" href="https://github.com/TioeAre/blog.tioe.xyz/issues/new?template=bug_report.yml" target="_blank" rel="noopener noreferrer">
-<span class="menu-icon me-1"><i class="fas fa-fw fa-bug text-danger"></i></span>Bug Report
-            </a>
           </li>
         </ul>
         
@@ -349,7 +349,7 @@ Tioe
 
     <div class="post-summary"><p>前两天下载了ardupilot的源码，在配置编译环境的时候用了官方提供的Tools/environment_install/install-prereqs-ubuntu.sh，结果好多报错。
 然后我去pkgs一个一个找apt安装失败的包，然后手动下载安装，遇到依赖问题就继续重新安装，到最后虽然成功安装好了，我一重启发现安装的时候好像给我桌面环境什么的自动卸掉了，想要sudo apt install ubuntu-desktop按回来，但是一直失败，提示我找不到这个包。我又wget下载了一个deb的包想用dpkg安装看看到底哪里有问题，发现确实是新安装的依赖的问题。
-最后换了一下源，我之前一直用的初始的main源，现在换清华源了之后一...</p><div><a class="btn btn-sm btn-outline-primary btn-read-more" href="/bug/apm%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/">Read More</a></div>
+最后换了一下源，我之前一直用的初始的main源，现在换清华源了之后一...</p><div><a class="btn btn-sm btn-outline-primary btn-read-more" href="/bug/apm%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/#post-content-body">Read More</a></div>
     </div>
   </div>
 </article>
@@ -385,7 +385,7 @@ Tioe
     <div class="post-summary"><p>ThunderrBird是ubuntu下自带的一个很好用的邮件软件，但是实际使用中总会遇到一些同步失败的情况，之前在windows下用outlook同步一些邮件的时候也会时常发生同步失败，并且由于没有那么经常用邮箱。而我的三星手机自带的邮件app又从未发生过同步失败，并没有很影响我的正常生活，所以之前也就一直没有管他。今天刚好又遇到了这个问题，就查了一下准备彻底解决他。
 gmail无法同步 即使挂了代理，也经常会出现同步失败，登陆验证不了的情况。
 最后查过之后发现是账户设置的问题，thunderbird会自动把gmail的登陆验证模式改为OAuth2
-需要在Saved Passwords…中将imap，smtp开头的gamil密码删...</p><div><a class="btn btn-sm btn-outline-primary btn-read-more" href="/bug/thunderbird/">Read More</a></div>
+需要在Saved Passwords…中将imap，smtp开头的gamil密码删...</p><div><a class="btn btn-sm btn-outline-primary btn-read-more" href="/bug/thunderbird/#post-content-body">Read More</a></div>
     </div>
   </div>
 </article>
@@ -703,7 +703,7 @@ gmail无法同步 即使挂了代理，也经常会出现同步失败，登陆�
 </div><div class="row text-center">
   <div class="col-12 mt-2">
     <p class="mb-2">Tioe&#39;s website</p>
-    <p class="text-secondary mb-2"><small>my pirsonal web</small></p><div class="copyright mb-2 text-secondary">
+    <p class="text-secondary mb-2"><small>my personal web</small></p><div class="copyright mb-2 text-secondary">
   <small>Copyright © 2023-2023 TioeAre. All Rights Reserved.
 </small>
 </div>
@@ -738,7 +738,7 @@ gmail无法同步 即使挂了代理，也经常会出现同步失败，登陆�
   <div class="col-12 col-lg-8 offset-0 offset-lg-1"></div>
 </div>
 </footer>
-<script data-precache src="/assets/main/bundle.min.7b0b844603567e21d803318e39a00e4a40cba615a1fed3a176983a6341954616.js" integrity="sha256-ewuERgNWfiHYAzGOOaAOSkDLphWh/tOhdpg6Y0GVRhY=" crossorigin="anonymous" async></script><script data-precache src="/assets/icons/bundle.min.4f30d5267a9f2f9d45ed93969d45ec626100a969a8b91f71f753315a261e9034.js" integrity="sha256-TzDVJnqfL51F7ZOWnUXsYmEAqWmouR9x91MxWiYekDQ=" crossorigin="anonymous" defer></script>
+<script data-precache src="/assets/main/bundle.min.5c4b9fdcd1e420d42063eddcdd3b877351a5a404d8dd04043fe60733ebdb5f24.js" integrity="sha256-XEuf3NHkINQgY&#43;3c3TuHc1GlpATY3QQEP&#43;YHM&#43;vbXyQ=" crossorigin="anonymous" async></script><script data-precache src="/assets/icons/bundle.min.4f30d5267a9f2f9d45ed93969d45ec626100a969a8b91f71f753315a261e9034.js" integrity="sha256-TzDVJnqfL51F7ZOWnUXsYmEAqWmouR9x91MxWiYekDQ=" crossorigin="anonymous" defer></script>
 <script data-precache src="/assets/viewer/bundle.min.0a0d0099935beee41b7a7bf4543cd55e793e5f830a571b0794ef8c3602c5823c.js" integrity="sha256-Cg0AmZNb7uQbenv0VDzVXnk&#43;X4MKVxsHlO&#43;MNgLFgjw=" crossorigin="anonymous" defer></script>
   <script data-precache defer src="/assets/katex/bundle.min.ba934031af2a70b39e62782984e88913923c1ea7ba5d19e7e8e8dbea3862ec17.js" integrity="sha256-upNAMa8qcLOeYngphOiJE5I8Hqe6XRnn6Ojb6jhi7Bc=" crossorigin="anonymous"></script>
 <script data-precache defer src="/assets/mermaid/bundle.min.bd1045face50939ea18921e0a1dee594789e354704b26e1b1ad61b9c66bec1f1.js" integrity="sha256-vRBF&#43;s5Qk56hiSHgod7llHieNUcEsm4bGtYbnGa&#43;wfE=" crossorigin="anonymous"></script>

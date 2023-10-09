@@ -5,7 +5,7 @@ mainSections:
 
 # titleSeparator: '|' # Title separator. Default to -.
 
-description: my pirsonal web
+description: my personal web
 keywords: blog, documentation
 # images:
 #   - site-feature-image.jpg
@@ -117,10 +117,10 @@ post:
   nav: false # Disable post navigations.
   # The page position after clicking the read more button, read more from content if true. Default to the beginning of page.
   # It supports only of the manual summaries spliting via <!--more-->.
-  # readMoreFromContent: true
+  readMoreFromContent: true
 
 archive:
-  paginate: 20 # Archive pagination. Default to 100.
+  paginate: 1000 # Archive pagination. Default to 100.
   # basePath = "/archiv" # The base path of archive pages.
   # dateFormat: 01-02 # Archive date format. Default to Jan 2.
 
