@@ -1,7 +1,7 @@
 main:
   - name: 主页
     identifier: home
-    weight: 1
+    weight: 100
     url: https://www.blog.tioe.xyz/
     params:
       icon: '<i class="fas fa-home"></i>'
@@ -9,7 +9,7 @@ main:
 main:
   - name: 博客
     identifier: blog
-    weight: 2
+    weight: 80
     url: https://www.blog.tioe.xyz/archives/
     params:
       icon: '<i class="fas fa-fw fa-blog"></i>'
@@ -17,7 +17,7 @@ main:
 main:
   - name: 文档
     identifier: documentations
-    weight: 3
+    weight: 70
     url: https://www.blog.tioe.xyz/docs/
     params:
       icon: '<i class="fas fa-fw fa-book"></i>'
@@ -25,7 +25,7 @@ main:
 main:
   - name: 仓库
     identifier: repository
-    weight: 4
+    weight: 40
     url: https://github.com/TioeAre
     params:
       icon: '<i class="fab fa-fw fa-github text-primary"></i>'
